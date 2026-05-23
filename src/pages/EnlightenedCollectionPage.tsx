@@ -1,0 +1,139 @@
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { supabase } from '@/db/supabase';
+import type { Product } from '@/types/types';
+import { normaliseProducts } from '@/lib/product';
+import { Card, CardContent } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Slider } from '@/components/ui/slider';
+import { Label } from '@/components/ui/label';
+
+export default function EnlightenedCollectionPage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [priceRange, setPriceRange] = useState<number[]>([0, 1000]);
+  const [maxPrice, setMaxPrice] = useState(1000);
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  useEffect(() => {
+    applyFilters();
+  }, [products, categoryFilter, priceRange]);
+
+  const loadProducts = async () => {
+    const { data } = await supabase
+      .from('products')
+      .select('*')
+      .eq('collection', 'enlightened')
+      .order('created_at', { ascending: false });
+
+    const normalised = normaliseProducts(data);
+    setProducts(normalised);
+    const max = normalised.length > 0 ? Math.max(...normalised.map(p => p.price), 1000) : 1000;
+    setMaxPrice(max);
+    setPriceRange([0, max]);
+  };
+
+  const applyFilters = () => {
+    let filtered = [...products];
+
+    if (categoryFilter !== 'all') {
+      filtered = filtered.filter(p => p.category === categoryFilter);
+    }
+
+    filtered = filtered.filter(
+      p => p.price >= priceRange[0] && p.price <= priceRange[1]
+    );
+
+    setFilteredProducts(filtered);
+  };
+
+  return (
+    <div className="min-h-screen enlightened-section">
+      <div className="container py-8">
+        <div className="mb-8">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-balance enlightened-heading">The Enlightened Collection</h1>
+          <p className="text-lg text-foreground/90 text-pretty">
+            Clothing for the conscious soul. Each piece carries intention, designed for those walking the path of spiritual awakening and higher vibration living.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <aside className="space-y-6">
+            <Card className="glass-card">
+              <CardContent className="p-4">
+                <Label className="mb-2 block">Category</Label>
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Products</SelectItem>
+                    <SelectItem value="tshirt">T-Shirts</SelectItem>
+                    <SelectItem value="tote_bag">Tote Bags</SelectItem>
+                    <SelectItem value="journal">Journals</SelectItem>
+                    <SelectItem value="water_bottle">Water Bottles</SelectItem>
+                    <SelectItem value="hoodie">Hoodies</SelectItem>
+                  </SelectContent>
+                </Select>
+              </CardContent>
+            </Card>
+
+            <Card className="glass-card">
+              <CardContent className="p-4">
+                <Label className="mb-2 block">
+                  Price Range: R{priceRange[0]} - R{priceRange[1]}
+                </Label>
+                <Slider
+                  min={0}
+                  max={maxPrice}
+                  step={10}
+                  value={priceRange}
+                  onValueChange={setPriceRange}
+                  className="mt-2"
+                />
+              </CardContent>
+            </Card>
+          </aside>
+
+          <div className="md:col-span-3">
+            {filteredProducts.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">No products found matching your filters.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                {filteredProducts.map(product => (
+                  <Link key={product.id} to={`/product/${product.id}`}>
+                    <Card className="h-full overflow-hidden glass-card hover:scale-105 transition-all duration-300">
+                      <div className="aspect-square overflow-hidden">
+                        <img
+                          src={product.image_url}
+                          alt={product.name}
+                          className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
+                        />
+                      </div>
+                      <CardContent className="p-4">
+                        <h3 className="font-semibold mb-2 text-balance text-foreground">{product.name}</h3>
+                        <p className="text-sm text-muted-foreground mb-2 line-clamp-2 text-pretty">
+                          {product.description}
+                        </p>
+                        <p className="text-lg font-bold text-primary">R {product.price.toFixed(2)}</p>
+                        {product.stock === 0 && (
+                          <p className="text-sm text-destructive mt-1">Out of Stock</p>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
