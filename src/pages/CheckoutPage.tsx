@@ -61,6 +61,12 @@ export default function CheckoutPage() {
           await supabase.rpc('subscribe_newsletter', {
             p_email: shippingAddress.email,
           });
+          // Fire and forget the welcome email — don't block checkout if it fails
+          supabase.functions
+            .invoke('send_newsletter_welcome', {
+              body: { email: shippingAddress.email },
+            })
+            .catch((welcomeErr) => console.error('Welcome email error:', welcomeErr));
         } catch (newsletterError) {
           // Don't block checkout if newsletter subscription fails
           console.error('Newsletter subscription error:', newsletterError);
@@ -81,6 +87,7 @@ export default function CheckoutPage() {
         body: {
           items: orderItems,
           email: shippingAddress.email,
+          customer_name: shippingAddress.name,
           currency: 'ZAR',
           shippingAddress: shippingAddress,
           shippingCost: shippingCost,
