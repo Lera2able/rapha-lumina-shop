@@ -93,6 +93,13 @@ export function NewsletterPopup() {
       // RPC returns { success: boolean, message: string }
       if (data && typeof data === 'object' && 'success' in data) {
         if (data.success) {
+          // Fire the welcome email. Non-blocking — if it fails we still want
+          // to show the user as subscribed because the DB row is in.
+          supabase.functions
+            .invoke('send_newsletter_welcome', { body: { email: cleaned } })
+            .catch((welcomeErr) => {
+              console.warn('Welcome email dispatch failed (non-fatal):', welcomeErr);
+            });
           setSuccess(true);
           snooze();
           setTimeout(() => setOpen(false), 2400);
@@ -102,6 +109,11 @@ export function NewsletterPopup() {
         }
       } else {
         // Fallback for unexpected response format
+        supabase.functions
+          .invoke('send_newsletter_welcome', { body: { email: cleaned } })
+          .catch((welcomeErr) => {
+            console.warn('Welcome email dispatch failed (non-fatal):', welcomeErr);
+          });
         setSuccess(true);
         snooze();
         setTimeout(() => setOpen(false), 2400);

@@ -23,7 +23,8 @@ export function collectionLabel(collection: string): string {
 }
 
 export const FREE_SHIPPING_THRESHOLD = 700
-export const SHIPPING_COST = 100
+// Keep this in sync with the edge function FLAT_SHIPPING_COST.
+export const SHIPPING_COST = 70
 
 export function calculateShipping(subtotal: number): number {
   return subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST
