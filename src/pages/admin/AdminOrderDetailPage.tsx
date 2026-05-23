@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { supabase } from '@/db/supabase';
+import { Link, useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import {
   Select,
@@ -11,363 +13,519 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { ArrowLeft, Package, Trash2 } from 'lucide-react';
+import { supabase } from '@/db/supabase';
+import { useAuth } from '@/contexts/AuthContext';
+import { formatPrice } from '@/lib/utils';
+import { ArrowLeft, Send } from 'lucide-react';
 import { toast } from 'sonner';
-import type { Order, OrderStatus } from '@/types/types';
+
+interface OrderRecord {
+  id: string;
+  status: string;
+  customer_email: string;
+  customer_name: string | null;
+  total_amount: number;
+  shipping_cost: number | null;
+  currency: string | null;
+  items: any[];
+  shipping_address: any;
+  paystack_reference: string | null;
+  created_at: string;
+  updated_at: string | null;
+  completed_at: string | null;
+  shipped_at: string | null;
+  delivered_at: string | null;
+  tracking_number: string | null;
+  tracking_carrier: string | null;
+}
+
+interface NoteRecord {
+  id: string;
+  body: string;
+  author_email: string | null;
+  created_at: string;
+}
+
+interface HistoryRecord {
+  id: string;
+  from_status: string | null;
+  to_status: string;
+  changed_by_email: string | null;
+  note: string | null;
+  created_at: string;
+}
+
+const STATUS_CHOICES = [
+  'pending',
+  'processing',
+  'completed',
+  'shipped',
+  'delivered',
+  'cancelled',
+  'refunded',
+];
+
+function statusVariant(s: string) {
+  if (s === 'completed' || s === 'delivered') return 'default';
+  if (s === 'shipped' || s === 'processing') return 'secondary';
+  if (s === 'cancelled' || s === 'failed' || s === 'refunded') return 'destructive';
+  return 'outline';
+}
 
 export default function AdminOrderDetailPage() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [order, setOrder] = useState<Order | null>(null);
+  const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
+  const [order, setOrder] = useState<OrderRecord | null>(null);
+  const [notes, setNotes] = useState<NoteRecord[]>([]);
+  const [history, setHistory] = useState<HistoryRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const [updating, setUpdating] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [deleting, setDeleting] = useState(false);
+
+  const [newStatus, setNewStatus] = useState('');
+  const [trackingNumber, setTrackingNumber] = useState('');
+  const [trackingCarrier, setTrackingCarrier] = useState('');
+  const [savingShipping, setSavingShipping] = useState(false);
+  const [savingStatus, setSavingStatus] = useState(false);
+
+  const [newNote, setNewNote] = useState('');
+  const [addingNote, setAddingNote] = useState(false);
 
   useEffect(() => {
-    if (id) {
-      fetchOrder();
-    }
+    if (id) loadAll(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const fetchOrder = async () => {
+  const loadAll = async (orderId: string) => {
+    setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('id', id)
-        .single();
+      const [orderRes, notesRes, historyRes] = await Promise.all([
+        supabase.from('orders').select('*').eq('id', orderId).single(),
+        supabase
+          .from('internal_order_notes')
+          .select('*')
+          .eq('order_id', orderId)
+          .order('created_at', { ascending: false }),
+        supabase
+          .from('order_status_history')
+          .select('*')
+          .eq('order_id', orderId)
+          .order('created_at', { ascending: false }),
+      ]);
 
-      if (error) throw error;
-      setOrder(data);
-    } catch (error) {
-      console.error('Error fetching order:', error);
-      toast.error('Failed to load order');
+      if (orderRes.error) throw orderRes.error;
+      const o = orderRes.data as OrderRecord;
+      setOrder(o);
+      setNewStatus(o.status);
+      setTrackingNumber(o.tracking_number ?? '');
+      setTrackingCarrier(o.tracking_carrier ?? '');
+      setNotes((notesRes.data as NoteRecord[]) ?? []);
+      setHistory((historyRes.data as HistoryRecord[]) ?? []);
+    } catch (err) {
+      console.error('Failed to load order:', err);
+      toast.error('Could not load order');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleStatusUpdate = async (newStatus: OrderStatus) => {
+  const handleSaveShipping = async () => {
     if (!order) return;
+    const cleanedNumber = trackingNumber.trim();
+    if (!cleanedNumber) {
+      toast.error('Add a tracking number first');
+      return;
+    }
 
-    setUpdating(true);
+    setSavingShipping(true);
     try {
-      const { error } = await supabase
-        .from('orders')
-        .update({ status: newStatus })
-        .eq('id', order.id);
-
-      if (error) throw error;
-
-      toast.success('Order status updated');
-      
-      if (newStatus === 'completed' && order.customer_email) {
-        try {
-          await supabase.functions.invoke('send_email', {
-            body: {
-              type: 'shipping_update',
-              to: order.customer_email,
-              data: {
-                customerName: order.shipping_address?.name || 'Customer',
-                orderId: order.id.slice(0, 8),
-                totalAmount: order.total_amount,
-              },
-            },
-          });
-          toast.success('Shipping notification sent to customer');
-        } catch (emailError) {
-          console.error('Failed to send shipping email:', emailError);
-        }
+      const wasUnshipped = order.status !== 'shipped' && order.status !== 'delivered';
+      const updatePayload: any = {
+        tracking_number: cleanedNumber,
+        tracking_carrier: trackingCarrier.trim() || null,
+        updated_at: new Date().toISOString(),
+      };
+      // Saving tracking implicitly moves the order to shipped if it isn't already
+      if (wasUnshipped) {
+        updatePayload.status = 'shipped';
+        updatePayload.shipped_at = new Date().toISOString();
       }
-      
-      setOrder({ ...order, status: newStatus });
-    } catch (error) {
-      console.error('Error updating order:', error);
-      toast.error('Failed to update order status');
+
+      const { error: updateError } = await supabase
+        .from('orders')
+        .update(updatePayload)
+        .eq('id', order.id);
+
+      if (updateError) throw updateError;
+
+      // Fire the shipping email
+      const { error: emailError } = await supabase.functions.invoke(
+        'send_shipping_notification',
+        { body: { order_id: order.id } },
+      );
+
+      if (emailError) {
+        toast.error('Tracking saved but shipping email failed to send');
+      } else {
+        toast.success(
+          wasUnshipped
+            ? 'Marked shipped and sent notification email'
+            : 'Tracking updated and notification sent',
+        );
+      }
+
+      await loadAll(order.id);
+    } catch (err) {
+      console.error('Save shipping error:', err);
+      toast.error('Could not save shipping details');
     } finally {
-      setUpdating(false);
+      setSavingShipping(false);
     }
   };
 
-  const handleDeleteOrder = async () => {
-    if (!order) return;
-
-    setDeleting(true);
+  const handleStatusChange = async () => {
+    if (!order || newStatus === order.status) return;
+    setSavingStatus(true);
     try {
+      const updatePayload: any = {
+        status: newStatus,
+        updated_at: new Date().toISOString(),
+      };
+      if (newStatus === 'shipped' && !order.shipped_at) {
+        updatePayload.shipped_at = new Date().toISOString();
+      }
+      if (newStatus === 'delivered' && !order.delivered_at) {
+        updatePayload.delivered_at = new Date().toISOString();
+      }
+
       const { error } = await supabase
         .from('orders')
-        .delete()
+        .update(updatePayload)
         .eq('id', order.id);
 
       if (error) throw error;
 
-      toast.success('Order deleted successfully');
-      navigate('/admin/orders');
-    } catch (error) {
-      console.error('Error deleting order:', error);
-      toast.error('Failed to delete order');
+      // If moving to shipped and there's already a tracking number, fire the email too
+      if (newStatus === 'shipped' && order.tracking_number) {
+        await supabase.functions.invoke('send_shipping_notification', {
+          body: { order_id: order.id },
+        });
+        toast.success('Status updated and shipping email sent');
+      } else {
+        toast.success('Status updated');
+      }
+
+      await loadAll(order.id);
+    } catch (err) {
+      console.error('Status update error:', err);
+      toast.error('Could not update status');
     } finally {
-      setDeleting(false);
-      setShowDeleteDialog(false);
+      setSavingStatus(false);
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'bg-green-100 text-green-800';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'cancelled':
-        return 'bg-red-100 text-red-800';
-      case 'refunded':
-        return 'bg-purple-100 text-purple-800';
-      case 'refund_requested':
-        return 'bg-orange-100 text-orange-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+  const handleAddNote = async () => {
+    if (!order || !newNote.trim()) return;
+    setAddingNote(true);
+    try {
+      const { error } = await supabase.from('internal_order_notes').insert({
+        order_id: order.id,
+        author_id: user?.id ?? null,
+        author_email: user?.email ?? null,
+        body: newNote.trim(),
+      });
+      if (error) throw error;
+      setNewNote('');
+      toast.success('Note added');
+      await loadAll(order.id);
+    } catch (err) {
+      console.error('Add note error:', err);
+      toast.error('Could not add note');
+    } finally {
+      setAddingNote(false);
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-ZA', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
   };
 
   if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="h-8 bg-muted rounded w-48 animate-pulse"></div>
-        <Card>
-          <CardContent className="p-6">
-            <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="h-16 bg-muted rounded animate-pulse"></div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return <p className="text-muted-foreground">Loading order…</p>;
   }
-
   if (!order) {
     return (
-      <div className="space-y-6">
-        <Button variant="ghost" onClick={() => navigate('/admin/orders')}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Orders
-        </Button>
-        <Card>
-          <CardContent className="p-6 text-center">
-            <p className="text-muted-foreground">Order not found</p>
-          </CardContent>
-        </Card>
+      <div className="space-y-4">
+        <Link to="/admin/orders">
+          <Button variant="ghost" size="sm">
+            <ArrowLeft className="h-4 w-4 mr-2" /> Back to orders
+          </Button>
+        </Link>
+        <p className="text-muted-foreground">Order not found.</p>
       </div>
     );
   }
 
+  const subtotal =
+    Number(order.total_amount) - Number(order.shipping_cost ?? 0);
+  const addr = order.shipping_address ?? {};
+
   return (
-    <div className="space-y-6 max-w-4xl">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/admin/orders')}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-          <h1 className="text-3xl font-bold text-primary">Order Details</h1>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div>
+          <Link to="/admin/orders">
+            <Button variant="ghost" size="sm" className="-ml-3 mb-2">
+              <ArrowLeft className="h-4 w-4 mr-1" /> Back to orders
+            </Button>
+          </Link>
+          <h1 className="text-2xl font-bold">Order {order.id.slice(0, 8)}…</h1>
+          <p className="text-sm text-muted-foreground">
+            {new Date(order.created_at).toLocaleString('en-GB', {
+              dateStyle: 'long',
+              timeStyle: 'short',
+            })}
+          </p>
         </div>
-        <Button
-          variant="destructive"
-          size="sm"
-          onClick={() => setShowDeleteDialog(true)}
-        >
-          <Trash2 className="h-4 w-4 mr-2" />
-          Delete Order
-        </Button>
+        <Badge variant={statusVariant(order.status) as any} className="text-sm px-3 py-1">
+          {order.status}
+        </Badge>
       </div>
 
-      {/* Order Info */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Order Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div>
-              <p className="text-sm text-muted-foreground">Order ID</p>
-              <p className="font-mono text-sm">{order.id}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Date</p>
-              <p>{formatDate(order.created_at)}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Status</p>
-              <Badge className={getStatusColor(order.status)}>
-                {order.status.replace('_', ' ')}
-              </Badge>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Total Amount</p>
-              <p className="text-xl font-bold">R {order.total_amount.toFixed(2)}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Payment Method</p>
-              <p>{order.payment_method || 'N/A'}</p>
-            </div>
-            {order.paystack_reference && (
-              <div>
-                <p className="text-sm text-muted-foreground">Payment Reference</p>
-                <p className="font-mono text-sm">{order.paystack_reference}</p>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          {/* Items */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Items</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {(order.items ?? []).map((item: any, idx: number) => (
+                  <div key={idx} className="flex justify-between gap-4 text-sm">
+                    <div className="flex-1">
+                      <p className="font-medium">{item.name}</p>
+                      <p className="text-muted-foreground text-xs">
+                        {item.size ? `Size ${item.size} · ` : ''}Qty {item.quantity} @ {formatPrice(Number(item.price))}
+                      </p>
+                    </div>
+                    <p className="font-medium">
+                      {formatPrice(Number(item.line_total ?? item.price * item.quantity))}
+                    </p>
+                  </div>
+                ))}
               </div>
-            )}
-          </CardContent>
-        </Card>
+              <div className="border-t mt-4 pt-3 space-y-1 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span>{formatPrice(subtotal)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Shipping</span>
+                  <span>{formatPrice(Number(order.shipping_cost ?? 0))}</span>
+                </div>
+                <div className="flex justify-between font-bold pt-2 border-t mt-2">
+                  <span>Total</span>
+                  <span>{formatPrice(Number(order.total_amount))}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Customer Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div>
-              <p className="text-sm text-muted-foreground">Email</p>
-              <p>{order.customer_email || 'N/A'}</p>
-            </div>
-            {order.shipping_address && (
-              <>
+          {/* Shipping & tracking */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Shipping & tracking</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <p className="text-sm text-muted-foreground">Name</p>
-                  <p>{order.shipping_address.name}</p>
+                  <Label className="text-xs">Tracking number</Label>
+                  <Input
+                    value={trackingNumber}
+                    onChange={(e) => setTrackingNumber(e.target.value)}
+                    placeholder="e.g. PXL12345678"
+                  />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Phone</p>
-                  <p>{order.shipping_address.phone || 'N/A'}</p>
+                  <Label className="text-xs">Carrier (optional)</Label>
+                  <Input
+                    value={trackingCarrier}
+                    onChange={(e) => setTrackingCarrier(e.target.value)}
+                    placeholder="e.g. PostNet, Aramex"
+                  />
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Address</p>
-                  <p className="text-sm">
-                    {order.shipping_address.address_line1}
-                    {order.shipping_address.address_line2 && `, ${order.shipping_address.address_line2}`}
-                    <br />
-                    {order.shipping_address.city}, {order.shipping_address.state}
-                    <br />
-                    {order.shipping_address.postal_code}, {order.shipping_address.country}
-                  </p>
+              </div>
+              <Button onClick={handleSaveShipping} disabled={savingShipping}>
+                <Send className="h-4 w-4 mr-2" />
+                {savingShipping
+                  ? 'Saving…'
+                  : order.tracking_number
+                    ? 'Update & re-send email'
+                    : 'Save & send shipping email'}
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                Saving a tracking number automatically marks the order as shipped and sends an email
+                to the customer with their tracking details.
+              </p>
+              <div className="text-sm space-y-1 pt-2 border-t">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Shipped at</span>
+                  <span>{order.shipped_at ? new Date(order.shipped_at).toLocaleString('en-GB') : '—'}</span>
                 </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Delivered at</span>
+                  <span>{order.delivered_at ? new Date(order.delivered_at).toLocaleString('en-GB') : '—'}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-      {/* Order Items */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Order Items</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {order.items.map((item, index) => (
-              <div key={index} className="flex items-center gap-4 pb-4 border-b last:border-0">
-                <img
-                  src={item.image_url}
-                  alt={item.name}
-                  className="w-16 h-16 object-cover rounded"
+          {/* Internal notes */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Internal notes</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-xs text-muted-foreground">
+                These notes are only visible to admins. Customers never see them.
+              </p>
+              <div className="space-y-2">
+                <Textarea
+                  value={newNote}
+                  onChange={(e) => setNewNote(e.target.value)}
+                  placeholder="Add a note about this order…"
+                  rows={3}
                 />
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium">{item.name}</p>
-                  {item.size && (
-                    <p className="text-sm text-muted-foreground">Size: {item.size}</p>
-                  )}
-                  <p className="text-sm text-muted-foreground">
-                    Quantity: {item.quantity}
-                  </p>
-                </div>
-                <div className="text-right shrink-0">
-                  <p className="font-semibold">R {(item.price * item.quantity).toFixed(2)}</p>
-                  <p className="text-sm text-muted-foreground">R {item.price.toFixed(2)} each</p>
-                </div>
+                <Button size="sm" onClick={handleAddNote} disabled={addingNote || !newNote.trim()}>
+                  {addingNote ? 'Adding…' : 'Add note'}
+                </Button>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              <div className="space-y-3 pt-2">
+                {notes.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No notes yet.</p>
+                ) : (
+                  notes.map((n) => (
+                    <div key={n.id} className="bg-muted/30 rounded-md p-3">
+                      <p className="text-sm whitespace-pre-wrap">{n.body}</p>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        {n.author_email || 'Admin'} ·{' '}
+                        {new Date(n.created_at).toLocaleString('en-GB', {
+                          dateStyle: 'medium',
+                          timeStyle: 'short',
+                        })}
+                      </p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-      {/* Update Status */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Update Order Status</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Select
-              value={order.status}
-              onValueChange={(value: OrderStatus) => handleStatusUpdate(value)}
-              disabled={updating}
-            >
-              <SelectTrigger className="w-full sm:w-64">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-                <SelectItem value="refund_requested">Refund Requested</SelectItem>
-                <SelectItem value="refunded">Refunded</SelectItem>
-                <SelectItem value="cancelled">Cancelled</SelectItem>
-              </SelectContent>
-            </Select>
-            <p className="text-sm text-muted-foreground self-center">
-              {updating ? 'Updating...' : 'Select a new status to update'}
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+        <div className="space-y-6">
+          {/* Status */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Status</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Select value={newStatus} onValueChange={setNewStatus}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {STATUS_CHOICES.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                onClick={handleStatusChange}
+                disabled={savingStatus || newStatus === order.status}
+                className="w-full"
+              >
+                {savingStatus ? 'Saving…' : 'Update status'}
+              </Button>
+            </CardContent>
+          </Card>
 
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Order</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this order? This action cannot be undone.
-              Order ID: {order.id.slice(0, 8)}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={(e) => {
-                e.preventDefault()
-                handleDeleteOrder()
-              }}
-              disabled={deleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {deleting ? 'Deleting...' : 'Delete Order'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+          {/* Customer */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Customer</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm">
+              <div>
+                <p className="font-medium">{order.customer_name || '—'}</p>
+                <p className="text-muted-foreground">{order.customer_email}</p>
+              </div>
+              {addr.phone && (
+                <p className="text-muted-foreground pt-1">Phone: {addr.phone}</p>
+              )}
+              <div className="pt-2 border-t mt-3 space-y-0.5">
+                {addr.address_line1 && <p>{addr.address_line1}</p>}
+                {addr.address_line2 && <p>{addr.address_line2}</p>}
+                <p>
+                  {[addr.city, addr.state, addr.postal_code].filter(Boolean).join(', ')}
+                </p>
+                <p>{addr.country}</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Payment */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Payment</CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm space-y-1">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Reference</span>
+                <span className="font-mono text-xs">{order.paystack_reference?.slice(0, 12) ?? '—'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Currency</span>
+                <span>{order.currency ?? 'ZAR'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Paid at</span>
+                <span>
+                  {order.completed_at
+                    ? new Date(order.completed_at).toLocaleDateString('en-GB')
+                    : '—'}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Status history */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Timeline</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {history.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No history yet.</p>
+              ) : (
+                <ol className="space-y-3">
+                  {history.map((h) => (
+                    <li key={h.id} className="text-sm">
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span className="font-medium">
+                          {h.from_status ? `${h.from_status} → ${h.to_status}` : `Created (${h.to_status})`}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(h.created_at).toLocaleString('en-GB', {
+                          dateStyle: 'medium',
+                          timeStyle: 'short',
+                        })}
+                      </p>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }

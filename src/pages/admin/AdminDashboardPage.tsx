@@ -1,197 +1,287 @@
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { supabase } from '@/db/supabase';
-import { DollarSign, Package, ShoppingCart, AlertTriangle, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { supabase } from '@/db/supabase';
+import { formatPrice } from '@/lib/utils';
+import {
+  TrendingUp,
+  ShoppingBag,
+  Users,
+  Package,
+  AlertTriangle,
+  ArrowRight,
+} from 'lucide-react';
 
-interface DashboardStats {
-  totalRevenue: number;
-  totalOrders: number;
-  lowStockProducts: number;
-  pendingRefunds: number;
+interface DashboardMetrics {
+  monthRevenue: number;
+  monthOrderCount: number;
+  averageOrderValue: number;
+  totalCustomers: number;
+  lowStockProducts: { id: string; name: string; stock: number }[];
+  topProduct: { name: string; quantity: number; revenue: number } | null;
+  recentOrders: {
+    id: string;
+    customer_name: string | null;
+    customer_email: string;
+    total_amount: number;
+    status: string;
+    created_at: string;
+  }[];
 }
 
 export default function AdminDashboardPage() {
-  const [stats, setStats] = useState<DashboardStats>({
-    totalRevenue: 0,
-    totalOrders: 0,
-    lowStockProducts: 0,
-    pendingRefunds: 0,
-  });
+  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchDashboardStats();
+    loadMetrics();
   }, []);
 
-  const fetchDashboardStats = async () => {
+  const loadMetrics = async () => {
     try {
-      const [ordersResult, productsResult, refundsResult] = await Promise.all([
+      // First of current month, in UTC. Close enough — we're not doing tax filings off this.
+      const monthStart = new Date();
+      monthStart.setUTCDate(1);
+      monthStart.setUTCHours(0, 0, 0, 0);
+      const monthStartIso = monthStart.toISOString();
+
+      const [monthOrdersRes, customerCountRes, lowStockRes, recentOrdersRes] = await Promise.all([
         supabase
           .from('orders')
-          .select('total_amount, status')
-          .eq('status', 'completed'),
+          .select('id, total_amount, items')
+          .eq('status', 'completed')
+          .gte('created_at', monthStartIso),
+        supabase.from('profiles').select('id', { count: 'exact', head: true }),
         supabase
           .from('products')
-          .select('stock')
-          .lt('stock', 10),
+          .select('id, name, stock')
+          .lt('stock', 5)
+          .order('stock', { ascending: true }),
         supabase
-          .from('refund_requests')
-          .select('id')
-          .eq('status', 'pending'),
+          .from('orders')
+          .select('id, customer_name, customer_email, total_amount, status, created_at')
+          .order('created_at', { ascending: false })
+          .limit(5),
       ]);
 
-      const totalRevenue = ordersResult.data?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
-      const totalOrders = ordersResult.data?.length || 0;
-      const lowStockProducts = productsResult.data?.length || 0;
-      const pendingRefunds = refundsResult.data?.length || 0;
+      const monthOrders = monthOrdersRes.data ?? [];
+      const monthRevenue = monthOrders.reduce(
+        (sum, o) => sum + Number(o.total_amount || 0),
+        0,
+      );
+      const monthOrderCount = monthOrders.length;
+      const averageOrderValue = monthOrderCount > 0 ? monthRevenue / monthOrderCount : 0;
 
-      setStats({
-        totalRevenue,
-        totalOrders,
-        lowStockProducts,
-        pendingRefunds,
+      // Top product: aggregate items across completed orders this month
+      const productTotals = new Map<string, { name: string; quantity: number; revenue: number }>();
+      for (const order of monthOrders) {
+        const items = (order as any).items as any[] | null;
+        if (!Array.isArray(items)) continue;
+        for (const item of items) {
+          if (!item?.name) continue;
+          const key = item.product_id ?? item.name;
+          const existing = productTotals.get(key) ?? {
+            name: item.name,
+            quantity: 0,
+            revenue: 0,
+          };
+          existing.quantity += Number(item.quantity || 0);
+          existing.revenue += Number(item.line_total ?? item.price * item.quantity ?? 0);
+          productTotals.set(key, existing);
+        }
+      }
+      const topProduct =
+        [...productTotals.values()].sort((a, b) => b.quantity - a.quantity)[0] ?? null;
+
+      setMetrics({
+        monthRevenue,
+        monthOrderCount,
+        averageOrderValue,
+        totalCustomers: customerCountRes.count ?? 0,
+        lowStockProducts: lowStockRes.data ?? [],
+        topProduct,
+        recentOrders: recentOrdersRes.data ?? [],
       });
-    } catch (error) {
-      console.error('Error fetching dashboard stats:', error);
+    } catch (err) {
+      console.error('Failed to load dashboard metrics:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  const statCards = [
-    {
-      title: 'Total Revenue',
-      value: `R ${stats.totalRevenue.toFixed(2)}`,
-      icon: DollarSign,
-      color: 'text-green-600',
-      bgColor: 'bg-green-50',
-    },
-    {
-      title: 'Total Orders',
-      value: stats.totalOrders.toString(),
-      icon: ShoppingCart,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50',
-    },
-    {
-      title: 'Low Stock Items',
-      value: stats.lowStockProducts.toString(),
-      icon: AlertTriangle,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-50',
-      link: '/admin/products',
-    },
-    {
-      title: 'Pending Refunds',
-      value: stats.pendingRefunds.toString(),
-      icon: RefreshCw,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-50',
-      link: '/admin/refunds',
-    },
-  ];
-
   if (loading) {
-    return (
-      <div className="space-y-6">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[1, 2, 3, 4].map((i) => (
-            <Card key={i} className="animate-pulse">
-              <CardHeader className="pb-2">
-                <div className="h-4 bg-muted rounded w-24"></div>
-              </CardHeader>
-              <CardContent>
-                <div className="h-8 bg-muted rounded w-32"></div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
+    return <p className="text-muted-foreground">Loading dashboard…</p>;
   }
 
+  if (!metrics) {
+    return <p className="text-muted-foreground">Could not load dashboard.</p>;
+  }
+
+  const monthLabel = new Date().toLocaleString('en-GB', { month: 'long', year: 'numeric' });
+
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="text-3xl font-bold text-primary">Dashboard</h1>
-        <Button onClick={fetchDashboardStats} variant="outline">
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh
-        </Button>
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold mb-1">Dashboard</h1>
+        <p className="text-muted-foreground">Overview for {monthLabel}</p>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statCards.map((stat) => {
-          const Icon = stat.icon;
+      {/* Top metric tiles */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Revenue ({monthLabel.split(' ')[0]})
+            </CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatPrice(metrics.monthRevenue)}</div>
+            <p className="text-xs text-muted-foreground mt-1">Completed orders only</p>
+          </CardContent>
+        </Card>
 
-          const cardContent = (
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {stat.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <div className="text-2xl font-bold">{stat.value}</div>
-                  <div className={`p-3 rounded-full ${stat.bgColor}`}>
-                    <Icon className={`h-6 w-6 ${stat.color}`} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          );
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Orders</CardTitle>
+            <ShoppingBag className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.monthOrderCount}</div>
+            <p className="text-xs text-muted-foreground mt-1">This month</p>
+          </CardContent>
+        </Card>
 
-          return stat.link ? (
-            <Link key={stat.title} to={stat.link}>
-              {cardContent}
-            </Link>
-          ) : (
-            <div key={stat.title}>
-              {cardContent}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Avg order value
+            </CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatPrice(metrics.averageOrderValue)}</div>
+            <p className="text-xs text-muted-foreground mt-1">This month</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Total customers
+            </CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.totalCustomers}</div>
+            <p className="text-xs text-muted-foreground mt-1">Registered profiles</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Low stock */}
+        <Card className="lg:col-span-1">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-amber-500" />
+                Low stock
+              </CardTitle>
+              <Link to="/admin/products" className="text-xs text-primary hover:underline">
+                View all
+              </Link>
             </div>
-          );
-        })}
-      </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {metrics.lowStockProducts.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Everything's well stocked. Nice.
+              </p>
+            ) : (
+              metrics.lowStockProducts.map((p) => (
+                <Link
+                  key={p.id}
+                  to={`/admin/products/${p.id}/edit`}
+                  className="flex items-center justify-between text-sm hover:bg-muted/50 -mx-2 px-2 py-1 rounded"
+                >
+                  <span className="truncate flex-1 mr-2">{p.name}</span>
+                  <Badge variant={p.stock === 0 ? 'destructive' : 'outline'}>
+                    {p.stock === 0 ? 'Out' : `${p.stock} left`}
+                  </Badge>
+                </Link>
+              ))
+            )}
+          </CardContent>
+        </Card>
 
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Link to="/admin/products/new">
-              <Button className="w-full" variant="outline">
-                <Package className="h-4 w-4 mr-2" />
-                Add Product
-              </Button>
-            </Link>
-            <Link to="/admin/orders">
-              <Button className="w-full" variant="outline">
-                <ShoppingCart className="h-4 w-4 mr-2" />
-                View Orders
-              </Button>
-            </Link>
-            <Link to="/admin/products">
-              <Button className="w-full" variant="outline">
-                <AlertTriangle className="h-4 w-4 mr-2" />
-                Check Inventory
-              </Button>
-            </Link>
-            <Link to="/admin/refunds">
-              <Button className="w-full" variant="outline">
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Process Refunds
-              </Button>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+        {/* Top product */}
+        <Card className="lg:col-span-1">
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Package className="h-4 w-4 text-primary" />
+              Top product this month
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {metrics.topProduct ? (
+              <div className="space-y-2">
+                <p className="font-medium">{metrics.topProduct.name}</p>
+                <div className="flex gap-4 text-sm text-muted-foreground">
+                  <span>{metrics.topProduct.quantity} sold</span>
+                  <span>{formatPrice(metrics.topProduct.revenue)} revenue</span>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                No sales yet this month.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Recent orders */}
+        <Card className="lg:col-span-1">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base">Recent orders</CardTitle>
+              <Link to="/admin/orders" className="text-xs text-primary hover:underline flex items-center gap-1">
+                View all <ArrowRight className="h-3 w-3" />
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {metrics.recentOrders.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No orders yet.</p>
+            ) : (
+              metrics.recentOrders.map((o) => (
+                <Link
+                  key={o.id}
+                  to={`/admin/orders/${o.id}`}
+                  className="flex items-center justify-between text-sm hover:bg-muted/50 -mx-2 px-2 py-1 rounded"
+                >
+                  <div className="flex-1 min-w-0 mr-2">
+                    <p className="truncate font-medium">{o.customer_name || o.customer_email}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(o.created_at).toLocaleDateString('en-GB', {
+                        day: 'numeric',
+                        month: 'short',
+                      })}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium">{formatPrice(Number(o.total_amount))}</p>
+                    <Badge variant="outline" className="text-[10px]">
+                      {o.status}
+                    </Badge>
+                  </div>
+                </Link>
+              ))
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

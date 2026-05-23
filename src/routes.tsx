@@ -30,6 +30,9 @@ import AdminProductFormPage from './pages/admin/AdminProductFormPage';
 import AdminOrdersPage from './pages/admin/AdminOrdersPage';
 import AdminOrderDetailPage from './pages/admin/AdminOrderDetailPage';
 import AdminRefundsPage from './pages/admin/AdminRefundsPage';
+import AdminCustomersPage from './pages/admin/AdminCustomersPage';
+import AdminCustomerDetailPage from './pages/admin/AdminCustomerDetailPage';
+import AdminAccountPage from './pages/admin/AdminAccountPage';
 import type { ReactNode } from 'react';
 
 export interface RouteConfig {
@@ -245,6 +248,27 @@ export const routes: RouteConfig[] = [
     name: 'Admin Refunds',
     path: '/admin/refunds',
     element: <AdminRefundsPage />,
+    visible: false,
+    public: false,
+  },
+  {
+    name: 'Admin Customers',
+    path: '/admin/customers',
+    element: <AdminCustomersPage />,
+    visible: false,
+    public: false,
+  },
+  {
+    name: 'Admin Customer Detail',
+    path: '/admin/customers/:email',
+    element: <AdminCustomerDetailPage />,
+    visible: false,
+    public: false,
+  },
+  {
+    name: 'Admin Account',
+    path: '/admin/account',
+    element: <AdminAccountPage />,
     visible: false,
     public: false,
   },

@@ -6,6 +6,8 @@ import {
   Package, 
   ShoppingCart, 
   RefreshCw,
+  Users,
+  Settings,
   LogOut,
   Menu,
   X
@@ -32,7 +34,9 @@ export default function AdminLayout() {
     { path: '/admin', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/admin/products', label: 'Products', icon: Package },
     { path: '/admin/orders', label: 'Orders', icon: ShoppingCart },
+    { path: '/admin/customers', label: 'Customers', icon: Users },
     { path: '/admin/refunds', label: 'Refunds', icon: RefreshCw },
+    { path: '/admin/account', label: 'Account', icon: Settings },
   ];
 
   const handleSignOut = async () => {
