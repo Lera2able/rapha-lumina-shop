@@ -50,7 +50,7 @@ export default function AdminDashboardPage() {
         supabase
           .from('orders')
           .select('id, total_amount, items')
-          .eq('status', 'completed')
+          .in('status', ['processing', 'shipped', 'delivered', 'completed'])
           .gte('created_at', monthStartIso),
         supabase.from('profiles').select('id', { count: 'exact', head: true }),
         supabase

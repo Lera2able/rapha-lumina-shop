@@ -14,6 +14,29 @@
     --rl-sage-lt:  #B8C4A8;
     --rl-terra-lt: #C4986A;
     --rl-border:   rgba(26, 18, 8, 0.1);
+
+    /* shadcn/ui variables (HSL components, no commas) mapped to Rapha palette.
+       Without these, bg-popover / bg-card etc. render as transparent. */
+    --background: 36 33% 97%;
+    --foreground: 30 50% 6%;
+    --card: 36 33% 99%;
+    --card-foreground: 30 50% 6%;
+    --popover: 36 33% 99%;
+    --popover-foreground: 30 50% 6%;
+    --primary: 30 50% 6%;
+    --primary-foreground: 36 33% 97%;
+    --secondary: 39 60% 92%;
+    --secondary-foreground: 30 50% 6%;
+    --muted: 39 30% 90%;
+    --muted-foreground: 27 7% 44%;
+    --accent: 39 56% 51%;
+    --accent-foreground: 30 50% 6%;
+    --destructive: 0 70% 45%;
+    --destructive-foreground: 36 33% 97%;
+    --border: 30 40% 88%;
+    --input: 30 40% 88%;
+    --ring: 39 56% 51%;
+    --radius: 0.5rem;
   }
 
   @media (prefers-color-scheme: dark) {

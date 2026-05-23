@@ -37,7 +37,7 @@ export default function AdminCustomersPage() {
       const { data: orders, error } = await supabase
         .from('orders')
         .select('user_id, customer_email, customer_name, total_amount, created_at, status')
-        .in('status', ['completed', 'shipped', 'delivered'])
+        .in('status', ['processing', 'shipped', 'delivered', 'completed'])
         .order('created_at', { ascending: false });
 
       if (error) throw error;

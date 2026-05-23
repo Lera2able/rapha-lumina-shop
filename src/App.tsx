@@ -20,6 +20,9 @@ import AdminProductFormPage from '@/pages/admin/AdminProductFormPage';
 import AdminOrdersPage from '@/pages/admin/AdminOrdersPage';
 import AdminOrderDetailPage from '@/pages/admin/AdminOrderDetailPage';
 import AdminRefundsPage from '@/pages/admin/AdminRefundsPage';
+import AdminCustomersPage from '@/pages/admin/AdminCustomersPage';
+import AdminCustomerDetailPage from '@/pages/admin/AdminCustomerDetailPage';
+import AdminAccountPage from '@/pages/admin/AdminAccountPage';
 
 import { routes } from './routes';
 
@@ -40,6 +43,9 @@ const App: React.FC = () => {
               <Route path="orders" element={<AdminOrdersPage />} />
               <Route path="orders/:id" element={<AdminOrderDetailPage />} />
               <Route path="refunds" element={<AdminRefundsPage />} />
+              <Route path="customers" element={<AdminCustomersPage />} />
+              <Route path="customers/:email" element={<AdminCustomerDetailPage />} />
+              <Route path="account" element={<AdminAccountPage />} />
             </Route>
 
             {/* Public Routes - With Header/Footer */}

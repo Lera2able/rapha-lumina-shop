@@ -16,7 +16,7 @@ import {
 import { supabase } from '@/db/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatPrice } from '@/lib/utils';
-import { ArrowLeft, Send } from 'lucide-react';
+import { ArrowLeft, Send, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface OrderRecord {
@@ -58,12 +58,18 @@ interface HistoryRecord {
 const STATUS_CHOICES = [
   'pending',
   'processing',
-  'completed',
   'shipped',
   'delivered',
+  'completed',
   'cancelled',
+  'failed',
   'refunded',
 ];
+
+// statuses that mean the order has been paid for
+const PAID_STATUSES = new Set(['processing', 'shipped', 'delivered', 'completed']);
+// statuses where the package has not yet left the warehouse
+const UNSHIPPED_STATUSES = new Set(['pending', 'processing', 'completed']);
 
 function statusVariant(s: string) {
   if (s === 'completed' || s === 'delivered') return 'default';
@@ -88,6 +94,8 @@ export default function AdminOrderDetailPage() {
 
   const [newNote, setNewNote] = useState('');
   const [addingNote, setAddingNote] = useState(false);
+
+  const [refunding, setRefunding] = useState(false);
 
   useEffect(() => {
     if (id) loadAll(id);
@@ -137,13 +145,13 @@ export default function AdminOrderDetailPage() {
 
     setSavingShipping(true);
     try {
-      const wasUnshipped = order.status !== 'shipped' && order.status !== 'delivered';
+      // If the order is not yet shipped/delivered, saving tracking moves it to 'shipped'.
+      const wasUnshipped = UNSHIPPED_STATUSES.has(order.status);
       const updatePayload: any = {
         tracking_number: cleanedNumber,
         tracking_carrier: trackingCarrier.trim() || null,
         updated_at: new Date().toISOString(),
       };
-      // Saving tracking implicitly moves the order to shipped if it isn't already
       if (wasUnshipped) {
         updatePayload.status = 'shipped';
         updatePayload.shipped_at = new Date().toISOString();
@@ -154,7 +162,11 @@ export default function AdminOrderDetailPage() {
         .update(updatePayload)
         .eq('id', order.id);
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error('Order update error:', updateError);
+        toast.error(`Save failed: ${updateError.message}`);
+        return;
+      }
 
       // Fire the shipping email
       const { error: emailError } = await supabase.functions.invoke(
@@ -163,6 +175,7 @@ export default function AdminOrderDetailPage() {
       );
 
       if (emailError) {
+        console.error('Email error:', emailError);
         toast.error('Tracking saved but shipping email failed to send');
       } else {
         toast.success(
@@ -201,7 +214,11 @@ export default function AdminOrderDetailPage() {
         .update(updatePayload)
         .eq('id', order.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Status update error:', error);
+        toast.error(`Could not update status: ${error.message}`);
+        return;
+      }
 
       // If moving to shipped and there's already a tracking number, fire the email too
       if (newStatus === 'shipped' && order.tracking_number) {
@@ -244,6 +261,43 @@ export default function AdminOrderDetailPage() {
     }
   };
 
+  const handleMarkRefunded = async () => {
+    if (!order) return;
+    const reason = window.prompt(
+      'Reason for refund (this will be logged as an internal note):',
+    );
+    if (reason === null) return; // user cancelled
+    if (!reason.trim()) {
+      toast.error('A reason is required when marking an order refunded');
+      return;
+    }
+
+    setRefunding(true);
+    try {
+      const { error: orderError } = await supabase
+        .from('orders')
+        .update({ status: 'refunded', updated_at: new Date().toISOString() })
+        .eq('id', order.id);
+      if (orderError) throw orderError;
+
+      const { error: noteError } = await supabase.from('internal_order_notes').insert({
+        order_id: order.id,
+        author_id: user?.id ?? null,
+        author_email: user?.email ?? null,
+        body: `Refund processed. Reason: ${reason.trim()}\n\nRemember to also issue the refund in the Paystack dashboard.`,
+      });
+      if (noteError) console.error('Refund note insert failed:', noteError);
+
+      toast.success('Order marked as refunded');
+      await loadAll(order.id);
+    } catch (err) {
+      console.error('Refund error:', err);
+      toast.error('Could not mark order as refunded');
+    } finally {
+      setRefunding(false);
+    }
+  };
+
   if (loading) {
     return <p className="text-muted-foreground">Loading order…</p>;
   }
@@ -263,6 +317,8 @@ export default function AdminOrderDetailPage() {
   const subtotal =
     Number(order.total_amount) - Number(order.shipping_cost ?? 0);
   const addr = order.shipping_address ?? {};
+  const isPaid = PAID_STATUSES.has(order.status);
+  const isRefunded = order.status === 'refunded';
 
   return (
     <div className="space-y-6">
@@ -425,7 +481,7 @@ export default function AdminOrderDetailPage() {
             </CardHeader>
             <CardContent className="space-y-3">
               <Select value={newStatus} onValueChange={setNewStatus}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-background">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -443,6 +499,17 @@ export default function AdminOrderDetailPage() {
               >
                 {savingStatus ? 'Saving…' : 'Update status'}
               </Button>
+              {isPaid && !isRefunded && (
+                <Button
+                  onClick={handleMarkRefunded}
+                  disabled={refunding}
+                  variant="outline"
+                  className="w-full"
+                >
+                  <RotateCcw className="h-4 w-4 mr-2" />
+                  {refunding ? 'Processing…' : 'Mark as refunded'}
+                </Button>
+              )}
             </CardContent>
           </Card>
 
@@ -513,6 +580,7 @@ export default function AdminOrderDetailPage() {
                         </span>
                       </div>
                       <p className="text-xs text-muted-foreground">
+                        {h.changed_by_email ? `${h.changed_by_email} · ` : ''}
                         {new Date(h.created_at).toLocaleString('en-GB', {
                           dateStyle: 'medium',
                           timeStyle: 'short',
