@@ -181,7 +181,11 @@ export default function ProductDetailPage() {
     <div className="min-h-screen">
       <div className="container py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-          <ProductImageGallery images={productImages} productName={product.name} />
+          <ProductImageGallery
+            images={productImages}
+            productName={product.name}
+            videoUrl={product.video_url}
+          />
 
           <div className="space-y-6">
             <div>
@@ -279,20 +283,6 @@ export default function ProductDetailPage() {
             )}
           </div>
         </div>
-
-        {product.video_url && (
-          <div className="mb-16">
-            <h2 className="text-2xl font-bold mb-6">Watch the look</h2>
-            <video
-              src={product.video_url}
-              controls
-              playsInline
-              className="w-full max-w-3xl mx-auto rounded-lg shadow-lg bg-black"
-            >
-              Your browser does not support video playback.
-            </video>
-          </div>
-        )}
 
         {relatedProducts.length > 0 && (
           <div>
