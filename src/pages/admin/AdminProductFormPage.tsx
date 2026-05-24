@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, Video, X } from 'lucide-react';
 import { toast } from 'sonner';
 import ImageUpload from '@/components/admin/ImageUpload';
 import type { Product, CollectionType } from '@/types/types';
@@ -26,6 +26,9 @@ export default function AdminProductFormPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<string[]>([]);
+  const [videoUrl, setVideoUrl] = useState<string>('');
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoUploading, setVideoUploading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -69,6 +72,10 @@ export default function AdminProductFormPage() {
         const productImages = product.image_url ? [product.image_url] : [];
         productImages.push(...product.additional_images);
         setImages(productImages);
+
+        // Load existing video URL if any. The Product type may not have it yet,
+        // so we read it from the raw data row.
+        setVideoUrl((data as any).video_url ?? '');
       }
     } catch (error) {
       console.error('Error fetching product:', error);
@@ -101,6 +108,54 @@ export default function AdminProductFormPage() {
       .getPublicUrl(filePath);
 
     return urlData.publicUrl;
+  };
+
+  const handleVideoFile = async (file: File) => {
+    if (!file) return;
+
+    // Sanity check before we hit the server
+    const maxBytes = 50 * 1024 * 1024;
+    if (file.size > maxBytes) {
+      toast.error('Video is too large. Maximum size is 50 MB.');
+      return;
+    }
+    const allowed = ['video/mp4', 'video/webm', 'video/quicktime'];
+    if (!allowed.includes(file.type)) {
+      toast.error('Only MP4, WebM, or MOV videos are supported.');
+      return;
+    }
+
+    setVideoFile(file);
+    setVideoUploading(true);
+    try {
+      const ext = file.name.split('.').pop()?.toLowerCase() || 'mp4';
+      const filePath = `${Date.now()}_product.${ext}`;
+      const { error } = await supabase.storage
+        .from('product-videos')
+        .upload(filePath, file, {
+          contentType: file.type,
+          upsert: false,
+        });
+      if (error) throw error;
+
+      const { data: urlData } = supabase.storage
+        .from('product-videos')
+        .getPublicUrl(filePath);
+
+      setVideoUrl(urlData.publicUrl);
+      toast.success('Video uploaded. Click Update to save it to the product.');
+    } catch (err: any) {
+      console.error('Video upload failed:', err);
+      toast.error(`Video upload failed: ${err.message || 'unknown error'}`);
+      setVideoFile(null);
+    } finally {
+      setVideoUploading(false);
+    }
+  };
+
+  const handleRemoveVideo = () => {
+    setVideoUrl('');
+    setVideoFile(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -142,6 +197,7 @@ export default function AdminProductFormPage() {
         price: parseFloat(formData.price),
         image_url: primaryImage,
         additional_images: additionalImages.length > 0 ? additionalImages : null,
+        video_url: videoUrl || null,
         stock: parseInt(formData.stock),
         sizes: formData.sizes.length > 0 ? formData.sizes : null,
         featured: formData.featured,
@@ -349,6 +405,52 @@ export default function AdminProductFormPage() {
               maxImages={5}
               maxSizeMB={5}
             />
+
+            <div className="space-y-2 border rounded-lg p-4 bg-muted/20">
+              <div className="flex items-center gap-2">
+                <Video className="h-4 w-4 text-muted-foreground" />
+                <Label className="font-semibold">Product Video (optional)</Label>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                MP4, WebM, or MOV. Maximum 50 MB. Plays on the product detail page below the images.
+              </p>
+
+              {videoUrl && !videoUploading && (
+                <div className="space-y-2">
+                  <video
+                    src={videoUrl}
+                    controls
+                    className="w-full max-w-md rounded-md border bg-black"
+                  >
+                    Your browser does not support video playback.
+                  </video>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRemoveVideo}
+                  >
+                    <X className="h-4 w-4 mr-2" />
+                    Remove video
+                  </Button>
+                </div>
+              )}
+
+              {videoUploading && (
+                <p className="text-sm text-muted-foreground">Uploading video…</p>
+              )}
+
+              {!videoUrl && !videoUploading && (
+                <Input
+                  type="file"
+                  accept="video/mp4,video/webm,video/quicktime"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) handleVideoFile(f);
+                  }}
+                />
+              )}
+            </div>
 
             <div className="flex gap-4 pt-4">
               <Button type="submit" disabled={loading} className="flex-1">

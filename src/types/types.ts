@@ -16,6 +16,7 @@ export interface Product {
   price: number
   image_url: string
   additional_images: string[]
+  video_url: string | null
   sizes: string[]
   stock: number
   featured: boolean

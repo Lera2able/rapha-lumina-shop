@@ -28,6 +28,7 @@ export function normaliseProduct(raw: unknown): Product {
     additional_images: Array.isArray(r.additional_images)
       ? (r.additional_images as string[])
       : [],
+    video_url: r.video_url ? String(r.video_url) : null,
     sizes: Array.isArray(r.sizes) ? (r.sizes as string[]) : [],
     stock: Number(r.stock ?? 0),
     featured: Boolean(r.featured),

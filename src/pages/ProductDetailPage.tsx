@@ -280,6 +280,20 @@ export default function ProductDetailPage() {
           </div>
         </div>
 
+        {product.video_url && (
+          <div className="mb-16">
+            <h2 className="text-2xl font-bold mb-6">Watch the look</h2>
+            <video
+              src={product.video_url}
+              controls
+              playsInline
+              className="w-full max-w-3xl mx-auto rounded-lg shadow-lg bg-black"
+            >
+              Your browser does not support video playback.
+            </video>
+          </div>
+        )}
+
         {relatedProducts.length > 0 && (
           <div>
             <h2 className="text-2xl font-bold mb-6">Related Products</h2>
