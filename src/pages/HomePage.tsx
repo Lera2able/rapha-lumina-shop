@@ -96,7 +96,43 @@ export default function HomePage() {
       {/* Collections Section */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-0.5 border-b border-rl-espresso/10">
         <Link to="/enlightened" className="group relative h-[520px] overflow-hidden" style={{ backgroundColor: 'var(--rl-sage-lt)' }}>
-          <div className="absolute inset-0 transition-transform duration-[600ms] ease-out group-hover:scale-[1.04]" style={{ backgroundColor: 'var(--rl-sage-lt)' }} />
+          <div className="absolute inset-0 transition-transform duration-[600ms] ease-out group-hover:scale-[1.04]" style={{ backgroundColor: 'var(--rl-sage-lt)' }}>
+            {/* Sacred geometry — Flower of Life */}
+            <svg
+              viewBox="-150 -150 300 300"
+              preserveAspectRatio="xMidYMid meet"
+              className="absolute inset-0 w-full h-full text-rl-espresso opacity-[0.18] transition-transform duration-[1200ms] ease-out group-hover:rotate-12"
+              aria-hidden
+            >
+              <g fill="none" stroke="currentColor" strokeWidth="1.2">
+                {/* Outer boundary circle */}
+                <circle cx="0" cy="0" r="120" />
+                {/* Centre circle */}
+                <circle cx="0" cy="0" r="40" />
+                {/* Inner ring — 6 circles at distance 40 */}
+                <circle cx="40" cy="0" r="40" />
+                <circle cx="20" cy="34.64" r="40" />
+                <circle cx="-20" cy="34.64" r="40" />
+                <circle cx="-40" cy="0" r="40" />
+                <circle cx="-20" cy="-34.64" r="40" />
+                <circle cx="20" cy="-34.64" r="40" />
+                {/* Second ring — 6 circles between inner ring */}
+                <circle cx="60" cy="34.64" r="40" />
+                <circle cx="0" cy="69.28" r="40" />
+                <circle cx="-60" cy="34.64" r="40" />
+                <circle cx="-60" cy="-34.64" r="40" />
+                <circle cx="0" cy="-69.28" r="40" />
+                <circle cx="60" cy="-34.64" r="40" />
+                {/* Outer ring — 6 circles at distance 80 */}
+                <circle cx="80" cy="0" r="40" />
+                <circle cx="40" cy="69.28" r="40" />
+                <circle cx="-40" cy="69.28" r="40" />
+                <circle cx="-80" cy="0" r="40" />
+                <circle cx="-40" cy="-69.28" r="40" />
+                <circle cx="40" cy="-69.28" r="40" />
+              </g>
+            </svg>
+          </div>
           <div className="absolute inset-0 flex flex-col justify-end p-12 transition-colors duration-300" style={{ backgroundColor: 'rgba(26, 18, 8, 0.32)' }}>
             <p className="text-[9px] tracking-[0.18em] uppercase mb-2" style={{ color: 'rgba(250, 248, 245, 0.65)' }}>
               The first collection
@@ -112,7 +148,90 @@ export default function HomePage() {
         </Link>
 
         <Link to="/teacher" className="group relative h-[520px] overflow-hidden" style={{ backgroundColor: 'var(--rl-terra-lt)' }}>
-          <div className="absolute inset-0 transition-transform duration-[600ms] ease-out group-hover:scale-[1.04]" style={{ backgroundColor: 'var(--rl-terra-lt)' }} />
+          <div className="absolute inset-0 transition-transform duration-[600ms] ease-out group-hover:scale-[1.04]" style={{ backgroundColor: 'var(--rl-terra-lt)' }}>
+            {/* Creative teaching tools — open book, pencil, apple, lightbulb, sparkles */}
+            <svg
+              viewBox="0 0 400 400"
+              preserveAspectRatio="xMidYMid slice"
+              className="absolute inset-0 w-full h-full text-rl-espresso opacity-[0.22]"
+              aria-hidden
+            >
+              <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                {/* Open book — bottom centre */}
+                <g transform="translate(150 230) rotate(-4)">
+                  <path d="M0 0 Q50 -10 100 0 L100 70 Q50 60 0 70 Z" />
+                  <path d="M100 0 Q150 -10 200 0 L200 70 Q150 60 100 70 Z" />
+                  <line x1="100" y1="0" x2="100" y2="70" />
+                  <line x1="20" y1="20" x2="80" y2="22" />
+                  <line x1="20" y1="35" x2="80" y2="37" />
+                  <line x1="20" y1="50" x2="65" y2="52" />
+                  <line x1="120" y1="20" x2="180" y2="22" />
+                  <line x1="120" y1="35" x2="180" y2="37" />
+                  <line x1="120" y1="50" x2="165" y2="52" />
+                </g>
+
+                {/* Pencil — top left, tilted */}
+                <g transform="translate(50 90) rotate(-28)">
+                  <rect x="0" y="0" width="120" height="14" rx="2" />
+                  <path d="M120 0 L142 7 L120 14 Z" fill="currentColor" />
+                  <line x1="135" y1="7" x2="142" y2="7" />
+                  <line x1="0" y1="0" x2="0" y2="14" strokeWidth="3" />
+                </g>
+
+                {/* Lightbulb — top right */}
+                <g transform="translate(300 70)">
+                  <path d="M30 0 Q60 0 60 30 Q60 45 50 55 L50 70 L10 70 L10 55 Q0 45 0 30 Q0 0 30 0 Z" />
+                  <line x1="15" y1="78" x2="45" y2="78" />
+                  <line x1="20" y1="86" x2="40" y2="86" />
+                  {/* Filament glow */}
+                  <path d="M22 30 Q30 22 38 30" />
+                  <path d="M22 38 Q30 30 38 38" />
+                  {/* Sparkles around */}
+                  <g strokeWidth="1.5">
+                    <line x1="-12" y1="20" x2="-4" y2="20" />
+                    <line x1="-8" y1="16" x2="-8" y2="24" />
+                    <line x1="70" y1="14" x2="78" y2="14" />
+                    <line x1="74" y1="10" x2="74" y2="18" />
+                  </g>
+                </g>
+
+                {/* Apple — bottom right */}
+                <g transform="translate(310 270)">
+                  <path d="M30 10 Q15 5 5 20 Q-5 40 10 60 Q20 75 30 70 Q40 75 50 60 Q65 40 55 20 Q45 5 30 10 Z" />
+                  <path d="M30 10 Q33 0 40 -2" strokeWidth="2.5" />
+                  <path d="M32 8 Q40 0 50 4" />
+                </g>
+
+                {/* Graduation cap — top centre, small */}
+                <g transform="translate(180 40) rotate(-6)">
+                  <path d="M0 12 L30 0 L60 12 L30 24 Z" fill="currentColor" fillOpacity="0.3" />
+                  <line x1="58" y1="13" x2="58" y2="32" />
+                  <circle cx="58" cy="33" r="2" fill="currentColor" />
+                  <path d="M10 18 L10 28 Q30 36 50 28 L50 18" />
+                </g>
+
+                {/* Small stars/sparkles scattered */}
+                <g strokeWidth="1.5">
+                  <g transform="translate(80 320)">
+                    <line x1="-6" y1="0" x2="6" y2="0" />
+                    <line x1="0" y1="-6" x2="0" y2="6" />
+                  </g>
+                  <g transform="translate(255 130)">
+                    <line x1="-5" y1="0" x2="5" y2="0" />
+                    <line x1="0" y1="-5" x2="0" y2="5" />
+                  </g>
+                  <g transform="translate(370 200)">
+                    <line x1="-5" y1="0" x2="5" y2="0" />
+                    <line x1="0" y1="-5" x2="0" y2="5" />
+                  </g>
+                </g>
+
+                {/* Doodly creative lines */}
+                <path d="M240 350 Q260 340 280 350 Q300 360 320 350" strokeWidth="1.5" />
+                <path d="M30 280 Q50 275 60 285" strokeWidth="1.5" />
+              </g>
+            </svg>
+          </div>
           <div className="absolute inset-0 flex flex-col justify-end p-12 transition-colors duration-300" style={{ backgroundColor: 'rgba(26, 18, 8, 0.32)' }}>
             <p className="text-[9px] tracking-[0.18em] uppercase mb-2" style={{ color: 'rgba(250, 248, 245, 0.65)' }}>
               The second collection
