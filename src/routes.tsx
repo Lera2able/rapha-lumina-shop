@@ -22,6 +22,8 @@ import SizeGuidePage from './pages/SizeGuidePage';
 import ShippingPage from './pages/ShippingPage';
 import ReturnsPage from './pages/ReturnsPage';
 import RefundPolicyPage from './pages/RefundPolicyPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import TermsPage from './pages/TermsPage';
 import FAQPage from './pages/FAQPage';
 import AdminLayout from './components/layouts/AdminLayout';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
@@ -157,6 +159,18 @@ export const routes: RouteConfig[] = [
     name: 'Refund Policy',
     path: '/refund-policy',
     element: <RefundPolicyPage />,
+    public: true,
+  },
+  {
+    name: 'Privacy Policy',
+    path: '/privacy',
+    element: <PrivacyPolicyPage />,
+    public: true,
+  },
+  {
+    name: 'Terms and Conditions',
+    path: '/terms',
+    element: <TermsPage />,
     public: true,
   },
   {

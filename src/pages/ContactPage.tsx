@@ -110,8 +110,31 @@ export default function ContactPage() {
                   <p className="text-muted-foreground">support@raphalumina.com</p>
                 </div>
                 <div>
+                  <h3 className="font-semibold mb-2">Phone</h3>
+                  <p className="text-muted-foreground">079 333 0455</p>
+                </div>
+                <div>
                   <h3 className="font-semibold mb-2">Business Hours</h3>
                   <p className="text-muted-foreground">Monday - Friday: 9:00 AM - 5:00 PM SAST</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Our Business</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm text-muted-foreground">
+                <div>
+                  <p className="font-semibold text-foreground">Rapha Lumina (Pty) Ltd</p>
+                  <p>Registration: 2024/620336/07</p>
+                </div>
+                <div>
+                  <p className="font-semibold text-foreground mb-1">Registered address</p>
+                  <p>28 Heide Street</p>
+                  <p>Highveld Park</p>
+                  <p>Witbank, 1034</p>
+                  <p>South Africa</p>
                 </div>
               </CardContent>
             </Card>

@@ -106,29 +106,45 @@ export default function EnlightenedCollectionPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                {filteredProducts.map(product => (
-                  <Link key={product.id} to={`/product/${product.id}`}>
-                    <Card className="h-full overflow-hidden glass-card hover:scale-105 transition-all duration-300">
-                      <div className="aspect-square overflow-hidden">
-                        <img
-                          src={product.image_url}
-                          alt={product.name}
-                          className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                        />
-                      </div>
-                      <CardContent className="p-4">
-                        <h3 className="font-semibold mb-2 text-balance text-foreground">{product.name}</h3>
-                        <p className="text-sm text-muted-foreground mb-2 line-clamp-2 text-pretty">
-                          {product.description}
-                        </p>
-                        <p className="text-lg font-bold text-primary">R {product.price.toFixed(2)}</p>
-                        {product.stock === 0 && (
-                          <p className="text-sm text-destructive mt-1">Out of Stock</p>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
+                {filteredProducts.map(product => {
+                  const soldOut = product.stock === 0;
+                  return (
+                    <Link key={product.id} to={`/product/${product.id}`}>
+                      <Card className="h-full overflow-hidden glass-card hover:scale-105 transition-all duration-300 relative">
+                        <div className="aspect-square overflow-hidden relative">
+                          <img
+                            src={product.image_url}
+                            alt={product.name}
+                            className={`w-full h-full object-cover hover:scale-110 transition-transform duration-500 ${soldOut ? 'opacity-60 grayscale' : ''}`}
+                          />
+                          {soldOut && (
+                            <span className="absolute top-3 right-3 bg-foreground text-background text-[10px] tracking-[0.15em] uppercase px-2.5 py-1 font-body">
+                              Sold Out
+                            </span>
+                          )}
+                        </div>
+                        <CardContent className="p-4">
+                          <h3 className="font-semibold mb-2 text-balance text-foreground">{product.name}</h3>
+                          <p className="text-sm text-muted-foreground mb-2 line-clamp-2 text-pretty">
+                            {product.description}
+                          </p>
+                          {soldOut ? (
+                            <>
+                              <p className="text-lg font-bold text-muted-foreground line-through">
+                                R {product.price.toFixed(2)}
+                              </p>
+                              <p className="text-sm text-primary mt-2 font-medium">
+                                Notify me when available →
+                              </p>
+                            </>
+                          ) : (
+                            <p className="text-lg font-bold text-primary">R {product.price.toFixed(2)}</p>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  );
+                })}
               </div>
             )}
           </div>

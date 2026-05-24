@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Linkedin, Facebook, Mail } from 'lucide-react'
+import { Mail, Phone } from 'lucide-react'
 
 export function Footer() {
   return (
@@ -15,33 +15,21 @@ export function Footer() {
             <p className="text-sm text-rl-cream/70 mb-6 font-body">
               Made in South Africa.
             </p>
-            
-            {/* Social Icons */}
-            <div className="flex items-center gap-3">
+
+            <div className="space-y-2 text-xs text-rl-cream/60 font-body">
               <a
-                href="https://linkedin.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 border border-rl-cream/30 flex items-center justify-center hover:border-rl-gold hover:text-rl-gold transition-colors"
-                aria-label="LinkedIn"
+                href="mailto:support@raphalumina.com"
+                className="flex items-center gap-2 hover:text-rl-gold transition-colors"
               >
-                <Linkedin className="h-4 w-4" />
+                <Mail className="h-3.5 w-3.5" />
+                support@raphalumina.com
               </a>
               <a
-                href="https://facebook.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 border border-rl-cream/30 flex items-center justify-center hover:border-rl-gold hover:text-rl-gold transition-colors"
-                aria-label="Facebook"
+                href="tel:+27793330455"
+                className="flex items-center gap-2 hover:text-rl-gold transition-colors"
               >
-                <Facebook className="h-4 w-4" />
-              </a>
-              <a
-                href="mailto:info@raphalumina.com"
-                className="w-10 h-10 border border-rl-cream/30 flex items-center justify-center hover:border-rl-gold hover:text-rl-gold transition-colors"
-                aria-label="Email"
-              >
-                <Mail className="h-4 w-4" />
+                <Phone className="h-3.5 w-3.5" />
+                079 333 0455
               </a>
             </div>
           </div>
@@ -58,16 +46,6 @@ export function Footer() {
               <li>
                 <Link to="/teacher" className="text-rl-cream/70 hover:text-rl-cream transition-colors font-body">
                   Teacher Collection
-                </Link>
-              </li>
-              <li>
-                <Link to="/" className="text-rl-cream/70 hover:text-rl-cream transition-colors font-body">
-                  New Arrivals
-                </Link>
-              </li>
-              <li>
-                <Link to="/" className="text-rl-cream/70 hover:text-rl-cream transition-colors font-body">
-                  Featured
                 </Link>
               </li>
             </ul>
@@ -133,21 +111,32 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Bottom Bar */}
+        {/* Business identity strip */}
         <div className="mt-16 pt-8 border-t border-rl-cream/10">
+          <div className="text-[11px] text-rl-cream/50 font-body leading-relaxed">
+            <p>
+              <span className="text-rl-cream/70">Rapha Lumina (Pty) Ltd</span>
+              {' · '}Reg no. 2024/620336/07
+              {' · '}28 Heide Street, Highveld Park, Witbank, 1034, South Africa
+            </p>
+          </div>
+        </div>
+
+        {/* Bottom Bar */}
+        <div className="mt-6 pt-6 border-t border-rl-cream/10">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-xs text-rl-cream/50 font-body">
               © {new Date().getFullYear()} Rapha Lumina. All rights reserved.
             </p>
             <div className="flex items-center gap-6 text-xs">
-              <Link to="/refund-policy" className="text-rl-cream/50 hover:text-rl-cream transition-colors font-body">
+              <Link to="/privacy" className="text-rl-cream/50 hover:text-rl-cream transition-colors font-body">
                 Privacy Policy
               </Link>
-              <Link to="/refund-policy" className="text-rl-cream/50 hover:text-rl-cream transition-colors font-body">
-                Terms of Service
+              <Link to="/terms" className="text-rl-cream/50 hover:text-rl-cream transition-colors font-body">
+                Terms & Conditions
               </Link>
               <Link to="/refund-policy" className="text-rl-cream/50 hover:text-rl-cream transition-colors font-body">
-                POPIA Compliance
+                Refund Policy
               </Link>
             </div>
           </div>
