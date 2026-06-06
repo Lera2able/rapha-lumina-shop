@@ -25,6 +25,7 @@ import RefundPolicyPage from './pages/RefundPolicyPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsPage from './pages/TermsPage';
 import FAQPage from './pages/FAQPage';
+import WebDesignPage from './pages/WebDesignPage';
 import AdminLayout from './components/layouts/AdminLayout';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import AdminProductsPage from './pages/admin/AdminProductsPage';
@@ -63,6 +64,12 @@ export const routes: RouteConfig[] = [
     name: 'Teacher Collection',
     path: '/teacher',
     element: <TeacherCollectionPage />,
+    public: true,
+  },
+  {
+    name: 'Websites',
+    path: '/websites',
+    element: <WebDesignPage />,
     public: true,
   },
   {
