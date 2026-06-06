@@ -14,6 +14,7 @@ export function Header() {
     { to: '/', label: 'Home' },
     { to: '/enlightened', label: 'Enlightened' },
     { to: '/teacher', label: 'Teacher' },
+    { to: '/websites', label: 'Websites' },
     { to: '/about', label: 'About' },
     { to: '/faq', label: 'FAQ' },
   ]
