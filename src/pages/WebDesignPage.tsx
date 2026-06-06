@@ -54,12 +54,6 @@ const steps = [
   ['04', 'Launch and glow', 'We hand it over, and the care plan keeps it running.'],
 ];
 
-const work = [
-  ['Law firm', 'JM Bouwer Attorneys', 'A clean, professional site that turns visitors into enquiries.', '#'],
-  ['School', 'Carissa Primary School', 'A colourful school site with news, an e-newspaper and an e-learning hub.', 'https://lera2able.github.io/carissa'],
-  ['Web app', 'Dikgomo Register', 'A livestock app tracking a herd, health records and stats, working offline.', '#'],
-  ['Online shop', 'Rapha Lumina', 'Our own store, with secure checkout, email receipts and a purpose-led look.', '/'],
-];
 
 export default function WebDesignPage() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', business: '', message: '' });
@@ -166,7 +160,7 @@ export default function WebDesignPage() {
             </p>
             <div className="flex flex-wrap gap-4 mt-9">
               <a href="#quote" className="lw-cta">Get my website <ArrowRight className="h-4 w-4" /></a>
-              <a href="#work" className="btn-outline">See our work</a>
+              <a href="#packages" className="btn-outline">View packages</a>
             </div>
             <div className="flex flex-wrap gap-2.5 mt-8">
               {['Domain', 'Hosting', 'Business email', 'SEO', 'WhatsApp'].map((t) => (
@@ -260,32 +254,6 @@ export default function WebDesignPage() {
         </div>
       </section>
 
-      {/* ===================== WORK ===================== */}
-      <section id="work" className="relative">
-        <div className="pointer-events-none absolute -top-10 right-0 h-80 w-80 rounded-full blur-3xl opacity-20" style={{ background: 'radial-gradient(circle,#22d3ee,transparent 70%)' }} />
-        <div className="relative container mx-auto px-6 py-20">
-          <p className="text-label text-rl-gold mb-3">A little of our work</p>
-          <h2 className="section-title mb-12">Recent builds</h2>
-          <div className="grid sm:grid-cols-2 gap-6">
-            {work.map(([tag, title, desc, href]) => (
-              <a
-                key={title}
-                href={href}
-                target={href.startsWith('http') ? '_blank' : undefined}
-                rel="noopener noreferrer"
-                className="group block rounded-2xl bg-white border border-rl-espresso/10 overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl"
-              >
-                <div className="lw-cardtop" />
-                <div className="p-7">
-                  <span className="text-label text-rl-gold">{tag}</span>
-                  <h3 className="font-display text-2xl font-light mt-1 mb-2">{title}</h3>
-                  <p className="text-rl-muted text-sm">{desc}</p>
-                </div>
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ===================== QUOTE FORM ===================== */}
       <section id="quote" className="relative">
