@@ -1,11 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Upload, Check, ArrowRight, Sparkles, Globe, Smartphone,
   Server, Mail, MessageCircle, Search,
 } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { supabase } from '@/db/supabase';
 import PageMeta from '@/components/common/PageMeta';
@@ -21,39 +18,38 @@ const fileToBase64 = (file: File): Promise<string> =>
   });
 
 const features = [
-  [Globe, 'Your own domain', 'yourbusiness.co.za, registered and pointed for you.'],
-  [Smartphone, 'Mobile-first design', 'Looks sharp on every phone, tablet and laptop.'],
-  [Server, '12 months hosting', 'Fast, secure and live all year, no extra setup.'],
-  [Mail, 'Business email', 'A professional address on your own domain.'],
-  [MessageCircle, 'Click-to-WhatsApp', 'Turn visitors into chats with one tap.'],
-  [Search, 'Found on Google', 'The search basics done properly from day one.'],
+  ['01', Globe, 'Your own domain', 'yourbusiness.co.za, registered and pointed for you.'],
+  ['02', Smartphone, 'Mobile-first build', 'Razor sharp on every phone, tablet and laptop.'],
+  ['03', Server, '12 months hosting', 'Fast, secure and live all year. Zero setup for you.'],
+  ['04', Mail, 'Business email', 'A professional address on your own domain.'],
+  ['05', MessageCircle, 'Click-to-WhatsApp', 'Turn a visitor into a chat with a single tap.'],
+  ['06', Search, 'Found on Google', 'The search foundations done properly, day one.'],
 ] as const;
 
 const packages = [
   {
-    name: 'Starter Site', price: 'from R3 950', note: 'once-off', feature: false,
-    blurb: 'For a small business getting online for the first time.',
-    items: ['Up to 5 pages, mobile-first', 'Domain + 12 months hosting', 'One business email address', 'Enquiry form to your inbox', 'Live in roughly a week'],
+    name: 'Starter', price: 'R3 950', note: 'once-off', feature: false,
+    blurb: 'Getting online for the first time.',
+    items: ['Up to 5 pages', 'Domain + 12 months hosting', 'One business email', 'Enquiry form to your inbox', 'Live in roughly a week'],
   },
   {
-    name: 'Business Site', price: 'from R6 500', note: 'once-off', feature: true,
-    blurb: 'For an established business that wants to look unmissable.',
-    items: ['Up to 8 pages, mobile-first', 'Everything in Starter', 'Services / gallery sections', 'Click-to-WhatsApp button', 'Google Maps + basic SEO'],
+    name: 'Business', price: 'R6 500', note: 'once-off', feature: true,
+    blurb: 'For a brand that wants to look unmissable.',
+    items: ['Up to 8 pages', 'Everything in Starter', 'Services / gallery sections', 'Click-to-WhatsApp', 'Google Maps + SEO'],
   },
   {
-    name: 'Care Plan', price: 'from R150', note: 'per month', feature: false,
-    blurb: 'Keeps your site live, safe and current after launch.',
-    items: ['Hosting + domain renewal', 'Small edits each month', 'Backups and updates', 'You on call when you need us', 'Cancel any time'],
+    name: 'Care Plan', price: 'R150', note: 'per month', feature: false,
+    blurb: 'Keeps it live, safe and current.',
+    items: ['Hosting + domain renewal', 'Monthly edits', 'Backups + updates', 'Priority support', 'Cancel any time'],
   },
 ];
 
 const steps = [
-  ['01', 'Send your brief', 'Fill in the form below and tell us about your business.'],
-  ['02', 'Pay a deposit', 'Half to start, the balance once you are happy to go live.'],
-  ['03', 'We build it', 'With your logo and details, we design and build, fast.'],
-  ['04', 'Launch and glow', 'We hand it over, and the care plan keeps it running.'],
+  ['01', 'Send your brief', 'Tell us about your business in the form below.'],
+  ['02', 'Pay a deposit', 'Half to start, balance when you are happy to launch.'],
+  ['03', 'We build it', 'We design and build around your logo, fast.'],
+  ['04', 'Launch + glow', 'We hand it over and keep it running.'],
 ];
-
 
 export default function WebDesignPage() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', business: '', message: '' });
@@ -61,6 +57,18 @@ export default function WebDesignPage() {
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+
+  // load the tech fonts once
+  useEffect(() => {
+    const id = 'lw-fonts';
+    if (!document.getElementById(id)) {
+      const l = document.createElement('link');
+      l.id = id;
+      l.rel = 'stylesheet';
+      l.href = 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap';
+      document.head.appendChild(l);
+    }
+  }, []);
 
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm({ ...form, [k]: e.target.value });
@@ -110,92 +118,126 @@ export default function WebDesignPage() {
   };
 
   const logoOptions: { value: LogoChoice; title: string; desc: string }[] = [
-    { value: 'have', title: 'I already have a logo', desc: 'Upload it here and we will design around it.' },
-    { value: 'make', title: 'I would like Rapha Lumina to design one', desc: 'We can create a logo from R750 extra, included in your quote.' },
+    { value: 'have', title: 'I already have a logo', desc: 'Upload it and we will design around it.' },
+    { value: 'make', title: 'Design one for me', desc: 'We can create a logo from R750 extra.' },
     { value: 'unsure', title: 'Not sure yet', desc: 'No problem, let us chat about it.' },
   ];
 
-  const hideOnError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    e.currentTarget.style.display = 'none';
-  };
-
   return (
-    <div className="relative overflow-hidden bg-rl-cream text-rl-espresso">
+    <div className="lw-root">
       <PageMeta
         title="Websites by Rapha Lumina | Want a beautiful website?"
-        description="Bold, modern websites for South African businesses. Domain, hosting, email and SEO, all sorted by Rapha Lumina."
+        description="Bold, glowing, modern websites for South African businesses. Domain, hosting, email and SEO, all sorted by Rapha Lumina."
       />
 
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
         @keyframes lw-grad { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-        @keyframes lw-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
-        .lw-grad-text{ background:linear-gradient(90deg,#ff2db5,#8b5cf6,#22d3ee,#f5a623); -webkit-background-clip:text; background-clip:text; color:transparent; background-size:240% 240%; animation:lw-grad 7s ease infinite; }
-        .lw-cta{ display:inline-flex; align-items:center; gap:.55rem; padding:.95rem 1.7rem; border-radius:999px; color:#fff; font-weight:600; letter-spacing:.01em; background:linear-gradient(90deg,#ff2db5,#8b5cf6,#22d3ee); background-size:220% 220%; animation:lw-grad 7s ease infinite; box-shadow:0 12px 34px rgba(139,92,246,.35); transition:transform .18s ease, box-shadow .18s ease; border:none; cursor:pointer; }
-        .lw-cta:hover{ transform:translateY(-2px); box-shadow:0 18px 44px rgba(255,45,181,.42); }
-        .lw-cta:disabled{ opacity:.7; cursor:default; transform:none; }
-        .lw-float{ animation:lw-float 7s ease-in-out infinite; }
-        .lw-chip{ display:inline-flex; align-items:center; gap:.4rem; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; padding:.4rem .7rem; border-radius:999px; background:rgba(139,92,246,.08); border:1px solid rgba(139,92,246,.25); color:#6d28d9; }
-        .lw-grid{ background-image:linear-gradient(rgba(34,30,24,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(34,30,24,.5) 1px,transparent 1px); background-size:44px 44px; }
-        .lw-cardtop{ height:4px; background:linear-gradient(90deg,#ff2db5,#8b5cf6,#22d3ee); background-size:220% 220%; animation:lw-grad 7s ease infinite; }
+        @keyframes lw-spin { to { transform:rotate(360deg) } }
+        @keyframes lw-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-16px)} }
+        @keyframes lw-pulse { 0%,100%{opacity:.55} 50%{opacity:1} }
+
+        .lw-root{ position:relative; overflow:hidden; background:#08070f; color:#ECEAF5;
+          font-family:'Space Grotesk',system-ui,sans-serif; }
+        .lw-root::before{ content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+          background-image:linear-gradient(rgba(140,120,255,.35) 1px,transparent 1px),linear-gradient(90deg,rgba(140,120,255,.35) 1px,transparent 1px);
+          background-size:48px 48px; opacity:.07; }
+        .lw-wrap{ position:relative; z-index:1; max-width:1120px; margin:0 auto; padding:0 24px; }
+
+        .lw-display{ font-family:'Space Grotesk',sans-serif; font-weight:700; letter-spacing:-.02em; line-height:1.05; }
+        .lw-mono{ font-family:'Space Mono',ui-monospace,monospace; }
+        .lw-eyebrow{ font-family:'Space Mono',monospace; font-size:.72rem; letter-spacing:.22em; text-transform:uppercase; color:#22e0ff; text-shadow:0 0 16px rgba(34,224,255,.5); }
+        .lw-kicker{ font-family:'Space Mono',monospace; font-size:.72rem; letter-spacing:.22em; text-transform:uppercase; color:#ff3db5; }
+        .lw-muted{ color:#a39fc4; }
+
+        .lw-grad{ background:linear-gradient(90deg,#ff2d9b,#8b5cf6,#22e0ff,#f5b73c); -webkit-background-clip:text; background-clip:text; color:transparent; background-size:240% 240%; animation:lw-grad 8s ease infinite; filter:drop-shadow(0 0 22px rgba(139,92,246,.45)); }
+        .lw-glow-w{ color:#fff; text-shadow:0 0 26px rgba(34,224,255,.6),0 0 54px rgba(34,224,255,.3); }
+
+        .lw-blob{ position:absolute; border-radius:50%; filter:blur(70px); pointer-events:none; z-index:0; }
+
+        .lw-cta{ display:inline-flex; align-items:center; gap:.55rem; padding:.95rem 1.8rem; border-radius:999px; color:#fff; font-weight:600; font-family:'Space Grotesk',sans-serif;
+          background:linear-gradient(90deg,#ff2d9b,#8b5cf6,#22e0ff); background-size:220% 220%; animation:lw-grad 7s ease infinite;
+          box-shadow:0 0 26px rgba(139,92,246,.55),0 0 50px rgba(255,45,155,.3); transition:transform .18s ease, box-shadow .18s ease; border:none; cursor:pointer; }
+        .lw-cta:hover{ transform:translateY(-2px); box-shadow:0 0 34px rgba(255,45,155,.7),0 0 70px rgba(139,92,246,.45); }
+        .lw-cta:disabled{ opacity:.65; cursor:default; transform:none; }
+        .lw-ghost{ display:inline-flex; align-items:center; gap:.5rem; padding:.95rem 1.7rem; border-radius:999px; font-weight:600; color:#ECEAF5;
+          background:rgba(255,255,255,.04); border:1px solid rgba(140,120,255,.4); transition:.18s; }
+        .lw-ghost:hover{ border-color:#22e0ff; color:#fff; box-shadow:0 0 22px rgba(34,224,255,.35); }
+
+        .lw-chip{ display:inline-flex; align-items:center; gap:.4rem; font-family:'Space Mono',monospace; font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; padding:.42rem .75rem; border-radius:999px; background:rgba(255,255,255,.04); border:1px solid rgba(140,120,255,.3); color:#cfc9f5; }
+
+        .lw-panel{ position:relative; background:rgba(255,255,255,.035); border:1px solid rgba(140,120,255,.18); border-radius:18px; transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+        .lw-panel:hover{ transform:translateY(-5px); border-color:rgba(34,224,255,.5); box-shadow:0 0 30px rgba(34,224,255,.18); }
+        .lw-iconbox{ height:46px; width:46px; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#fff; border:1px solid rgba(255,255,255,.2); background:rgba(139,92,246,.18); box-shadow:0 0 22px rgba(139,92,246,.4); }
+
+        .lw-input{ width:100%; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.14); border-radius:.65rem; padding:.72rem .9rem; color:#ECEAF5; font-family:'Space Grotesk',sans-serif; font-size:.95rem; outline:none; transition:border-color .15s, box-shadow .15s; }
+        .lw-input::placeholder{ color:#6f6b8c; }
+        .lw-input:focus{ border-color:#8b5cf6; box-shadow:0 0 0 3px rgba(139,92,246,.22),0 0 18px rgba(139,92,246,.4); }
+        textarea.lw-input{ min-height:110px; resize:vertical; }
+        .lw-lbl{ display:block; font-family:'Space Mono',monospace; font-size:.66rem; letter-spacing:.16em; text-transform:uppercase; color:#a39fc4; margin-bottom:.4rem; }
+
+        .lw-orbwrap{ position:relative; width:300px; height:300px; margin:0 auto; }
+        .lw-ring{ position:absolute; inset:0; border-radius:50%; background:conic-gradient(from 0deg,#ff2d9b,#8b5cf6,#22e0ff,#f5b73c,#ff2d9b); animation:lw-spin 9s linear infinite;
+          -webkit-mask:radial-gradient(farthest-side,transparent 63%,#000 65%); mask:radial-gradient(farthest-side,transparent 63%,#000 65%); filter:drop-shadow(0 0 18px rgba(139,92,246,.6)); }
+        .lw-core{ position:absolute; inset:19%; border-radius:50%; background:radial-gradient(circle at 35% 28%,#ffffff,#ff2d9b 32%,#8b5cf6 72%,#1a1340 100%); box-shadow:0 0 70px rgba(139,92,246,.7),0 0 130px rgba(255,45,155,.45) inset; }
+        .lw-dot{ position:absolute; border-radius:50%; background:#22e0ff; box-shadow:0 0 12px #22e0ff; animation:lw-pulse 3s ease-in-out infinite; }
       `}</style>
 
       {/* ===================== HERO ===================== */}
       <section className="relative">
-        {/* glow blobs (light, not dark) */}
-        <div className="pointer-events-none absolute -top-24 -right-20 h-[26rem] w-[26rem] rounded-full blur-3xl opacity-40" style={{ background: 'radial-gradient(circle,#ff2db5,transparent 70%)' }} />
-        <div className="pointer-events-none absolute top-32 -left-28 h-[24rem] w-[24rem] rounded-full blur-3xl opacity-30" style={{ background: 'radial-gradient(circle,#22d3ee,transparent 70%)' }} />
-        <div className="pointer-events-none absolute -bottom-10 right-1/3 h-[20rem] w-[20rem] rounded-full blur-3xl opacity-30" style={{ background: 'radial-gradient(circle,#8b5cf6,transparent 70%)' }} />
-        <div className="pointer-events-none absolute inset-0 lw-grid opacity-[0.05]" />
+        <div className="lw-blob" style={{ top: '-80px', right: '-40px', height: '24rem', width: '24rem', background: '#ff2d9b', opacity: .35 }} />
+        <div className="lw-blob" style={{ top: '120px', left: '-90px', height: '22rem', width: '22rem', background: '#22e0ff', opacity: .28 }} />
+        <div className="lw-blob" style={{ bottom: '-60px', left: '40%', height: '20rem', width: '20rem', background: '#8b5cf6', opacity: .3 }} />
 
-        <div className="relative container mx-auto px-6 py-20 lg:py-28 grid lg:grid-cols-2 gap-12 items-center">
+        <div className="lw-wrap grid lg:grid-cols-2 gap-12 items-center py-20 lg:py-28">
           <div>
-            <span className="lw-chip mb-6"><Sparkles className="h-3.5 w-3.5" /> Rapha Lumina Web Studio</span>
-            <h1 className="font-display font-light leading-[1.05] text-5xl md:text-6xl lg:text-7xl mt-5">
-              Want a beautiful website?
-              <span className="block lw-grad-text mt-2">Rapha Lumina has you covered.</span>
+            <span className="lw-chip"><Sparkles className="h-3.5 w-3.5" /> Rapha Lumina Web Studio</span>
+            <h1 className="lw-display mt-6" style={{ fontSize: 'clamp(2.6rem,6vw,4.8rem)' }}>
+              Want a <span className="lw-glow-w">beautiful</span> website?
+              <span className="lw-grad" style={{ display: 'block', marginTop: '.4rem' }}>We've got you covered.</span>
             </h1>
-            <p className="text-rl-muted text-lg leading-relaxed mt-6 max-w-xl">
-              Bold, modern websites for South African businesses, designed to make you look
-              unmissable online. Domain, hosting, email and all the tech, sorted by us.
+            <p className="lw-muted mt-6 max-w-xl" style={{ fontSize: '1.08rem', lineHeight: 1.7 }}>
+              Bold, modern websites for South African businesses, engineered to make you look
+              unmissable online. Domain, hosting, email and the whole tech stack, handled by us.
             </p>
             <div className="flex flex-wrap gap-4 mt-9">
               <a href="#quote" className="lw-cta">Get my website <ArrowRight className="h-4 w-4" /></a>
-              <a href="#packages" className="btn-outline">View packages</a>
+              <a href="#packages" className="lw-ghost">View packages</a>
             </div>
-            <div className="flex flex-wrap gap-2.5 mt-8">
-              {['Domain', 'Hosting', 'Business email', 'SEO', 'WhatsApp'].map((t) => (
+            <div className="flex flex-wrap gap-2.5 mt-9">
+              {['Domain', 'Hosting', 'Email', 'SEO', 'WhatsApp'].map((t) => (
                 <span key={t} className="lw-chip">{t}</span>
               ))}
             </div>
           </div>
 
-          {/* hero visual */}
-          <div className="relative lw-float mx-auto w-full max-w-sm">
-            <div className="absolute -inset-5 rounded-[2.2rem] blur-2xl opacity-60" style={{ background: 'linear-gradient(135deg,#ff2db5,#8b5cf6,#22d3ee)' }} />
-            <div className="relative aspect-[4/5] rounded-[1.6rem] overflow-hidden shadow-2xl ring-1 ring-white/60" style={{ background: 'linear-gradient(135deg,#ff2db5,#8b5cf6,#22d3ee)' }}>
-              <img src="/lumina-web-hero.png" alt="Rapha Lumina web design" onError={hideOnError} className="absolute inset-0 h-full w-full object-cover" />
-              <div className="absolute inset-x-0 bottom-0 h-1/2" style={{ background: 'linear-gradient(to top,rgba(34,30,24,.6),transparent)' }} />
-              <span className="absolute bottom-5 left-5 right-5 font-display text-2xl text-white drop-shadow">
-                Wear Your Purpose. Online.
-              </span>
+          {/* glowing core (pure CSS, no image needed) */}
+          <div className="lw-float" style={{ animation: 'lw-float 7s ease-in-out infinite' }}>
+            <div className="lw-orbwrap">
+              <div className="lw-ring" />
+              <div className="lw-core" />
+              <span className="lw-dot" style={{ top: '8%', left: '14%', height: 8, width: 8 }} />
+              <span className="lw-dot" style={{ bottom: '12%', right: '10%', height: 10, width: 10, animationDelay: '1s' }} />
+              <span className="lw-dot" style={{ top: '46%', right: '-6%', height: 6, width: 6, animationDelay: '1.8s' }} />
             </div>
           </div>
         </div>
       </section>
 
       {/* ===================== WHAT YOU GET ===================== */}
-      <section className="relative bg-white/70 border-y border-rl-espresso/10">
-        <div className="container mx-auto px-6 py-20">
-          <p className="text-label text-rl-gold mb-3">Everything in one place</p>
-          <h2 className="section-title mb-12">What you get</h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-7">
-            {features.map(([Icon, title, desc]) => (
-              <div key={title} className="group p-6 rounded-2xl bg-rl-cream/60 border border-rl-espresso/10 transition-all hover:-translate-y-1 hover:shadow-lg">
-                <div className="h-11 w-11 rounded-xl flex items-center justify-center text-white mb-4" style={{ background: 'linear-gradient(135deg,#8b5cf6,#22d3ee)' }}>
-                  <Icon className="h-5 w-5" />
+      <section className="relative border-t" style={{ borderColor: 'rgba(140,120,255,.14)' }}>
+        <div className="lw-wrap py-20">
+          <p className="lw-kicker mb-3">// What you get</p>
+          <h2 className="lw-display" style={{ fontSize: 'clamp(2rem,4vw,3rem)' }}>The whole stack, sorted</h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-12">
+            {features.map(([num, Icon, title, desc]) => (
+              <div key={title} className="lw-panel p-6">
+                <div className="flex items-center justify-between">
+                  <div className="lw-iconbox"><Icon className="h-5 w-5" /></div>
+                  <span className="lw-mono" style={{ color: '#4d4870', fontSize: '.95rem' }}>{num}</span>
                 </div>
-                <p className="font-medium">{title}</p>
-                <p className="text-rl-muted text-sm mt-1">{desc}</p>
+                <p className="lw-display mt-5" style={{ fontSize: '1.18rem', fontWeight: 600 }}>{title}</p>
+                <p className="lw-muted text-sm mt-1.5">{desc}</p>
               </div>
             ))}
           </div>
@@ -203,33 +245,29 @@ export default function WebDesignPage() {
       </section>
 
       {/* ===================== PACKAGES ===================== */}
-      <section className="relative">
-        <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[24rem] w-[24rem] rounded-full blur-3xl opacity-20" style={{ background: 'radial-gradient(circle,#ff2db5,transparent 70%)' }} />
-        <div className="relative container mx-auto px-6 py-20">
-          <p className="text-label text-rl-gold mb-3">Simple, honest pricing</p>
-          <h2 className="section-title mb-3">Choose a package</h2>
-          <p className="text-rl-muted mb-12 max-w-xl">Pick a starting point. Every quote is confirmed once we have read your brief, so you never get a surprise bill.</p>
-          <div className="grid md:grid-cols-3 gap-6">
+      <section id="packages" className="relative border-t" style={{ borderColor: 'rgba(140,120,255,.14)' }}>
+        <div className="lw-blob" style={{ top: '30%', left: '50%', height: '22rem', width: '22rem', background: '#ff2d9b', opacity: .16 }} />
+        <div className="lw-wrap py-20">
+          <p className="lw-kicker mb-3">// Pricing</p>
+          <h2 className="lw-display" style={{ fontSize: 'clamp(2rem,4vw,3rem)' }}>Pick your package</h2>
+          <p className="lw-muted mt-3 max-w-xl">Every quote is confirmed once we have read your brief. No surprise bills, ever.</p>
+          <div className="grid md:grid-cols-3 gap-6 mt-12">
             {packages.map((p) => (
-              <div key={p.name} className={`rounded-2xl ${p.feature ? 'p-[2px]' : ''}`} style={p.feature ? { background: 'linear-gradient(135deg,#ff2db5,#8b5cf6,#22d3ee)' } : {}}>
-                <div className={`flex flex-col h-full p-7 rounded-2xl bg-white ${p.feature ? '' : 'border border-rl-espresso/10'} transition-shadow hover:shadow-xl`}>
-                  {p.feature && (
-                    <span className="self-start text-[0.7rem] font-semibold tracking-wider uppercase text-white px-3 py-1 rounded-full mb-3" style={{ background: 'linear-gradient(90deg,#ff2db5,#8b5cf6)' }}>Most popular</span>
-                  )}
-                  <h3 className="font-display text-2xl font-light">{p.name}</h3>
-                  <p className="font-medium mt-1"><span className="lw-grad-text">{p.price}</span> <span className="text-rl-muted text-sm">{p.note}</span></p>
-                  <p className="text-rl-muted text-sm mt-2 mb-5">{p.blurb}</p>
+              <div key={p.name} className={p.feature ? 'rounded-[19px] p-[1.5px]' : ''} style={p.feature ? { background: 'linear-gradient(135deg,#ff2d9b,#8b5cf6,#22e0ff)', boxShadow: '0 0 36px rgba(139,92,246,.4)' } : {}}>
+                <div className="lw-panel h-full p-7 flex flex-col" style={p.feature ? { background: '#0d0b1c' } : {}}>
+                  {p.feature && <span className="lw-mono self-start mb-3" style={{ fontSize: '.62rem', letterSpacing: '.14em', textTransform: 'uppercase', color: '#08070f', background: 'linear-gradient(90deg,#ff2d9b,#22e0ff)', padding: '.25rem .6rem', borderRadius: '999px', fontWeight: 700 }}>Most popular</span>}
+                  <p className="lw-display" style={{ fontSize: '1.5rem', fontWeight: 700 }}>{p.name}</p>
+                  <p className="mt-2"><span className="lw-grad lw-display" style={{ fontSize: '2rem' }}>{p.price}</span> <span className="lw-muted lw-mono text-xs">{p.note}</span></p>
+                  <p className="lw-muted text-sm mt-2 mb-5">{p.blurb}</p>
                   <ul className="space-y-2.5 flex-1 mb-7">
                     {p.items.map((it) => (
                       <li key={it} className="flex gap-2.5 text-sm">
-                        <Check className="h-4 w-4 shrink-0 mt-0.5" style={{ color: '#8b5cf6' }} />
-                        <span>{it}</span>
+                        <Check className="h-4 w-4 shrink-0 mt-0.5" style={{ color: '#22e0ff' }} />
+                        <span style={{ color: '#cfc9f5' }}>{it}</span>
                       </li>
                     ))}
                   </ul>
-                  {p.feature
-                    ? <a href="#quote" className="lw-cta justify-center">Get a quote</a>
-                    : <a href="#quote" className="btn-outline justify-center">Get a quote</a>}
+                  {p.feature ? <a href="#quote" className="lw-cta justify-center">Get a quote</a> : <a href="#quote" className="lw-ghost justify-center">Get a quote</a>}
                 </div>
               </div>
             ))}
@@ -238,107 +276,101 @@ export default function WebDesignPage() {
       </section>
 
       {/* ===================== HOW IT WORKS ===================== */}
-      <section className="bg-white/70 border-y border-rl-espresso/10">
-        <div className="container mx-auto px-6 py-20">
-          <p className="text-label text-rl-gold mb-3">No surprises</p>
-          <h2 className="section-title mb-12">How it works</h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      <section className="relative border-t" style={{ borderColor: 'rgba(140,120,255,.14)' }}>
+        <div className="lw-wrap py-20">
+          <p className="lw-kicker mb-3">// Process</p>
+          <h2 className="lw-display" style={{ fontSize: 'clamp(2rem,4vw,3rem)' }}>From idea to live</h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-12">
             {steps.map(([n, title, desc]) => (
               <div key={n}>
-                <p className="font-display text-5xl font-light lw-grad-text">{n}</p>
-                <p className="font-medium mt-3 mb-1">{title}</p>
-                <p className="text-rl-muted text-sm">{desc}</p>
+                <p className="lw-grad lw-display" style={{ fontSize: '3rem' }}>{n}</p>
+                <p className="lw-display mt-2 mb-1" style={{ fontSize: '1.18rem', fontWeight: 600 }}>{title}</p>
+                <p className="lw-muted text-sm">{desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-
       {/* ===================== QUOTE FORM ===================== */}
-      <section id="quote" className="relative">
-        <div className="pointer-events-none absolute inset-0 lw-grid opacity-[0.04]" />
-        <div className="pointer-events-none absolute -bottom-16 left-10 h-80 w-80 rounded-full blur-3xl opacity-30" style={{ background: 'radial-gradient(circle,#8b5cf6,transparent 70%)' }} />
-        <div className="relative container mx-auto px-6 py-20">
-          <div className="max-w-2xl mx-auto rounded-2xl p-[2px]" style={{ background: 'linear-gradient(135deg,#ff2db5,#8b5cf6,#22d3ee)' }}>
-            <div className="rounded-2xl bg-white p-8 md:p-12">
+      <section id="quote" className="relative border-t" style={{ borderColor: 'rgba(140,120,255,.14)' }}>
+        <div className="lw-blob" style={{ bottom: '-40px', left: '10%', height: '22rem', width: '22rem', background: '#8b5cf6', opacity: .25 }} />
+        <div className="lw-blob" style={{ top: '-20px', right: '5%', height: '18rem', width: '18rem', background: '#22e0ff', opacity: .18 }} />
+        <div className="lw-wrap py-20">
+          <div className="max-w-2xl mx-auto rounded-[19px] p-[1.5px]" style={{ background: 'linear-gradient(135deg,#ff2d9b,#8b5cf6,#22e0ff)', boxShadow: '0 0 40px rgba(139,92,246,.35)' }}>
+            <div className="rounded-[18px] p-8 md:p-12" style={{ background: '#0c0a1a' }}>
               {done ? (
                 <div className="text-center py-6">
-                  <div className="mx-auto mb-5 h-16 w-16 rounded-full flex items-center justify-center text-white" style={{ background: 'linear-gradient(135deg,#8b5cf6,#22d3ee)' }}>
+                  <div className="mx-auto mb-5 h-16 w-16 rounded-full flex items-center justify-center text-white" style={{ background: 'linear-gradient(135deg,#8b5cf6,#22e0ff)', boxShadow: '0 0 30px rgba(34,224,255,.5)' }}>
                     <Check className="h-8 w-8" />
                   </div>
-                  <h2 className="font-display text-3xl font-light mb-2">Thank you</h2>
-                  <p className="text-rl-muted">Your enquiry is on its way. We will be in touch shortly. For anything urgent, WhatsApp us on 079 333 0455.</p>
+                  <h2 className="lw-display" style={{ fontSize: '1.9rem' }}>Thank you</h2>
+                  <p className="lw-muted mt-2">Your enquiry is on its way. We will be in touch shortly. For anything urgent, WhatsApp us on 079 333 0455.</p>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-5">
                   <div className="text-center mb-2">
-                    <h2 className="section-title">Let's build yours</h2>
-                    <p className="text-rl-muted mt-2">Tell us a little about your business and we will come back with a quote.</p>
+                    <p className="lw-eyebrow mb-2">// Start your project</p>
+                    <h2 className="lw-display" style={{ fontSize: 'clamp(1.8rem,3.5vw,2.4rem)' }}>Let's build yours</h2>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-5">
                     <div>
-                      <Label htmlFor="name">Name</Label>
-                      <Input id="name" value={form.name} onChange={set('name')} placeholder="Your full name" required />
+                      <label className="lw-lbl" htmlFor="name">Name</label>
+                      <input id="name" className="lw-input" value={form.name} onChange={set('name')} placeholder="Your full name" required />
                     </div>
                     <div>
-                      <Label htmlFor="email">Email address</Label>
-                      <Input id="email" type="email" value={form.email} onChange={set('email')} placeholder="you@email.com" required />
+                      <label className="lw-lbl" htmlFor="email">Email address</label>
+                      <input id="email" type="email" className="lw-input" value={form.email} onChange={set('email')} placeholder="you@email.com" required />
                     </div>
                     <div>
-                      <Label htmlFor="phone">Contact number</Label>
-                      <Input id="phone" type="tel" value={form.phone} onChange={set('phone')} placeholder="Call or WhatsApp" required />
+                      <label className="lw-lbl" htmlFor="phone">Contact number</label>
+                      <input id="phone" type="tel" className="lw-input" value={form.phone} onChange={set('phone')} placeholder="Call or WhatsApp" required />
                     </div>
                     <div>
-                      <Label htmlFor="business">Business name</Label>
-                      <Input id="business" value={form.business} onChange={set('business')} placeholder="Your business or project" />
+                      <label className="lw-lbl" htmlFor="business">Business name</label>
+                      <input id="business" className="lw-input" value={form.business} onChange={set('business')} placeholder="Your business or project" />
                     </div>
                   </div>
 
                   <div>
-                    <Label htmlFor="message">Message</Label>
-                    <Textarea id="message" rows={4} value={form.message} onChange={set('message')} placeholder="What does your business do, and what do you need from the website?" />
+                    <label className="lw-lbl" htmlFor="message">Message</label>
+                    <textarea id="message" rows={4} className="lw-input" value={form.message} onChange={set('message')} placeholder="What does your business do, and what do you need from the website?" />
                   </div>
 
-                  <div className="border-t border-rl-espresso/10 pt-5">
-                    <p className="text-label text-rl-muted mb-3">Your logo</p>
+                  <div className="pt-4" style={{ borderTop: '1px solid rgba(140,120,255,.16)' }}>
+                    <p className="lw-lbl">Your logo</p>
                     <div className="space-y-3">
-                      {logoOptions.map((opt) => (
-                        <label
-                          key={opt.value}
-                          className={`flex gap-3 items-start p-3.5 rounded-xl border cursor-pointer transition-colors ${
-                            logoChoice === opt.value ? 'border-transparent bg-[#8b5cf6]/8 ring-1 ring-[#8b5cf6]/40' : 'border-rl-espresso/15 hover:border-[#8b5cf6]/50'
-                          }`}
-                        >
-                          <input type="radio" name="logo" value={opt.value} checked={logoChoice === opt.value} onChange={() => setLogoChoice(opt.value)} className="mt-1" style={{ accentColor: '#8b5cf6' }} />
-                          <span>
-                            <span className="block font-medium text-sm">{opt.title}</span>
-                            <span className="block text-rl-muted text-sm">{opt.desc}</span>
-                          </span>
-                        </label>
-                      ))}
+                      {logoOptions.map((opt) => {
+                        const active = logoChoice === opt.value;
+                        return (
+                          <label key={opt.value} className="flex gap-3 items-start p-3.5 rounded-xl cursor-pointer transition-all"
+                            style={{ border: active ? '1px solid rgba(34,224,255,.55)' : '1px solid rgba(255,255,255,.12)', background: active ? 'rgba(34,224,255,.06)' : 'transparent', boxShadow: active ? '0 0 20px rgba(34,224,255,.18)' : 'none' }}>
+                            <input type="radio" name="logo" value={opt.value} checked={active} onChange={() => setLogoChoice(opt.value)} className="mt-1" style={{ accentColor: '#22e0ff' }} />
+                            <span>
+                              <span className="block lw-display text-sm" style={{ fontWeight: 600 }}>{opt.title}</span>
+                              <span className="block lw-muted text-sm">{opt.desc}</span>
+                            </span>
+                          </label>
+                        );
+                      })}
                     </div>
 
                     {logoChoice === 'have' && (
-                      <label className="mt-3 flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed p-5 text-center cursor-pointer" style={{ borderColor: 'rgba(139,92,246,.5)', background: 'rgba(139,92,246,.05)' }}>
-                        <Upload className="h-5 w-5" style={{ color: '#8b5cf6' }} />
-                        <span className="text-sm text-rl-muted">
-                          {logoFile ? `Selected: ${logoFile.name}` : 'Click to upload your logo (PNG, JPG, SVG or PDF, up to 5MB)'}
-                        </span>
+                      <label className="mt-3 flex flex-col items-center justify-center gap-2 rounded-xl p-5 text-center cursor-pointer"
+                        style={{ border: '1px dashed rgba(34,224,255,.45)', background: 'rgba(34,224,255,.04)' }}>
+                        <Upload className="h-5 w-5" style={{ color: '#22e0ff' }} />
+                        <span className="lw-muted text-sm">{logoFile ? `Selected: ${logoFile.name}` : 'Click to upload your logo (PNG, JPG, SVG or PDF, up to 5MB)'}</span>
                         <input type="file" accept=".png,.jpg,.jpeg,.svg,.pdf" onChange={onFile} className="hidden" />
                       </label>
                     )}
                   </div>
 
                   <div className="text-center pt-2">
-                    <button type="submit" disabled={loading} className="lw-cta justify-center min-w-56">
+                    <button type="submit" disabled={loading} className="lw-cta justify-center" style={{ minWidth: '15rem' }}>
                       {loading ? 'Sending...' : <>Send my enquiry <ArrowRight className="h-4 w-4" /></>}
                     </button>
-                    <p className="text-rl-muted text-xs mt-3">
-                      Or WhatsApp us directly on{' '}
-                      <a href="https://wa.me/27793330455" target="_blank" rel="noopener noreferrer" style={{ color: '#8b5cf6' }}>079 333 0455</a>.
-                    </p>
+                    <p className="lw-muted text-xs mt-3">Or WhatsApp us directly on <a href="https://wa.me/27793330455" target="_blank" rel="noopener noreferrer" style={{ color: '#22e0ff' }}>079 333 0455</a>.</p>
                   </div>
                 </form>
               )}
