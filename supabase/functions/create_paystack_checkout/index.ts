@@ -108,13 +108,19 @@ async function createPaystackTransaction(
   if (!paystackSecretKey) {
     throw new Error("PAYSTACK_SECRET_KEY not configured");
   }
+  
+  // Clean the key (remove any whitespace/newlines)
+  const cleanKey = paystackSecretKey.trim();
+  console.log('Paystack key prefix:', cleanKey.substring(0, 10));
+  console.log('Paystack key length:', cleanKey.length);
 
-  const response = await fetch("https://api.paystack.co/transaction/initialize", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${paystackSecretKey}`,
-      "Content-Type": "application/json",
-    },
+  try {
+    const response = await fetch("https://api.paystack.co/transaction/initialize", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${cleanKey}`,
+        "Content-Type": "application/json",
+      },
     body: JSON.stringify({
       email,
       amount,
@@ -148,7 +154,16 @@ Deno.serve(async (req) => {
       return new Response("Method not allowed", { status: 405 });
     }
     
-    const request = await req.json();
+    console.log('=== CHECKOUT DEBUG ===');
+    console.log('Headers:', Object.fromEntries(req.headers.entries()));
+    
+    const rawBody = await req.text();
+    console.log('Raw body length:', rawBody.length);
+    console.log('Raw body:', rawBody);
+    
+    const request = JSON.parse(rawBody);
+    console.log('Parsed request keys:', Object.keys(request));
+    console.log('Email field:', request.email);
     
     validateCheckoutRequest(request);
 
