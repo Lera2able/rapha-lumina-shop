@@ -55,12 +55,20 @@ function fail(msg: string, code = 400): Response {
 }
 
 function validateCheckoutRequest(request: CheckoutRequest): void {
+  console.log("[VALIDATE] Checking request...");
+  console.log("[VALIDATE] Request type:", typeof request);
+  console.log("[VALIDATE] Request keys:", Object.keys(request));
+  console.log("[VALIDATE] Email value:", request.email);
+  console.log("[VALIDATE] Email type:", typeof request.email);
+  
   if (!request.items?.length) {
     throw new Error("Cart items cannot be empty");
   }
   if (!request.email?.trim()) {
+    console.log("[VALIDATE] Email validation FAILED");
     throw new Error("Email is required");
   }
+  console.log("[VALIDATE] All checks passed");
   for (const item of request.items) {
     if (!item.name || item.price <= 0 || item.quantity <= 0) {
       throw new Error("Invalid item information");

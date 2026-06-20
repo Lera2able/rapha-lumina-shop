@@ -83,20 +83,24 @@ export default function CheckoutPage() {
         size: item.size || '',
       }));
 
-      const { data, error } = await supabase.functions.invoke('create_paystack_checkout', {
-        body: {
+      // Call Cloudflare Worker instead of Supabase Edge Function
+      const response = await fetch('https://api.raphalumina.com/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           items: orderItems,
           email: shippingAddress.email,
-          customer_name: shippingAddress.name,
           currency: 'ZAR',
           shippingAddress: shippingAddress,
           shippingCost: shippingCost,
-        },
+        }),
       });
 
+      const data = await response.json();
+      const error = !response.ok ? data : null;
+
       if (error) {
-        const errorMsg = await error?.context?.text?.();
-        console.error('Checkout error:', errorMsg || error);
+        console.error('Checkout error:', error);
         toast.error(errorMsg || error?.message || 'Failed to create checkout session');
         return;
       }

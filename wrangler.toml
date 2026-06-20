@@ -1,0 +1,27 @@
+name = "rapha-lumina-checkout"
+type = "javascript"
+account_id = ""
+workers_dev = true
+route = ""
+zone_id = ""
+
+env = {}
+
+[env.production]
+vars = { ENVIRONMENT = "production" }
+
+[[r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "rapha-lumina"
+
+[build]
+command = "npm install && npm run build"
+cwd = "./"
+watch_paths = ["src/**/*.ts"]
+
+[build.upload]
+format = "service-worker"
+main = "./dist/index.js"
+
+[env.production.vars]
+SUPABASE_URL = "https://vousucfboetqtppjywlg.supabase.co"
