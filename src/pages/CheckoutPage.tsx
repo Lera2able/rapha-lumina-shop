@@ -83,18 +83,24 @@ export default function CheckoutPage() {
         size: item.size || '',
       }));
 
-      // Call Cloudflare Worker instead of Supabase Edge Function
-      const response = await fetch('https://api.raphalumina.com/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          items: orderItems,
-          email: shippingAddress.email,
-          currency: 'ZAR',
-          shippingAddress: shippingAddress,
-          shippingCost: shippingCost,
-        }),
-      });
+      // Call Supabase Edge Function (checkout-v2)
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/checkout-v2`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            items: orderItems,
+            email: shippingAddress.email,
+            currency: 'ZAR',
+            shippingAddress: shippingAddress,
+            shippingCost: shippingCost,
+          }),
+        }
+      );
 
       const data = await response.json();
       const error = !response.ok ? data : null;
