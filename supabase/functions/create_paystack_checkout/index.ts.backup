@@ -35,8 +35,8 @@ function ok(data: unknown): Response {
       status: 200,
       headers: {
         "Content-Type": "application/json",
-        ...corsHeaders,
-      },
+        ...corsHeaders
+      }
     }
   );
 }
@@ -48,8 +48,8 @@ function fail(msg: string, code = 400): Response {
       status: code,
       headers: {
         "Content-Type": "application/json",
-        ...corsHeaders,
-      },
+        ...corsHeaders
+      }
     }
   );
 }
@@ -58,7 +58,7 @@ function validateCheckoutRequest(request: CheckoutRequest): void {
   if (!request.items?.length) {
     throw new Error("Cart items cannot be empty");
   }
-  if (!request.email?.trim()) {
+  if (!request.email) {
     throw new Error("Email is required");
   }
   for (const item of request.items) {
@@ -69,29 +69,31 @@ function validateCheckoutRequest(request: CheckoutRequest): void {
 }
 
 function processOrderItems(items: OrderItem[]) {
+  // For database — keep Rand prices
   const dbItems = items.map(item => ({
     name: item.name.trim(),
-    price: item.price,
+    price: item.price,  // Rands as received
     quantity: item.quantity,
     image_url: item.image_url?.trim() || "",
     product_id: item.product_id,
     size: item.size || "",
   }));
-
+  
+  // For Paystack — convert to cents
   const paystackItems = items.map(item => ({
     name: item.name.trim(),
-    price: Math.round(item.price * 100),
+    price: Math.round(item.price * 100),  // Convert to cents
     quantity: item.quantity,
     image_url: item.image_url?.trim() || "",
     product_id: item.product_id,
     size: item.size || "",
   }));
-
+  
   const totalAmount = paystackItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
-
+  
   return { dbItems, paystackItems, totalAmount };
 }
 
@@ -104,136 +106,133 @@ async function createPaystackTransaction(
 ) {
   const paystackSecretKey = Deno.env.get("PAYSTACK_SECRET_KEY");
   if (!paystackSecretKey) {
-    throw new Error("PAYSTACK_SECRET_KEY not configured in Supabase secrets");
+    throw new Error("PAYSTACK_SECRET_KEY not configured");
   }
-
-  // Clean and validate the key
+  
+  // Clean the key (remove any whitespace/newlines)
   const cleanKey = paystackSecretKey.trim();
-  if (!cleanKey.startsWith("sk_")) {
-    throw new Error("Invalid Paystack secret key format");
-  }
+  console.log('Paystack key prefix:', cleanKey.substring(0, 10));
+  console.log('Paystack key length:', cleanKey.length);
 
-  console.log("[PAYSTACK] Initializing transaction for:", email);
-  console.log("[PAYSTACK] Amount:", amount, "cents");
-
-  // Use a Headers object to avoid ByteString issues
-  const headers = new Headers({
-    Authorization: `Bearer ${cleanKey}`,
-    "Content-Type": "application/json",
+  try {
+    const response = await fetch("https://api.paystack.co/transaction/initialize", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${cleanKey}`,
+        "Content-Type": "application/json",
+      },
+    body: JSON.stringify({
+      email,
+      amount,
+      currency,
+      reference: orderId,
+      callback_url: callbackUrl,
+      metadata: {
+        order_id: orderId,
+      },
+    }),
   });
-
-  const body = JSON.stringify({
-    email,
-    amount,
-    currency,
-    reference: orderId,
-    callback_url: callbackUrl,
-    metadata: { order_id: orderId },
-  });
-
-  console.log("[PAYSTACK] Sending request...");
-
-  const response = await fetch("https://api.paystack.co/transaction/initialize", {
-    method: "POST",
-    headers: headers,
-    body: body,
-  });
-
-  console.log("[PAYSTACK] Response status:", response.status);
 
   if (!response.ok) {
-    const errorText = await response.text();
-    console.error("[PAYSTACK] Error response:", errorText);
-    throw new Error(`Paystack API error: ${response.status} ${errorText}`);
+    const error = await response.json();
+    throw new Error(`Paystack API error: ${error.message || 'Unknown error'}`);
   }
 
   const data = await response.json();
-  console.log("[PAYSTACK] Success! Auth URL:", !!data.data?.authorization_url);
-
-  if (!data.status || !data.data?.authorization_url) {
-    throw new Error("Invalid Paystack response - missing authorization URL");
-  }
-
-  return data.data.authorization_url;
+  return data.data;
 }
 
 Deno.serve(async (req) => {
   try {
     if (req.method === "OPTIONS") {
-      return new Response(null, {
+      return new Response(null, { 
         status: 204,
-        headers: corsHeaders,
+        headers: corsHeaders 
       });
     }
-
     if (req.method !== "POST") {
       return new Response("Method not allowed", { status: 405 });
     }
-
+    
+    console.log('=== CHECKOUT DEBUG ===');
+    console.log('Headers:', Object.fromEntries(req.headers.entries()));
+    
     const rawBody = await req.text();
-    console.log("[CHECKOUT] Received request, body length:", rawBody.length);
-
-    const request: CheckoutRequest = JSON.parse(rawBody);
-    console.log("[CHECKOUT] Parsed email:", request.email);
-
+    console.log('Raw body length:', rawBody.length);
+    console.log('Raw body:', rawBody);
+    
+    const request = JSON.parse(rawBody);
+    console.log('Parsed request keys:', Object.keys(request));
+    console.log('Email field:', request.email);
+    
     validateCheckoutRequest(request);
 
     const authHeader = req.headers.get("Authorization");
+    
     const token = authHeader?.replace("Bearer ", "");
     const { data: { user } } = token
       ? await supabase.auth.getUser(token)
       : { data: { user: null } };
 
     const { dbItems, paystackItems, totalAmount } = processOrderItems(request.items);
-
+    
+    // Add shipping cost (convert to cents)
     const shippingCostInCents = Math.round((request.shippingCost || 0) * 100);
     const grandTotalAmount = totalAmount + shippingCostInCents;
 
-    const origin = req.headers.get("origin") ||
-      Deno.env.get("SITE_URL") ||
-      "https://raphalumina.com";
-    const orderId = crypto.randomUUID();
-    const callbackUrl = `${origin}/payment/callback?order_id=${orderId}`;
-
-    console.log("[CHECKOUT] Creating order in database...");
+    const origin = req.headers.get("origin") 
+      || Deno.env.get("SITE_URL") 
+      || "https://raphalumina.com";
+    const callbackUrl = `${origin}/payment/callback?order_id=${crypto.randomUUID()}`;
 
     const { data: order, error } = await supabase
       .from("orders")
       .insert({
         user_id: user?.id || null,
-        items: dbItems,
+        items: dbItems,  // Store Rand prices
         total_amount: grandTotalAmount / 100,
-        currency: (request.currency || "ZAR").toUpperCase(),
-        customer_email: request.email,
-        shipping_address: request.shippingAddress,
-        shipping_cost: (request.shippingCost || 0),
+        currency: (request.currency || 'ZAR').toUpperCase(),
         status: "pending",
+        customer_email: request.email,
+        customer_name: request.shippingAddress?.name || null,
+        shipping_address: request.shippingAddress || null,
+        shipping_cost: (request.shippingCost || 0),
       })
       .select()
       .single();
 
     if (error) {
-      console.error("[CHECKOUT] Database error:", error);
-      throw error;
+      throw new Error(`Failed to create order: ${error.message}`);
     }
 
-    console.log("[CHECKOUT] Order created:", order?.id);
-
-    // Initialize Paystack transaction
-    const authUrl = await createPaystackTransaction(
+    const paystackData = await createPaystackTransaction(
       request.email,
       grandTotalAmount,
-      request.currency || "ZAR",
-      orderId,
+      request.currency || 'ZAR',
+      order.id,
       callbackUrl
-    );
+    ).catch(async (err) => {
+      // Clean up orphan order if Paystack fails
+      await supabase.from("orders").delete().eq("id", order.id);
+      throw err;
+    });
 
-    console.log("[CHECKOUT] Success! Returning auth URL");
+    await supabase
+      .from("orders")
+      .update({
+        paystack_reference: paystackData.reference,
+        paystack_access_code: paystackData.access_code,
+      })
+      .eq("id", order.id);
 
-    return ok({ authorization_url: authUrl });
+    return ok({
+      authorization_url: paystackData.authorization_url,
+      access_code: paystackData.access_code,
+      reference: paystackData.reference,
+      orderId: order.id,
+    });
   } catch (error) {
-    console.error("[ERROR]", error);
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return fail(message, 500);
+    console.error("Checkout error:", error);
+    return fail(error instanceof Error ? error.message : "Payment processing failed", 500);
   }
 });
