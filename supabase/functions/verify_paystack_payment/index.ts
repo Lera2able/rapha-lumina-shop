@@ -111,7 +111,7 @@ async function updateOrderStatus(reference: string, transactionData: any): Promi
       if (item.product_id) {
         await supabase.rpc('decrement_stock', {
           product_id: item.product_id,
-          qty: item.quantity,
+          quantity: item.quantity,
         });
       }
     });

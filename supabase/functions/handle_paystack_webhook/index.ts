@@ -2,7 +2,7 @@ import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { createHmac } from 'node:crypto';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_KEY')!;
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const paystackSecretKey = Deno.env.get('PAYSTACK_SECRET_KEY')!;
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
