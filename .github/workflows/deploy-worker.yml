@@ -28,10 +28,5 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          secrets: |
-            PAYSTACK_SECRET_KEY
-            SUPABASE_SERVICE_ROLE_KEY
-        env:
-          PAYSTACK_SECRET_KEY: ${{ secrets.PAYSTACK_SECRET_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          SUPABASE_URL: https://vousucfboetqtppjywlg.supabase.co
+          wranglerVersion: "4"
+          command: deploy
