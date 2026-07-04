@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import PageMeta from '@/components/common/PageMeta';
 import { supabase } from '@/db/supabase';
 import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 
 export default function PaymentSuccessPage() {
@@ -14,6 +15,7 @@ export default function PaymentSuccessPage() {
   const [verified, setVerified] = useState(false);
   const [paymentDetails, setPaymentDetails] = useState<any>(null);
   const { clearCart } = useCart();
+  const { user } = useAuth();
 
   useEffect(() => {
     if (reference) {
@@ -185,13 +187,21 @@ export default function PaymentSuccessPage() {
           )}
 
           <p className="text-sm text-center text-muted-foreground">
-            You will receive an order confirmation email shortly.
+            {user
+              ? 'You will receive an order confirmation email shortly.'
+              : 'Your order is confirmed. We will email your receipt and shipping updates to the address used at checkout.'}
           </p>
 
           <div className="flex flex-col gap-2">
-            <Button asChild className="w-full">
-              <Link to="/account/orders">View Order History</Link>
-            </Button>
+            {user ? (
+              <Button asChild className="w-full">
+                <Link to="/account/orders">View Order History</Link>
+              </Button>
+            ) : (
+              <div className="rounded-lg border p-3 text-sm text-muted-foreground">
+                Guest checkout detected. Save your order number and use the confirmation email for shipping updates.
+              </div>
+            )}
             <Button asChild variant="outline" className="w-full">
               <Link to="/">Continue Shopping</Link>
             </Button>

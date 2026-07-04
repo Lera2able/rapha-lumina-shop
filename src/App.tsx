@@ -24,6 +24,7 @@ const AdminOrderDetailPage = lazy(() => import('@/pages/admin/AdminOrderDetailPa
 const AdminRefundsPage = lazy(() => import('@/pages/admin/AdminRefundsPage'));
 const AdminCustomersPage = lazy(() => import('@/pages/admin/AdminCustomersPage'));
 const AdminCustomerDetailPage = lazy(() => import('@/pages/admin/AdminCustomerDetailPage'));
+const AdminSubscribersPage = lazy(() => import('@/pages/admin/AdminSubscribersPage'));
 const AdminAccountPage = lazy(() => import('@/pages/admin/AdminAccountPage'));
 
 const RouteLoading = () => (
@@ -58,6 +59,7 @@ const App: React.FC = () => {
               <Route path="refunds" element={withSuspense(<AdminRefundsPage />)} />
               <Route path="customers" element={withSuspense(<AdminCustomersPage />)} />
               <Route path="customers/:email" element={withSuspense(<AdminCustomerDetailPage />)} />
+              <Route path="subscribers" element={withSuspense(<AdminSubscribersPage />)} />
               <Route path="account" element={withSuspense(<AdminAccountPage />)} />
             </Route>
 

@@ -8,6 +8,7 @@ import {
   ShoppingCart, 
   RefreshCw,
   Users,
+  MailPlus,
   Settings,
   LogOut,
   Menu,
@@ -36,6 +37,7 @@ export default function AdminLayout() {
     { path: '/admin/products', label: 'Products', icon: Package },
     { path: '/admin/orders', label: 'Orders', icon: ShoppingCart },
     { path: '/admin/customers', label: 'Customers', icon: Users },
+    { path: '/admin/subscribers', label: 'Subscribers', icon: MailPlus },
     { path: '/admin/refunds', label: 'Refunds', icon: RefreshCw },
     { path: '/admin/account', label: 'Account', icon: Settings },
   ];

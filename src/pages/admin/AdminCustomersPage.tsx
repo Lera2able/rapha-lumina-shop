@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/db/supabase';
 import { formatPrice } from '@/lib/utils';
-import { Eye, Users } from 'lucide-react';
+import { Copy, Download, Eye, Users } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface CustomerRow {
@@ -86,6 +86,42 @@ export default function AdminCustomersPage() {
     );
   }, [rows, search]);
 
+  const customerEmails = filtered.map((row) => row.email).join(', ');
+
+  const handleCopyEmails = async () => {
+    try {
+      await navigator.clipboard.writeText(customerEmails);
+      toast.success('Customer emails copied');
+    } catch (error) {
+      console.error('Failed to copy customer emails:', error);
+      toast.error('Could not copy emails');
+    }
+  };
+
+  const handleExportCsv = () => {
+    const lines = [
+      ['name', 'email', 'orders', 'lifetime_spend', 'last_order_at', 'guest'].join(','),
+      ...filtered.map((row) =>
+        [
+          `"${(row.customer_name ?? '').replace(/"/g, '""')}"`,
+          row.email,
+          row.total_orders,
+          row.total_spent.toFixed(2),
+          row.last_order_at,
+          row.is_guest ? 'yes' : 'no',
+        ].join(','),
+      ),
+    ];
+
+    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'rapha-lumina-customers.csv';
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -95,6 +131,41 @@ export default function AdminCustomersPage() {
         <p className="text-muted-foreground">
           Built from completed orders. Guests included.
         </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Customer emails</p>
+            <p className="text-2xl font-bold mt-2">{filtered.length}</p>
+            <p className="text-sm text-muted-foreground mt-1">Campaign-ready buyer contacts</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Guest buyers</p>
+            <p className="text-2xl font-bold mt-2">{filtered.filter((row) => row.is_guest).length}</p>
+            <p className="text-sm text-muted-foreground mt-1">Captured through guest checkout</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Campaign tools</p>
+              <p className="text-sm text-muted-foreground mt-1">Copy or export the filtered list</p>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={handleCopyEmails} disabled={!filtered.length}>
+                <Copy className="h-4 w-4 mr-2" />
+                Copy
+              </Button>
+              <Button size="sm" onClick={handleExportCsv} disabled={!filtered.length}>
+                <Download className="h-4 w-4 mr-2" />
+                CSV
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <Card>

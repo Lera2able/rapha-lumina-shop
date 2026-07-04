@@ -29,6 +29,9 @@ export default function OrderHistoryPage() {
   useEffect(() => {
     if (user) {
       loadOrders();
+    } else {
+      setOrders([]);
+      setLoading(false);
     }
   }, [user]);
 
@@ -112,6 +115,19 @@ export default function OrderHistoryPage() {
 
   if (loading) {
     return <div>Loading...</div>;
+  }
+
+  if (!user) {
+    return (
+      <Card>
+        <CardContent className="p-8 text-center space-y-3">
+          <p className="font-medium">Sign in to view order history.</p>
+          <p className="text-muted-foreground text-sm">
+            Guest purchases won&apos;t appear in account history unless they were placed while signed in.
+          </p>
+        </CardContent>
+      </Card>
+    );
   }
 
   if (orders.length === 0) {

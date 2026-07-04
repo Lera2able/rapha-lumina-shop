@@ -12,9 +12,14 @@ import { toast } from 'sonner'
 const MERCH_PER_VIEW = 4
 const COLLECTION_PER_VIEW = 4
 
+type HomeProduct = Product & {
+  sold_units?: number
+  bestseller_rank?: number | null
+}
+
 export default function HomePage() {
-  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([])
-  const [activeMerchTab, setActiveMerchTab] = useState<'all' | 'new' | 'featured' | 'teacher' | 'enlightened'>('all')
+  const [featuredProducts, setFeaturedProducts] = useState<HomeProduct[]>([])
+  const [activeMerchTab, setActiveMerchTab] = useState<'all' | 'best' | 'new' | 'featured' | 'teacher' | 'enlightened'>('all')
   const [merchPage, setMerchPage] = useState(0)
   const [enlightenedPage, setEnlightenedPage] = useState(0)
   const [teacherPage, setTeacherPage] = useState(0)
@@ -27,6 +32,21 @@ export default function HomePage() {
   }, [])
 
   const loadFeaturedProducts = async () => {
+    const { data: merchData, error: merchError } = await supabase.functions.invoke('homepage_merch')
+
+    if (!merchError && Array.isArray(merchData?.products)) {
+      const normalised = normaliseProducts(merchData.products)
+      const enhanced = normalised.map((product, index) => ({
+        ...product,
+        sold_units: Number(merchData.products[index]?.sold_units ?? 0),
+        bestseller_rank: merchData.products[index]?.bestseller_rank
+          ? Number(merchData.products[index].bestseller_rank)
+          : null,
+      }))
+      setFeaturedProducts(enhanced)
+      return
+    }
+
     const { data } = await supabase
       .from('products')
       .select('*')
@@ -34,7 +54,7 @@ export default function HomePage() {
       .order('featured', { ascending: false })
       .order('created_at', { ascending: false })
 
-    setFeaturedProducts(normaliseProducts(data))
+    setFeaturedProducts(normaliseProducts(data).map((product) => ({ ...product, sold_units: 0, bestseller_rank: null })))
   }
 
   useEffect(() => {
@@ -98,11 +118,19 @@ export default function HomePage() {
   const newestProducts = [...featuredProducts].sort(
     (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
   )
+  const bestSellerProducts = [...featuredProducts]
+    .filter((product) => Number(product.sold_units ?? 0) > 0)
+    .sort((a, b) => {
+      const soldDiff = Number(b.sold_units ?? 0) - Number(a.sold_units ?? 0)
+      if (soldDiff !== 0) return soldDiff
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    })
   const featuredOnlyProducts = featuredProducts.filter((product) => product.featured)
   const teacherProducts = featuredProducts.filter((product) => product.collection === 'teacher')
   const enlightenedProducts = featuredProducts.filter((product) => product.collection === 'enlightened')
   const merchTabs = [
     { key: 'all' as const, label: 'All products', products: featuredProducts },
+    { key: 'best' as const, label: 'Best sellers', products: bestSellerProducts.length > 0 ? bestSellerProducts : featuredProducts },
     { key: 'new' as const, label: 'New arrivals', products: newestProducts },
     { key: 'featured' as const, label: 'Featured', products: featuredOnlyProducts.length > 0 ? featuredOnlyProducts : featuredProducts },
     { key: 'teacher' as const, label: 'Teacher edit', products: teacherProducts },
@@ -126,6 +154,7 @@ export default function HomePage() {
     teacherPage * COLLECTION_PER_VIEW,
     teacherPage * COLLECTION_PER_VIEW + COLLECTION_PER_VIEW,
   )
+  const heroBestSeller = bestSellerProducts[0] ?? featuredProducts[0] ?? null
 
   useEffect(() => {
     if (activeMerchProducts.length <= MERCH_PER_VIEW) return
@@ -157,7 +186,7 @@ export default function HomePage() {
     return () => window.clearInterval(interval)
   }, [teacherProducts])
 
-  const renderProductCard = (product: Product, tone: 'sage' | 'terra' | 'neutral' = 'neutral') => (
+  const renderProductCard = (product: HomeProduct, tone: 'sage' | 'terra' | 'neutral' = 'neutral') => (
     <article key={product.id} className="group rounded-[26px] border border-rl-espresso/10 p-3 sm:p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(26,18,8,0.08)]">
       <div
         className="relative aspect-[4/5] overflow-hidden rounded-[22px] mb-4"
@@ -208,6 +237,12 @@ export default function HomePage() {
           {product.collection === 'enlightened' ? 'Enlightened' : 'Teacher'}
         </div>
 
+        {product.bestseller_rank ? (
+          <div className="absolute top-14 left-3 z-20 px-3 py-1.5 rounded-full text-[9px] tracking-[0.14em] uppercase" style={{ backgroundColor: 'rgba(250, 248, 245, 0.92)', color: 'var(--rl-espresso)' }}>
+            No. {product.bestseller_rank} best seller
+          </div>
+        ) : null}
+
         <div className="absolute left-4 right-4 bottom-4 z-20 space-y-1.5 text-white">
           <p className="text-[9px] tracking-[0.16em] uppercase opacity-80">
             {product.featured ? 'Curated favourite' : 'Available now'}
@@ -236,7 +271,9 @@ export default function HomePage() {
             Made to entice
           </p>
           <p className="text-[12px] mt-1" style={{ color: 'var(--rl-muted)' }}>
-            {product.stock} in stock
+            {product.bestseller_rank
+              ? `${product.sold_units ?? 0} sold · ${product.stock} in stock`
+              : `${product.stock} in stock`}
           </p>
         </div>
         <button
@@ -279,6 +316,21 @@ export default function HomePage() {
             </Link>
             <Link to="/about" className="btn-outline">Our story</Link>
           </div>
+          {heroBestSeller && (
+            <div className="mb-8 rounded-[24px] border border-rl-espresso/10 p-5 max-w-[440px]" style={{ backgroundColor: 'rgba(250, 248, 245, 0.72)' }}>
+              <p className="text-[10px] tracking-[0.16em] uppercase mb-2" style={{ color: 'var(--rl-gold)' }}>
+                Editor&apos;s spotlight
+              </p>
+              <p className="font-display text-[28px] leading-none mb-2">
+                {heroBestSeller.name}
+              </p>
+              <p className="text-[13px] leading-[1.7]" style={{ color: 'var(--rl-muted)' }}>
+                {heroBestSeller.bestseller_rank
+                  ? `Current No. ${heroBestSeller.bestseller_rank} best seller with ${heroBestSeller.sold_units ?? 0} completed-order sales.`
+                  : 'A standout piece chosen to lead the season’s story.'}
+              </p>
+            </div>
+          )}
           <div className="grid grid-cols-3 gap-4 sm:gap-9 pt-8 border-t border-rl-espresso/10">
             <div>
               <p className="font-display text-2xl font-light" style={{ color: 'var(--rl-gold)' }}>Free</p>
@@ -307,6 +359,19 @@ export default function HomePage() {
           <div className="absolute bottom-5 left-5 sm:bottom-7 sm:left-7 px-3.5 py-2 text-[10px] tracking-[0.14em] uppercase" style={{ backgroundColor: 'var(--rl-cream)', color: 'var(--rl-espresso)' }}>
             Enlightened Collection
           </div>
+          {heroBestSeller && (
+            <div className="absolute top-5 right-5 sm:top-7 sm:right-7 max-w-[220px] p-4 rounded-[22px] backdrop-blur-sm" style={{ backgroundColor: 'rgba(250, 248, 245, 0.84)', color: 'var(--rl-espresso)' }}>
+              <p className="text-[9px] tracking-[0.14em] uppercase mb-2" style={{ color: 'var(--rl-gold)' }}>
+                Best seller signal
+              </p>
+              <p className="font-display text-[22px] leading-none mb-1">
+                {heroBestSeller.bestseller_rank ? `#${heroBestSeller.bestseller_rank}` : 'Featured'}
+              </p>
+              <p className="text-[12px] leading-[1.6]">
+                {heroBestSeller.name}
+              </p>
+            </div>
+          )}
         </div>
       </section>
 
