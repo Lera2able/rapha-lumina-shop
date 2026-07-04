@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import PageMeta from '@/components/common/PageMeta';
 import { supabase } from '@/db/supabase';
 import { toast } from 'sonner';
 import { CheckCircle2 } from 'lucide-react';
@@ -63,6 +64,12 @@ export default function ResetPasswordPage() {
   if (success) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
+        <PageMeta
+          title="Password Reset Successful | Rapha Lumina"
+          description="Your Rapha Lumina password has been reset."
+          canonicalPath="/reset-password"
+          robots="noindex,nofollow"
+        />
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
@@ -88,6 +95,12 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
+      <PageMeta
+        title="Reset Password | Rapha Lumina"
+        description="Set a new password for your Rapha Lumina account."
+        canonicalPath="/reset-password"
+        robots="noindex,nofollow"
+      />
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl">Reset Password</CardTitle>

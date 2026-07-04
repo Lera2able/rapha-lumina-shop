@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import PageMeta from '@/components/common/PageMeta';
 import { CheckCircle2, Sparkles, Heart } from 'lucide-react';
 
 export default function RegisterThankYouPage() {
@@ -21,6 +22,12 @@ export default function RegisterThankYouPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-background to-muted/20">
+      <PageMeta
+        title="Welcome | Rapha Lumina"
+        description="Account registration confirmation."
+        canonicalPath="/register/thank-you"
+        robots="noindex,nofollow"
+      />
       <Card className="w-full max-w-lg text-center">
         <CardHeader className="space-y-4 pb-4">
           <div className="flex justify-center">

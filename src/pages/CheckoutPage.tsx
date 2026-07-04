@@ -149,6 +149,7 @@ export default function CheckoutPage() {
         canonicalPath="/checkout"
         ogImage="https://raphalumina.com/og-support.svg"
         ogImageAlt="Rapha Lumina checkout social preview card"
+        robots="noindex,nofollow"
       />
       <div className="container py-8">
         <div className="flex flex-col gap-3 mb-8 md:flex-row md:items-end md:justify-between">

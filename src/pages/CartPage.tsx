@@ -19,6 +19,7 @@ export default function CartPage() {
           canonicalPath="/cart"
           ogImage="https://raphalumina.com/og-support.svg"
           ogImageAlt="Rapha Lumina cart social preview card"
+        robots="noindex,nofollow"
         />
         <div className="text-center space-y-4">
           <ShoppingBag className="h-16 w-16 mx-auto text-muted-foreground" />
@@ -40,6 +41,7 @@ export default function CartPage() {
         canonicalPath="/cart"
         ogImage="https://raphalumina.com/og-support.svg"
         ogImageAlt="Rapha Lumina cart social preview card"
+        robots="noindex,nofollow"
       />
       <div className="container py-8">
         <div className="flex flex-col gap-3 mb-8 md:flex-row md:items-end md:justify-between">

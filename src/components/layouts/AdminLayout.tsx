@@ -1,6 +1,7 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
+import PageMeta from '@/components/common/PageMeta';
 import { 
   LayoutDashboard, 
   Package, 
@@ -46,6 +47,12 @@ export default function AdminLayout() {
 
   return (
     <div className="flex min-h-screen w-full bg-muted/30">
+      <PageMeta
+        title="Admin | Rapha Lumina"
+        description="Administrative area for Rapha Lumina."
+        canonicalPath={location.pathname}
+        robots="noindex,nofollow"
+      />
       {/* Mobile Menu Button */}
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}

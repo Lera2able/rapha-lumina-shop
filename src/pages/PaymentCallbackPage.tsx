@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
+import PageMeta from '@/components/common/PageMeta';
 
 export default function PaymentCallbackPage() {
   const [searchParams] = useSearchParams();
@@ -29,6 +30,12 @@ export default function PaymentCallbackPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center">
+      <PageMeta
+        title="Processing Payment | Rapha Lumina"
+        description="Processing your Rapha Lumina payment."
+        canonicalPath="/payment-callback"
+        robots="noindex,nofollow"
+      />
       <div className="text-center space-y-4">
         <Loader2 className="h-12 w-12 mx-auto animate-spin text-primary" />
         <h2 className="text-xl font-semibold">Processing payment...</h2>

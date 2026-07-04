@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import PageMeta from '@/components/common/PageMeta';
 import { supabase } from '@/db/supabase';
 import { toast } from 'sonner';
 import { ArrowLeft, Mail } from 'lucide-react';
@@ -38,6 +39,12 @@ export default function ForgotPasswordPage() {
   if (emailSent) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
+        <PageMeta
+          title="Reset Email Sent | Rapha Lumina"
+          description="Password reset email sent."
+          canonicalPath="/forgot-password"
+          robots="noindex,nofollow"
+        />
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
@@ -81,6 +88,12 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
+      <PageMeta
+        title="Forgot Password | Rapha Lumina"
+        description="Request a password reset link for your Rapha Lumina account."
+        canonicalPath="/forgot-password"
+        robots="noindex,nofollow"
+      />
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl">Forgot Password?</CardTitle>

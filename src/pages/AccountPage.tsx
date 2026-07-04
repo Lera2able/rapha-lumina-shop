@@ -1,5 +1,6 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import PageMeta from '@/components/common/PageMeta';
 import { User, ShoppingBag, Heart, Settings } from 'lucide-react';
 
 export default function AccountPage() {
@@ -14,6 +15,12 @@ export default function AccountPage() {
 
   return (
     <div className="min-h-screen">
+      <PageMeta
+        title="My Account | Rapha Lumina"
+        description="Manage your Rapha Lumina account, orders, favorites, and settings."
+        canonicalPath={location.pathname}
+        robots="noindex,nofollow"
+      />
       <div className="container py-8">
         <h1 className="text-3xl font-bold mb-8">My Account</h1>
 

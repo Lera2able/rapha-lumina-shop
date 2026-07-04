@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import PageMeta from '@/components/common/PageMeta';
 import { supabase } from '@/db/supabase';
 import { useCart } from '@/contexts/CartContext';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
@@ -64,6 +65,12 @@ export default function PaymentSuccessPage() {
   if (verifying) {
     return (
       <div className="min-h-screen flex items-center justify-center">
+        <PageMeta
+          title="Verifying Payment | Rapha Lumina"
+          description="Verifying your Rapha Lumina payment."
+          canonicalPath="/payment-success"
+          robots="noindex,nofollow"
+        />
         <Card className="w-full max-w-md">
           <CardContent className="p-8 text-center space-y-4">
             <Loader2 className="h-12 w-12 mx-auto animate-spin text-primary" />
@@ -78,6 +85,12 @@ export default function PaymentSuccessPage() {
   if (!verified) {
     return (
       <div className="min-h-screen flex items-center justify-center">
+        <PageMeta
+          title="Payment Verification Failed | Rapha Lumina"
+          description="Payment verification failed."
+          canonicalPath="/payment-success"
+          robots="noindex,nofollow"
+        />
         <Card className="w-full max-w-md">
           <CardContent className="p-8 text-center space-y-4">
             <XCircle className="h-12 w-12 mx-auto text-destructive" />
@@ -101,6 +114,12 @@ export default function PaymentSuccessPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
+      <PageMeta
+        title="Payment Successful | Rapha Lumina"
+        description="Your Rapha Lumina payment was successful."
+        canonicalPath="/payment-success"
+        robots="noindex,nofollow"
+      />
       <Card className="w-full max-w-md">
         <CardHeader>
           <div className="flex justify-center mb-4">
