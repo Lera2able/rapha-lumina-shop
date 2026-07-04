@@ -396,6 +396,9 @@ export default function ProductDetailPage() {
                       <img
                         src={relatedProduct.image_url}
                         alt={relatedProduct.name}
+                        loading="lazy"
+                        decoding="async"
+                        sizes="(min-width: 768px) 25vw, (min-width: 640px) 50vw, 100vw"
                         className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                       />
                     </div>

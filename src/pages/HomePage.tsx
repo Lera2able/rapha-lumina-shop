@@ -140,6 +140,10 @@ export default function HomePage() {
           <img
             src="https://miaoda-conversation-file.s3cdn.medo.dev/user-bj1l8lwrcxkw/conv-bj5sbqg4k64g/20260510/file-bj6z8fr73bi8.png"
             alt="Rapha Lumina Hero"
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
+            sizes="(min-width: 1024px) 50vw, 100vw"
             className="absolute inset-0 w-full h-full object-cover"
           />
           <div className="absolute bottom-7 left-7 px-3.5 py-2 text-[10px] tracking-[0.14em] uppercase" style={{ backgroundColor: 'var(--rl-cream)', color: 'var(--rl-espresso)' }}>
@@ -336,6 +340,9 @@ export default function HomePage() {
                     <img
                       src={product.image_url}
                       alt={product.name}
+                      loading="lazy"
+                      decoding="async"
+                      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                       className="w-full h-full object-cover"
                     />
                   </div>

@@ -83,6 +83,10 @@ export default function ProductImageGallery({
               <img
                 src={current.src}
                 alt={`${productName} - Image ${selectedIndex + 1}`}
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
+                sizes="(min-width: 1024px) 50vw, 100vw"
                 className="w-full h-full object-contain"
               />
             </button>
@@ -94,6 +98,7 @@ export default function ProductImageGallery({
               src={current.src}
               controls
               playsInline
+              preload="metadata"
               className="w-full h-full object-contain bg-black"
             >
               Your browser does not support video playback.
@@ -171,6 +176,9 @@ export default function ProductImageGallery({
                   <img
                     src={item.src}
                     alt={`${productName} thumbnail ${index + 1}`}
+                    loading="lazy"
+                    decoding="async"
+                    sizes="96px"
                     className="w-full h-full object-contain"
                   />
                 ) : (
@@ -254,6 +262,9 @@ export default function ProductImageGallery({
             src={current.src}
             alt={`${productName} - Image ${selectedIndex + 1}`}
             onClick={(e) => e.stopPropagation()}
+            loading="lazy"
+            decoding="async"
+            sizes="100vw"
             className="max-w-full max-h-full object-contain rounded-md shadow-2xl"
           />
         </div>
