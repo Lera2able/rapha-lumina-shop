@@ -2,19 +2,10 @@ name = "rapha-lumina-checkout"
 main = "src/workers/checkout.ts"
 compatibility_date = "2024-01-01"
 
-[build]
-command = "npm install && npm run build"
-
-[build.upload]
-format = "service-worker"
-
 [[routes]]
-pattern = "https://raphalumina.com/api/checkout*"
+pattern = "raphalumina.com/api/checkout*"
 zone_name = "raphalumina.com"
 
 [[routes]]
-pattern = "https://api.raphalumina.com/checkout*"
-custom_domain = true
-
-[env.production]
-route = "https://api.raphalumina.com/checkout"
+pattern = "api.raphalumina.com/checkout*"
+zone_name = "raphalumina.com"
