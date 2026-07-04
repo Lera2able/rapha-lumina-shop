@@ -96,12 +96,13 @@ export default function HomePage() {
       {/* Collections Section */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-0.5 border-b border-rl-espresso/10">
         <Link to="/enlightened" className="group relative h-[520px] overflow-hidden" style={{ backgroundColor: 'var(--rl-sage-lt)' }}>
-          <div className="absolute inset-0 transition-transform duration-[600ms] ease-out group-hover:scale-[1.04]" style={{ backgroundColor: 'var(--rl-sage-lt)' }}>
+          <div className="absolute inset-0 transition-transform ease-out group-hover:scale-[1.04]" style={{ backgroundColor: 'var(--rl-sage-lt)', transitionDuration: '600ms' }}>
             {/* Sacred geometry — Flower of Life */}
             <svg
               viewBox="-150 -150 300 300"
               preserveAspectRatio="xMidYMid meet"
-              className="absolute inset-0 w-full h-full text-rl-espresso opacity-[0.18] transition-transform duration-[1200ms] ease-out group-hover:rotate-12"
+              className="absolute inset-0 w-full h-full text-rl-espresso opacity-[0.18] transition-transform ease-out group-hover:rotate-12"
+              style={{ transitionDuration: '1200ms' }}
               aria-hidden
             >
               <g fill="none" stroke="currentColor" strokeWidth="1.2">
@@ -148,7 +149,7 @@ export default function HomePage() {
         </Link>
 
         <Link to="/teacher" className="group relative h-[520px] overflow-hidden" style={{ backgroundColor: 'var(--rl-terra-lt)' }}>
-          <div className="absolute inset-0 transition-transform duration-[600ms] ease-out group-hover:scale-[1.04]" style={{ backgroundColor: 'var(--rl-terra-lt)' }}>
+          <div className="absolute inset-0 transition-transform ease-out group-hover:scale-[1.04]" style={{ backgroundColor: 'var(--rl-terra-lt)', transitionDuration: '600ms' }}>
             {/* Creative teaching tools — open book, pencil, apple, lightbulb, sparkles */}
             <svg
               viewBox="0 0 400 400"
@@ -261,7 +262,7 @@ export default function HomePage() {
             {featuredProducts.map(product => (
               <Link key={product.id} to={`/product/${product.id}`} className="group cursor-pointer">
                 <div className="relative aspect-[3/4] overflow-hidden mb-3.5">
-                  <div className="absolute inset-0 transition-transform duration-[450ms] ease-out group-hover:scale-105">
+                  <div className="absolute inset-0 transition-transform ease-out group-hover:scale-105" style={{ transitionDuration: '450ms' }}>
                     <img
                       src={product.image_url}
                       alt={product.name}
@@ -288,7 +289,7 @@ export default function HomePage() {
                     {product.collection}
                   </div>
 
-                  <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-[280ms] ease-out" style={{ backgroundColor: 'rgba(250, 248, 245, 0.96)' }}>
+                  <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform ease-out" style={{ backgroundColor: 'rgba(250, 248, 245, 0.96)', transitionDuration: '280ms' }}>
                     <button 
                       className="w-full flex items-center justify-center gap-1.5 py-2.5 text-[10px] tracking-[0.12em] uppercase transition-colors duration-200"
                       style={{ backgroundColor: 'var(--rl-espresso)', color: 'var(--rl-cream)' }}

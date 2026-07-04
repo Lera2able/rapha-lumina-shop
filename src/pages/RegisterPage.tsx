@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/db/supabase';
 import { toast } from 'sonner';
 
 export default function RegisterPage() {
@@ -60,7 +61,6 @@ export default function RegisterPage() {
         // If user opted in to newsletter, subscribe them
         if (subscribeToNewsletter) {
           try {
-            const { supabase } = await import('@/db/supabase');
             await supabase.rpc('subscribe_newsletter', {
               p_email: email,
             });
@@ -71,7 +71,6 @@ export default function RegisterPage() {
         
         // Send welcome email (non-blocking)
         try {
-          const { supabase } = await import('@/db/supabase');
           await supabase.functions.invoke('send_email', {
             body: {
               type: 'welcome',
