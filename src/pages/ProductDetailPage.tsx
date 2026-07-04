@@ -14,7 +14,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import PageMeta from '@/components/common/PageMeta';
 import { toast } from 'sonner';
-import { Heart, Minus, Plus, ShoppingCart, Check } from 'lucide-react';
+import { Heart, Minus, Plus, ShoppingCart, Check, Truck, RotateCcw, ShieldCheck } from 'lucide-react';
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -99,6 +99,23 @@ export default function ProductDetailPage() {
       size: selectedSize || null,
     });
     setShowAddedDialog(true);
+  };
+
+  const handleBuyNow = () => {
+    if (!product) return;
+
+    if (product.sizes.length > 0 && !selectedSize) {
+      toast.error('Please select a size');
+      return;
+    }
+
+    if (product.stock < quantity) {
+      toast.error('Not enough stock available');
+      return;
+    }
+
+    addItem(product, quantity, selectedSize || null);
+    navigate('/checkout');
   };
 
   const handleToggleFavorite = async () => {
@@ -203,6 +220,12 @@ export default function ProductDetailPage() {
       itemCondition: 'https://schema.org/NewCondition',
     },
   };
+  const stockMessage =
+    product.stock === 0
+      ? 'Out of stock'
+      : product.stock <= 3
+        ? `Low stock: only ${product.stock} left`
+        : `${product.stock} in stock`;
 
   return (
     <div className="min-h-screen">
@@ -226,6 +249,10 @@ export default function ProductDetailPage() {
             <div>
               <h1 className="text-3xl font-bold mb-2 text-balance">{product.name}</h1>
               <p className="text-2xl font-bold text-primary">R {product.price.toFixed(2)}</p>
+              <div className="flex flex-wrap gap-2 mt-3 text-xs tracking-[0.14em] uppercase text-foreground/70">
+                <span className="rounded-full border border-border px-3 py-1">{product.collection === 'teacher' ? 'Teacher Collection' : 'Enlightened Collection'}</span>
+                <span className="rounded-full border border-border px-3 py-1">Free shipping over R700</span>
+              </div>
             </div>
 
             <p className="text-muted-foreground text-pretty">{product.description}</p>
@@ -248,7 +275,7 @@ export default function ProductDetailPage() {
               </div>
             )}
 
-            <div>
+            <div className="space-y-2">
               <Label className="mb-2 block">Quantity</Label>
               <div className="flex items-center gap-2">
                 <Button
@@ -269,8 +296,13 @@ export default function ProductDetailPage() {
                 </Button>
               </div>
               <p className="text-sm text-muted-foreground mt-2">
-                {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
+                {stockMessage}
               </p>
+              {product.stock > 0 && (
+                <p className="text-sm text-muted-foreground">
+                  Usually dispatches in 1-2 business days.
+                </p>
+              )}
             </div>
 
             {product.stock === 0 ? (
@@ -298,22 +330,55 @@ export default function ProductDetailPage() {
                 </form>
               </div>
             ) : (
-              <div className="flex gap-2">
-                <Button
-                  onClick={handleAddToCart}
-                  disabled={product.stock === 0}
-                  className="flex-1"
-                >
-                  <ShoppingCart className="mr-2 h-4 w-4" />
-                  Add to Cart
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={handleToggleFavorite}
-                >
-                  <Heart className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
-                </Button>
+              <div className="space-y-4">
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <Button
+                    onClick={handleAddToCart}
+                    disabled={product.stock === 0}
+                    className="flex-1"
+                  >
+                    <ShoppingCart className="mr-2 h-4 w-4" />
+                    Add to Cart
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={handleBuyNow}
+                    disabled={product.stock === 0}
+                    className="flex-1"
+                  >
+                    Buy Now
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handleToggleFavorite}
+                  >
+                    <Heart className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
+                  </Button>
+                </div>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                  <div className="rounded-lg border border-border p-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Truck className="h-4 w-4 text-primary" />
+                      <p className="text-sm font-medium">Delivery</p>
+                    </div>
+                    <p className="text-sm text-muted-foreground">R70 under R700. Free shipping from R700.</p>
+                  </div>
+                  <div className="rounded-lg border border-border p-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <RotateCcw className="h-4 w-4 text-primary" />
+                      <p className="text-sm font-medium">Returns</p>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Easy returns and exchanges on eligible items.</p>
+                  </div>
+                  <div className="rounded-lg border border-border p-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <ShieldCheck className="h-4 w-4 text-primary" />
+                      <p className="text-sm font-medium">Checkout</p>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Secure checkout with order confirmation by email.</p>
+                  </div>
+                </div>
               </div>
             )}
           </div>

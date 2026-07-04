@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 import PageMeta from '@/components/common/PageMeta';
 
 export default function EnlightenedCollectionPage() {
@@ -15,6 +16,7 @@ export default function EnlightenedCollectionPage() {
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [priceRange, setPriceRange] = useState<number[]>([0, 1000]);
   const [maxPrice, setMaxPrice] = useState(1000);
+  const [sortBy, setSortBy] = useState<string>('newest');
 
   useEffect(() => {
     loadProducts();
@@ -22,7 +24,7 @@ export default function EnlightenedCollectionPage() {
 
   useEffect(() => {
     applyFilters();
-  }, [products, categoryFilter, priceRange]);
+  }, [products, categoryFilter, priceRange, sortBy]);
 
   const loadProducts = async () => {
     const { data } = await supabase
@@ -49,7 +51,21 @@ export default function EnlightenedCollectionPage() {
       p => p.price >= priceRange[0] && p.price <= priceRange[1]
     );
 
+    if (sortBy === 'price-low') {
+      filtered.sort((a, b) => a.price - b.price);
+    } else if (sortBy === 'price-high') {
+      filtered.sort((a, b) => b.price - a.price);
+    } else {
+      filtered.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+    }
+
     setFilteredProducts(filtered);
+  };
+
+  const clearFilters = () => {
+    setCategoryFilter('all');
+    setPriceRange([0, maxPrice]);
+    setSortBy('newest');
   };
 
   return (
@@ -64,6 +80,11 @@ export default function EnlightenedCollectionPage() {
           <p className="text-lg text-foreground/90 text-pretty">
             Clothing for the conscious soul. Each piece carries intention, designed for those walking the path of spiritual awakening and higher vibration living.
           </p>
+          <div className="flex flex-wrap gap-2 mt-4 text-xs tracking-[0.14em] uppercase text-foreground/70">
+            <span className="rounded-full border border-border px-3 py-1">Made in South Africa</span>
+            <span className="rounded-full border border-border px-3 py-1">Free shipping over R700</span>
+            <span className="rounded-full border border-border px-3 py-1">Purpose-led design</span>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -102,12 +123,44 @@ export default function EnlightenedCollectionPage() {
                 />
               </CardContent>
             </Card>
+
+            <Card className="glass-card">
+              <CardContent className="p-4">
+                <Label className="mb-2 block">Sort By</Label>
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="newest">Newest first</SelectItem>
+                    <SelectItem value="price-low">Price: low to high</SelectItem>
+                    <SelectItem value="price-high">Price: high to low</SelectItem>
+                  </SelectContent>
+                </Select>
+              </CardContent>
+            </Card>
+
+            <Button variant="outline" className="w-full" onClick={clearFilters}>
+              Clear Filters
+            </Button>
           </aside>
 
           <div className="md:col-span-3">
+            <div className="flex flex-col gap-2 mb-6 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm text-muted-foreground">
+                Showing <span className="font-medium text-foreground">{filteredProducts.length}</span> of{' '}
+                <span className="font-medium text-foreground">{products.length}</span> products
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Calm essentials with practical everyday wearability
+              </p>
+            </div>
             {filteredProducts.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-muted-foreground">No products found matching your filters.</p>
+                <Button variant="outline" className="mt-4" onClick={clearFilters}>
+                  Reset filters
+                </Button>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -132,6 +185,9 @@ export default function EnlightenedCollectionPage() {
                           <h3 className="font-semibold mb-2 text-balance text-foreground">{product.name}</h3>
                           <p className="text-sm text-muted-foreground mb-2 line-clamp-2 text-pretty">
                             {product.description}
+                          </p>
+                          <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground mb-3">
+                            {product.stock > 0 ? `${product.stock} available` : 'Restock notification available'}
                           </p>
                           {soldOut ? (
                             <>
