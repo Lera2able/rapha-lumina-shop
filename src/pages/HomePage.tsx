@@ -138,7 +138,7 @@ export default function HomePage() {
         </div>
         <div className="relative overflow-hidden bg-[#C8BAA8] min-h-[400px] lg:min-h-full">
           <img
-            src="https://miaoda-conversation-file.s3cdn.medo.dev/user-bj1l8lwrcxkw/conv-bj5sbqg4k64g/20260510/file-bj6z8fr73bi8.png"
+            src="/publicweb-hero.png"
             alt="Rapha Lumina Hero"
             loading="eager"
             decoding="async"

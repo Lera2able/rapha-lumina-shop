@@ -68,9 +68,11 @@ export default function AdminLayout() {
           <div className="p-6 border-b">
             <Link to="/" className="flex items-center gap-2">
               <img
-                src="https://miaoda-conversation-file.s3cdn.medo.dev/user-bj1l8lwrcxkw/conv-bj5sbqg4k64g/20260510/file-bj6du24rvjls.png"
+                src="/rapha-lumina-logo.png"
                 alt="Rapha Lumina"
                 className="h-10 w-10 object-contain"
+                loading="eager"
+                decoding="async"
               />
               <div>
                 <span className="text-lg font-bold text-primary block">Rapha Lumina</span>

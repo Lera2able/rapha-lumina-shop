@@ -34,9 +34,12 @@ export function Header() {
         <div className="flex items-center gap-8">
           <Link to="/" className="flex items-center gap-3">
             <img
-              src="https://miaoda-conversation-file.s3cdn.medo.dev/user-bj1l8lwrcxkw/conv-bj5sbqg4k64g/20260510/file-bj6du24rvjls.png"
+              src="/rapha-lumina-logo.png"
               alt="Rapha Lumina"
               className="h-10 w-10 object-contain"
+              loading="eager"
+              decoding="async"
+              fetchPriority="high"
             />
             <span className="font-display text-xl font-light text-rl-espresso">Rapha Lumina</span>
           </Link>
@@ -94,7 +97,7 @@ export function Header() {
 
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
-              <button className="md:hidden p-2 text-rl-espresso">
+              <button className="md:hidden p-2 text-rl-espresso" aria-label="Open menu">
                 <Menu className="h-5 w-5" />
               </button>
             </SheetTrigger>
@@ -110,9 +113,42 @@ export function Header() {
                     {link.label}
                   </Link>
                 ))}
+                <div className="border-t border-rl-espresso/10 pt-6 space-y-4">
+                  <Link
+                    to="/cart"
+                    className="flex items-center justify-between text-label text-rl-muted hover:text-rl-espresso transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <span>Cart</span>
+                    <span className="text-xs tracking-[0.12em] uppercase">{totalItems} item{totalItems === 1 ? '' : 's'}</span>
+                  </Link>
+                  <Link
+                    to="/shipping"
+                    className="block text-label text-rl-muted hover:text-rl-espresso transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Shipping & Delivery
+                  </Link>
+                  <Link
+                    to="/contact"
+                    className="block text-label text-rl-muted hover:text-rl-espresso transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Contact Us
+                  </Link>
+                </div>
                 <div className="border-t border-rl-espresso/10 pt-6 mt-6">
                   {user ? (
                     <>
+                      {profile?.role === 'admin' && (
+                        <Link
+                          to="/admin"
+                          className="block text-label text-rl-muted hover:text-rl-espresso transition-colors mb-4"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          Admin
+                        </Link>
+                      )}
                       <Link
                         to="/account"
                         className="block text-label text-rl-muted hover:text-rl-espresso transition-colors mb-4"
