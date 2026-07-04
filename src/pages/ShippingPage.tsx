@@ -7,6 +7,9 @@ export default function ShippingPage() {
       <PageMeta
         title="Shipping & Delivery | Rapha Lumina"
         description="Shipping rates, delivery times, and order tracking information for Rapha Lumina orders within South Africa."
+        canonicalPath="/shipping"
+        ogImage="https://raphalumina.com/og-support.svg"
+        ogImageAlt="Rapha Lumina shipping social preview card"
       />
       <div className="container py-8 max-w-4xl">
         <h1 className="text-4xl font-bold mb-8 text-balance">Shipping Information</h1>

@@ -73,6 +73,9 @@ export default function EnlightenedCollectionPage() {
       <PageMeta
         title="Enlightened Collection | Rapha Lumina"
         description="Shop the Enlightened Collection from Rapha Lumina: conscious apparel and accessories created for spiritually awakened living."
+        canonicalPath="/enlightened"
+        ogImage="https://raphalumina.com/og-enlightened.svg"
+        ogImageAlt="Enlightened Collection social preview card"
       />
       <div className="container py-8">
         <div className="mb-8">

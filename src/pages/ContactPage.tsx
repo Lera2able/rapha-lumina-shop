@@ -51,6 +51,9 @@ export default function ContactPage() {
       <PageMeta
         title="Contact Us | Rapha Lumina"
         description="Contact Rapha Lumina for product questions, order support, or general enquiries."
+        canonicalPath="/contact"
+        ogImage="https://raphalumina.com/og-support.svg"
+        ogImageAlt="Rapha Lumina contact support social preview card"
       />
       <div className="container py-8 max-w-4xl">
         <h1 className="text-4xl font-bold mb-8 text-balance">Contact Us</h1>

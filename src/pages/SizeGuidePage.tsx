@@ -7,6 +7,9 @@ export default function SizeGuidePage() {
       <PageMeta
         title="Size Guide | Rapha Lumina"
         description="Use the Rapha Lumina size guide to choose the right fit for apparel and understand how to measure accurately."
+        canonicalPath="/size-guide"
+        ogImage="https://raphalumina.com/og-support.svg"
+        ogImageAlt="Rapha Lumina size guide social preview card"
       />
       <div className="container py-8 max-w-4xl">
         <h1 className="text-4xl font-bold mb-8 text-balance">Size Guide</h1>

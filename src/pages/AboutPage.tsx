@@ -10,6 +10,9 @@ export default function AboutPage() {
       <PageMeta
         title="Our Story | Rapha Lumina"
         description="Learn the story behind Rapha Lumina, our purpose-led approach to conscious apparel, and the values that shape our collections."
+        canonicalPath="/about"
+        ogImage="https://raphalumina.com/og-home.svg"
+        ogImageAlt="Rapha Lumina brand story social preview card"
       />
       {/* Hero Section */}
       <section className="relative py-16 md:py-24 overflow-hidden">

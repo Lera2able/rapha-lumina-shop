@@ -73,6 +73,9 @@ export default function TeacherCollectionPage() {
       <PageMeta
         title="Teacher Collection | Rapha Lumina"
         description="Shop the Rapha Lumina Teacher Collection for practical, joyful classroom accessories and everyday educator essentials."
+        canonicalPath="/teacher"
+        ogImage="https://raphalumina.com/og-teacher.svg"
+        ogImageAlt="Teacher Collection social preview card"
       />
       <div className="container py-8">
         <div className="mb-8">

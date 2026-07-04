@@ -7,6 +7,9 @@ export default function PrivacyPolicyPage() {
       <PageMeta
         title="Privacy Policy | Rapha Lumina"
         description="Read how Rapha Lumina collects, uses, and protects your personal information under our privacy policy."
+        canonicalPath="/privacy"
+        ogImage="https://raphalumina.com/og-support.svg"
+        ogImageAlt="Rapha Lumina privacy policy social preview card"
       />
       <div className="container max-w-4xl">
         <h1 className="text-4xl font-bold mb-2 text-primary text-center">

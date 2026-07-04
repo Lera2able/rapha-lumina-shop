@@ -9,6 +9,9 @@ export default function FAQPage() {
       <PageMeta
         title="FAQ | Rapha Lumina"
         description="Answers about shipping, returns, payment, sizing, and shopping with Rapha Lumina."
+        canonicalPath="/faq"
+        ogImage="https://raphalumina.com/og-support.svg"
+        ogImageAlt="Rapha Lumina FAQ social preview card"
       />
       <div className="container py-12">
         <div className="max-w-4xl mx-auto">

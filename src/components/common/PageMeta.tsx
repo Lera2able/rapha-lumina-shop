@@ -14,6 +14,9 @@ interface PageMetaProps {
   ogDescription?: string;
   ogType?: string;
   ogImage?: string;
+  ogImageAlt?: string;
+  ogImageWidth?: string;
+  ogImageHeight?: string;
   robots?: string;
   structuredData?: StructuredData;
 }
@@ -26,6 +29,9 @@ const PageMeta = ({
   ogDescription,
   ogType = 'website',
   ogImage = DEFAULT_OG_IMAGE,
+  ogImageAlt = 'Rapha Lumina',
+  ogImageWidth = '1200',
+  ogImageHeight = '630',
   robots = 'index,follow',
   structuredData,
 }: PageMetaProps) => {
@@ -46,11 +52,15 @@ const PageMeta = ({
       <meta property="og:type" content={ogType} />
       <meta property="og:url" content={canonicalUrl} />
       <meta property="og:image" content={ogImage} />
+      <meta property="og:image:alt" content={ogImageAlt} />
+      <meta property="og:image:width" content={ogImageWidth} />
+      <meta property="og:image:height" content={ogImageHeight} />
 
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={ogTitle || title} />
       <meta name="twitter:description" content={ogDescription || description} />
       <meta name="twitter:image" content={ogImage} />
+      <meta name="twitter:image:alt" content={ogImageAlt} />
 
       {structuredData && (
         <script type="application/ld+json">

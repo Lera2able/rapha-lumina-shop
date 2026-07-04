@@ -235,6 +235,7 @@ export default function ProductDetailPage() {
         canonicalPath={canonicalPath}
         ogType="product"
         ogImage={product.image_url}
+        ogImageAlt={product.name}
         structuredData={productStructuredData}
       />
       <div className="container py-8">

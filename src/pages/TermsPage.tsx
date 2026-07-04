@@ -8,6 +8,9 @@ export default function TermsPage() {
       <PageMeta
         title="Terms & Conditions | Rapha Lumina"
         description="Review the Rapha Lumina terms and conditions for orders, payments, shipping, returns, and customer responsibilities."
+        canonicalPath="/terms"
+        ogImage="https://raphalumina.com/og-support.svg"
+        ogImageAlt="Rapha Lumina terms social preview card"
       />
       <div className="container max-w-4xl">
         <h1 className="text-4xl font-bold mb-2 text-primary text-center">

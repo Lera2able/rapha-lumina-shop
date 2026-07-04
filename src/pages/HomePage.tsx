@@ -95,7 +95,8 @@ export default function HomePage() {
         title="Rapha Lumina | Spiritual Apparel, Awakening Wear & Conscious Living"
         description="Discover Rapha Lumina's spiritually inspired apparel and teacher collection, made in South Africa and designed to help you wear your purpose."
         canonicalPath="/"
-        ogImage="https://raphalumina.com/rapha-lumina-logo.png"
+        ogImage="https://raphalumina.com/og-home.svg"
+        ogImageAlt="Rapha Lumina social preview card"
       />
       {/* Hero Section */}
       <section className="grid grid-cols-1 lg:grid-cols-2 min-h-[88vh] border-b border-rl-espresso/10">
