@@ -238,8 +238,8 @@ export default function ProductDetailPage() {
         ogImageAlt={product.name}
         structuredData={productStructuredData}
       />
-      <div className="container py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+      <div className="container py-6 md:py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-12 md:mb-16">
           <ProductImageGallery
             images={productImages}
             productName={product.name}
@@ -315,7 +315,7 @@ export default function ProductDetailPage() {
                   </p>
                 </div>
                 <form onSubmit={handleStockNotification} className="space-y-2">
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <Input
                       type="email"
                       placeholder="your@email.com"
@@ -353,6 +353,7 @@ export default function ProductDetailPage() {
                     variant="outline"
                     size="icon"
                     onClick={handleToggleFavorite}
+                    aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
                   >
                     <Heart className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
                   </Button>
@@ -387,7 +388,7 @@ export default function ProductDetailPage() {
 
         {relatedProducts.length > 0 && (
           <div>
-            <h2 className="text-2xl font-bold mb-6">Related Products</h2>
+            <h2 className="text-2xl font-bold mb-5 md:mb-6">Related Products</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
               {relatedProducts.map(relatedProduct => (
                 <Link key={relatedProduct.id} to={`/product/${relatedProduct.id}`}>

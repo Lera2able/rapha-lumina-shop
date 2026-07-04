@@ -99,25 +99,25 @@ export default function HomePage() {
         ogImageAlt="Rapha Lumina social preview card"
       />
       {/* Hero Section */}
-      <section className="grid grid-cols-1 lg:grid-cols-2 min-h-[88vh] border-b border-rl-espresso/10">
-        <div className="flex flex-col justify-center px-6 py-20 md:px-12 lg:px-16">
+      <section className="grid grid-cols-1 lg:grid-cols-2 min-h-[72vh] lg:min-h-[88vh] border-b border-rl-espresso/10">
+        <div className="flex flex-col justify-center px-6 py-14 md:px-12 md:py-20 lg:px-16">
           <p className="text-[10px] tracking-[0.2em] uppercase mb-6" style={{ color: 'var(--rl-gold)' }}>
             New Season — 2026
           </p>
-          <h1 className="font-display text-6xl md:text-7xl lg:text-[76px] font-light leading-[1.03] mb-7">
+          <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-[76px] font-light leading-[1.03] mb-7">
             Wear your <em className="italic" style={{ color: 'var(--rl-gold)' }}>purpose</em>.
           </h1>
-          <p className="text-[15px] leading-[1.8] max-w-[340px] mb-11" style={{ color: 'var(--rl-muted)' }}>
+          <p className="text-[15px] leading-[1.8] max-w-[440px] mb-9 md:mb-11" style={{ color: 'var(--rl-muted)' }}>
             Two collections born from light and intention. Clothing that carries meaning — for the spiritually awakened and the dedicated educator.
           </p>
-          <div className="flex gap-3 mb-14">
+          <div className="flex flex-col sm:flex-row gap-3 mb-10 md:mb-14">
             <Link to="/enlightened" className="btn-primary">
               Explore collections
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link to="/about" className="btn-outline">Our story</Link>
           </div>
-          <div className="flex gap-9 pt-8 border-t border-rl-espresso/10">
+          <div className="grid grid-cols-3 gap-4 sm:gap-9 pt-8 border-t border-rl-espresso/10">
             <div>
               <p className="font-display text-2xl font-light" style={{ color: 'var(--rl-gold)' }}>Free</p>
               <p className="text-[10px] tracking-[0.08em] mt-1" style={{ color: 'var(--rl-muted)' }}>Shipping over R700</p>
@@ -132,7 +132,7 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-        <div className="relative overflow-hidden bg-[#C8BAA8] min-h-[400px] lg:min-h-full">
+        <div className="relative overflow-hidden bg-[#C8BAA8] min-h-[320px] sm:min-h-[400px] lg:min-h-full">
           <img
             src="/publicweb-hero.png"
             alt="Rapha Lumina Hero"
@@ -142,7 +142,7 @@ export default function HomePage() {
             sizes="(min-width: 1024px) 50vw, 100vw"
             className="absolute inset-0 w-full h-full object-cover"
           />
-          <div className="absolute bottom-7 left-7 px-3.5 py-2 text-[10px] tracking-[0.14em] uppercase" style={{ backgroundColor: 'var(--rl-cream)', color: 'var(--rl-espresso)' }}>
+          <div className="absolute bottom-5 left-5 sm:bottom-7 sm:left-7 px-3.5 py-2 text-[10px] tracking-[0.14em] uppercase" style={{ backgroundColor: 'var(--rl-cream)', color: 'var(--rl-espresso)' }}>
             Enlightened Collection
           </div>
         </div>
@@ -150,7 +150,7 @@ export default function HomePage() {
 
       {/* Collections Section */}
       <section id="collections" className="grid grid-cols-1 md:grid-cols-2 gap-0.5 border-b border-rl-espresso/10">
-        <Link to="/enlightened" className="group relative h-[520px] overflow-hidden" style={{ backgroundColor: 'var(--rl-sage-lt)' }}>
+        <Link to="/enlightened" className="group relative h-[420px] sm:h-[520px] overflow-hidden" style={{ backgroundColor: 'var(--rl-sage-lt)' }}>
           <div className="absolute inset-0 transition-transform ease-out group-hover:scale-[1.04]" style={{ backgroundColor: 'var(--rl-sage-lt)', transitionDuration: '600ms' }}>
             {/* Sacred geometry — Flower of Life */}
             <svg
@@ -189,11 +189,11 @@ export default function HomePage() {
               </g>
             </svg>
           </div>
-          <div className="absolute inset-0 flex flex-col justify-end p-12 transition-colors duration-300" style={{ backgroundColor: 'rgba(26, 18, 8, 0.32)' }}>
+          <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-12 transition-colors duration-300" style={{ backgroundColor: 'rgba(26, 18, 8, 0.32)' }}>
             <p className="text-[9px] tracking-[0.18em] uppercase mb-2" style={{ color: 'rgba(250, 248, 245, 0.65)' }}>
               The first collection
             </p>
-            <h2 className="font-display text-[42px] font-light leading-[1.1] mb-4 text-[#FAF8F5]">
+            <h2 className="font-display text-[32px] sm:text-[42px] font-light leading-[1.1] mb-4 text-[#FAF8F5]">
               Enlightened <em className="italic">Collection</em>
             </h2>
             <div className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.15em] uppercase transition-all duration-200 group-hover:gap-2.5" style={{ color: 'rgba(250, 248, 245, 0.8)' }}>
@@ -203,7 +203,7 @@ export default function HomePage() {
           </div>
         </Link>
 
-        <Link to="/teacher" className="group relative h-[520px] overflow-hidden" style={{ backgroundColor: 'var(--rl-terra-lt)' }}>
+        <Link to="/teacher" className="group relative h-[420px] sm:h-[520px] overflow-hidden" style={{ backgroundColor: 'var(--rl-terra-lt)' }}>
           <div className="absolute inset-0 transition-transform ease-out group-hover:scale-[1.04]" style={{ backgroundColor: 'var(--rl-terra-lt)', transitionDuration: '600ms' }}>
             {/* Creative teaching tools — open book, pencil, apple, lightbulb, sparkles */}
             <svg
@@ -288,11 +288,11 @@ export default function HomePage() {
               </g>
             </svg>
           </div>
-          <div className="absolute inset-0 flex flex-col justify-end p-12 transition-colors duration-300" style={{ backgroundColor: 'rgba(26, 18, 8, 0.32)' }}>
+          <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-12 transition-colors duration-300" style={{ backgroundColor: 'rgba(26, 18, 8, 0.32)' }}>
             <p className="text-[9px] tracking-[0.18em] uppercase mb-2" style={{ color: 'rgba(250, 248, 245, 0.65)' }}>
               The second collection
             </p>
-            <h2 className="font-display text-[42px] font-light leading-[1.1] mb-4 text-[#FAF8F5]">
+            <h2 className="font-display text-[32px] sm:text-[42px] font-light leading-[1.1] mb-4 text-[#FAF8F5]">
               Teacher <em className="italic">Collection</em>
             </h2>
             <div className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.15em] uppercase transition-all duration-200 group-hover:gap-2.5" style={{ color: 'rgba(250, 248, 245, 0.8)' }}>
@@ -305,9 +305,9 @@ export default function HomePage() {
 
       {/* Featured Products */}
       {featuredProducts.length > 0 && (
-        <section className="px-6 py-20 md:px-12 border-b border-rl-espresso/10">
-          <div className="flex justify-between items-baseline mb-12 pb-4.5 border-b border-rl-espresso/10">
-            <h2 className="font-display text-[42px] font-normal">Handpicked</h2>
+        <section className="px-6 py-16 md:px-12 md:py-20 border-b border-rl-espresso/10">
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-baseline mb-10 md:mb-12 pb-4.5 border-b border-rl-espresso/10">
+            <h2 className="font-display text-[34px] sm:text-[42px] font-normal">Handpicked</h2>
             {featuredCollection ? (
               <Link
                 to={featuredCollectionLink}
@@ -398,9 +398,9 @@ export default function HomePage() {
       )}
 
       {/* Brand Story */}
-      <section className="px-6 py-24 md:px-12 text-center border-b border-rl-espresso/10" style={{ backgroundColor: 'var(--rl-gold-lt)' }}>
+      <section className="px-6 py-16 md:px-12 md:py-24 text-center border-b border-rl-espresso/10" style={{ backgroundColor: 'var(--rl-gold-lt)' }}>
         <div className="w-8 h-px mx-auto mb-7" style={{ backgroundColor: 'var(--rl-gold)' }} />
-        <h2 className="font-display text-[46px] font-light leading-[1.18] mb-4.5">
+        <h2 className="font-display text-[34px] sm:text-[46px] font-light leading-[1.18] mb-4.5">
           Rapha means <em className="italic" style={{ color: 'var(--rl-gold)' }}>healing</em>.<br />
           Lumina means <em className="italic" style={{ color: 'var(--rl-gold)' }}>light</em>.
         </h2>
@@ -438,12 +438,12 @@ export default function HomePage() {
       </section>
 
       {/* Newsletter */}
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-20 px-6 py-20 md:px-12 items-center border-b border-rl-espresso/10">
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-20 px-6 py-16 md:px-12 md:py-20 items-center border-b border-rl-espresso/10">
         <div>
           <p className="text-[10px] tracking-[0.18em] uppercase mb-4" style={{ color: 'var(--rl-gold)' }}>
             Stay connected
           </p>
-          <h2 className="font-display text-[38px] font-light leading-[1.2] mb-3">
+          <h2 className="font-display text-[32px] sm:text-[38px] font-light leading-[1.2] mb-3">
             Join the <br />community
           </h2>
           <p className="text-[13px] leading-[1.7]" style={{ color: 'var(--rl-muted)' }}>
@@ -452,7 +452,7 @@ export default function HomePage() {
         </div>
         <div>
           <form 
-            className="flex border border-rl-espresso/20 transition-colors focus-within:border-[var(--rl-espresso)]"
+            className="flex flex-col sm:flex-row border border-rl-espresso/20 transition-colors focus-within:border-[var(--rl-espresso)]"
             onSubmit={handleNewsletterSubmit}
           >
             <input
@@ -460,7 +460,7 @@ export default function HomePage() {
               placeholder="Your email address"
               value={newsletterEmail}
               onChange={(e) => setNewsletterEmail(e.target.value)}
-              className="flex-1 px-4 py-3.5 text-[13px] outline-none"
+              className="flex-1 px-4 py-3.5 text-[13px] outline-none min-w-0"
               style={{ backgroundColor: 'transparent', color: 'var(--rl-espresso)' }}
               required
               disabled={newsletterLoading}
@@ -468,7 +468,7 @@ export default function HomePage() {
             <button 
               type="submit"
               disabled={newsletterLoading}
-              className="px-5 py-3.5 text-[10px] tracking-[0.14em] uppercase whitespace-nowrap flex items-center gap-1.5 transition-colors duration-200"
+              className="px-5 py-3.5 text-[10px] tracking-[0.14em] uppercase whitespace-nowrap flex items-center justify-center gap-1.5 transition-colors duration-200"
               style={{ backgroundColor: 'var(--rl-espresso)', color: 'var(--rl-cream)' }}
             >
               {newsletterLoading ? 'Subscribing…' : 'Subscribe'}
