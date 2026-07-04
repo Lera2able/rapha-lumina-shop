@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "https://raphalumina.com",
-  "Access-Control-Allow-Headers": "content-type",
+  "Access-Control-Allow-Headers": "content-type, authorization",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 }
 
@@ -16,7 +16,14 @@ serve(async (req) => {
   }
 
   try {
-    const { items, email, currency = "ZAR", shippingAddress, shippingCost = 0 } = await req.json()
+    const {
+      items,
+      email,
+      currency = "ZAR",
+      shippingAddress,
+      shippingCost = 0,
+      userId: userIdFromBody = null,
+    } = await req.json()
 
     if (!items?.length) throw new Error("Cart empty")
     if (!email) throw new Error("Email required")
@@ -59,6 +66,25 @@ serve(async (req) => {
     // NOW create order in Supabase
     const supabaseUrl = Deno.env.get("SUPABASE_URL")
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")
+    const authHeader = req.headers.get("Authorization")
+
+    let userId = userIdFromBody
+    if (authHeader?.startsWith("Bearer ")) {
+      try {
+        const userRes = await fetch(`${supabaseUrl}/auth/v1/user`, {
+          headers: {
+            "Authorization": authHeader,
+            "apikey": supabaseKey!,
+          },
+        })
+        if (userRes.ok) {
+          const userJson = await userRes.json()
+          userId = userJson?.id ?? userId
+        }
+      } catch (authError) {
+        console.error("Could not resolve authenticated user:", authError)
+      }
+    }
 
     const supabaseRes = await fetch(`${supabaseUrl}/rest/v1/orders`, {
       method: "POST",
@@ -66,15 +92,20 @@ serve(async (req) => {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${supabaseKey}`,
         "apikey": supabaseKey,
+        "Prefer": "return=representation",
       },
       body: JSON.stringify({
+        id: orderId,
+        user_id: userId,
         items,
         total_amount: grandTotal / 100,
         currency,
         customer_email: email,
+        customer_name: shippingAddress?.name ?? null,
         shipping_address: shippingAddress,
         shipping_cost: shippingCost,
         status: "pending",
+        paystack_reference: orderId,
       }),
     })
 
@@ -83,6 +114,7 @@ serve(async (req) => {
     if (!supabaseRes.ok) {
       const err = await supabaseRes.text()
       console.error("Supabase error:", err)
+      throw new Error("Failed to create order before payment redirect")
     }
 
     return new Response(

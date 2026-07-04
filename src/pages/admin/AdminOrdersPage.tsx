@@ -37,6 +37,12 @@ interface AdminOrder {
   shipping_cost: number | null;
   created_at: string;
   tracking_number: string | null;
+  items: Array<{
+    name: string;
+    quantity: number;
+    image_url?: string;
+    size?: string;
+  }> | null;
 }
 
 const STATUS_FILTERS: { value: string; label: string }[] = [
@@ -87,7 +93,7 @@ export default function AdminOrdersPage() {
       const { data, error } = await supabase
         .from('orders')
         .select(
-          'id, status, customer_name, customer_email, total_amount, shipping_cost, created_at, tracking_number',
+          'id, status, customer_name, customer_email, total_amount, shipping_cost, created_at, tracking_number, items',
         )
         .order('created_at', { ascending: false })
         .limit(200);
@@ -282,6 +288,7 @@ export default function AdminOrdersPage() {
                 </th>
                 <th className="p-3 text-left">Date</th>
                 <th className="p-3 text-left">Customer</th>
+                <th className="p-3 text-left">Items</th>
                 <th className="p-3 text-left">Status</th>
                 <th className="p-3 text-right">Total</th>
                 <th className="p-3 text-left">Tracking</th>
@@ -291,13 +298,13 @@ export default function AdminOrdersPage() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="p-8 text-center text-muted-foreground">
+                  <td colSpan={8} className="p-8 text-center text-muted-foreground">
                     Loading orders…
                   </td>
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="p-8 text-center text-muted-foreground">
+                  <td colSpan={8} className="p-8 text-center text-muted-foreground">
                     No orders match these filters.
                   </td>
                 </tr>
@@ -320,6 +327,34 @@ export default function AdminOrdersPage() {
                     <td className="p-3">
                       <p className="font-medium">{o.customer_name || '—'}</p>
                       <p className="text-xs text-muted-foreground">{o.customer_email}</p>
+                    </td>
+                    <td className="p-3">
+                      {o.items?.length ? (
+                        <div className="flex items-center gap-3 min-w-[220px]">
+                          {o.items[0]?.image_url ? (
+                            <img
+                              src={o.items[0].image_url}
+                              alt={o.items[0].name}
+                              className="h-12 w-12 rounded-md border object-cover"
+                              loading="lazy"
+                              decoding="async"
+                            />
+                          ) : (
+                            <div className="h-12 w-12 rounded-md border bg-muted flex items-center justify-center text-[10px] text-muted-foreground">
+                              No image
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <p className="font-medium truncate">{o.items[0].name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {o.items[0].quantity} item{o.items[0].quantity === 1 ? '' : 's'}
+                              {o.items.length > 1 ? ` · +${o.items.length - 1} more line${o.items.length - 1 === 1 ? '' : 's'}` : ''}
+                            </p>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-muted-foreground">No items saved</p>
+                      )}
                     </td>
                     <td className="p-3">
                       <Badge variant={statusBadgeVariant(o.status) as any}>{o.status}</Badge>

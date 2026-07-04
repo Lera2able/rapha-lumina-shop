@@ -27,6 +27,11 @@ interface DashboardMetrics {
     total_amount: number;
     status: string;
     created_at: string;
+    items: {
+      name: string;
+      quantity: number;
+      image_url?: string;
+    }[] | null;
   }[];
 }
 
@@ -60,7 +65,7 @@ export default function AdminDashboardPage() {
           .order('stock', { ascending: true }),
         supabase
           .from('orders')
-          .select('id, customer_name, customer_email, total_amount, status, created_at')
+          .select('id, customer_name, customer_email, total_amount, status, created_at, items')
           .order('created_at', { ascending: false })
           .limit(5),
       ]);
@@ -259,16 +264,35 @@ export default function AdminDashboardPage() {
                 <Link
                   key={o.id}
                   to={`/admin/orders/${o.id}`}
-                  className="flex items-center justify-between text-sm hover:bg-muted/50 -mx-2 px-2 py-1 rounded"
+                  className="flex items-center justify-between gap-3 text-sm hover:bg-muted/50 -mx-2 px-2 py-2 rounded"
                 >
-                  <div className="flex-1 min-w-0 mr-2">
-                    <p className="truncate font-medium">{o.customer_name || o.customer_email}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(o.created_at).toLocaleDateString('en-GB', {
-                        day: 'numeric',
-                        month: 'short',
-                      })}
-                    </p>
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    {o.items?.[0]?.image_url ? (
+                      <img
+                        src={o.items[0].image_url}
+                        alt={o.items[0].name}
+                        className="h-10 w-10 rounded-md border object-cover"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : (
+                      <div className="h-10 w-10 rounded-md border bg-muted flex items-center justify-center text-[10px] text-muted-foreground">
+                        Item
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0 mr-2">
+                      <p className="truncate font-medium">{o.customer_name || o.customer_email}</p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {o.items?.[0]?.name ?? 'No item details'}
+                        {o.items && o.items.length > 1 ? ` · +${o.items.length - 1} more` : ''}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(o.created_at).toLocaleDateString('en-GB', {
+                          day: 'numeric',
+                          month: 'short',
+                        })}
+                      </p>
+                    </div>
                   </div>
                   <div className="text-right">
                     <p className="font-medium">{formatPrice(Number(o.total_amount))}</p>

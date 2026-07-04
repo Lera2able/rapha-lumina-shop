@@ -85,6 +85,12 @@ export default function CheckoutPage() {
         size: item.size || '',
       }));
 
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const accessToken = session?.access_token;
+      const userId = session?.user?.id ?? null;
+
       // Call Supabase Edge Function (checkout-v2)
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/checkout-v2`,
@@ -92,7 +98,7 @@ export default function CheckoutPage() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+            'Authorization': `Bearer ${accessToken ?? import.meta.env.VITE_SUPABASE_ANON_KEY}`,
           },
           body: JSON.stringify({
             items: orderItems,
@@ -100,6 +106,7 @@ export default function CheckoutPage() {
             currency: 'ZAR',
             shippingAddress: shippingAddress,
             shippingCost: shippingCost,
+            userId,
           }),
         }
       );

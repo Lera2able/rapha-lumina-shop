@@ -11,7 +11,8 @@ export default function PaymentCallbackPage() {
     // Get reference from URL (could be 'reference', 'trxref', or 'transaction')
     const reference = searchParams.get('reference') || 
                      searchParams.get('trxref') || 
-                     searchParams.get('transaction');
+                     searchParams.get('transaction') ||
+                     searchParams.get('order_id');
 
     console.log('=== PAYMENT CALLBACK PAGE ===');
     console.log('All URL params:', Object.fromEntries(searchParams.entries()));

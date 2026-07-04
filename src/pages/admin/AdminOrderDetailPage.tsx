@@ -352,12 +352,32 @@ export default function AdminOrderDetailPage() {
             <CardContent>
               <div className="space-y-3">
                 {(order.items ?? []).map((item: any, idx: number) => (
-                  <div key={idx} className="flex justify-between gap-4 text-sm">
-                    <div className="flex-1">
-                      <p className="font-medium">{item.name}</p>
-                      <p className="text-muted-foreground text-xs">
-                        {item.size ? `Size ${item.size} · ` : ''}Qty {item.quantity} @ {formatPrice(Number(item.price))}
-                      </p>
+                  <div key={idx} className="flex items-start justify-between gap-4 text-sm rounded-lg border p-3">
+                    <div className="flex gap-3 flex-1 min-w-0">
+                      {item.image_url ? (
+                        <img
+                          src={item.image_url}
+                          alt={item.name}
+                          className="h-16 w-16 rounded-md border object-cover"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      ) : (
+                        <div className="h-16 w-16 rounded-md border bg-muted flex items-center justify-center text-[10px] text-muted-foreground text-center px-1">
+                          No image
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium">{item.name}</p>
+                        <p className="text-muted-foreground text-xs">
+                          {item.size ? `Size ${item.size} · ` : ''}Qty {item.quantity} @ {formatPrice(Number(item.price))}
+                        </p>
+                        {item.product_id ? (
+                          <p className="text-[11px] text-muted-foreground mt-1 truncate">
+                            Product ID: {item.product_id}
+                          </p>
+                        ) : null}
+                      </div>
                     </div>
                     <p className="font-medium">
                       {formatPrice(Number(item.line_total ?? item.price * item.quantity))}

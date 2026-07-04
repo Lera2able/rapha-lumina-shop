@@ -59,95 +59,89 @@ async function verifyPaystackTransaction(reference: string) {
   return data.data;
 }
 
-async function updateOrderStatus(reference: string, transactionData: any): Promise<boolean> {
-  // First try to find by paystack_reference, then by order id
-  let query = supabase
+async function updateOrderStatus(reference: string, transactionData: any) {
+  const { data: order, error: fetchError } = await supabase
     .from("orders")
-    .select("id, status, customer_email, total_amount, items, shipping_address, customer_name");
-  
-  // Check if reference is a UUID (order ID) or Paystack reference
-  const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(reference);
-  
-  if (isUUID) {
-    query = query.eq("id", reference);
-  } else {
-    query = query.eq("paystack_reference", reference);
-  }
-  
-  const { data: order, error: fetchError } = await query.single();
+    .select("id, status, customer_email, total_amount, items, shipping_address, customer_name, shipping_cost, paystack_reference")
+    .or(`id.eq.${reference},paystack_reference.eq.${reference}`)
+    .maybeSingle();
 
   if (fetchError || !order) {
     console.error("Failed to fetch order:", fetchError);
-    return false;
+    return { success: false, order: null };
   }
 
-  if (order.status === "completed") {
-    return true;
-  }
+  const alreadyFinalized = ["completed", "processing", "shipped", "delivered"].includes(order.status);
 
-  if (order.status !== "pending") {
-    console.error(`Order status is ${order.status}, cannot complete payment`);
-    return false;
-  }
+  if (!alreadyFinalized) {
+    const { error } = await supabase
+      .from("orders")
+      .update({
+        status: "completed",
+        completed_at: new Date().toISOString(),
+        payment_method: transactionData.channel,
+        paystack_reference: order.paystack_reference ?? transactionData.reference ?? reference,
+      })
+      .eq("id", order.id)
+      .eq("status", order.status);
 
-  const { error } = await supabase
-    .from("orders")
-    .update({
-      status: "completed",
-      completed_at: new Date().toISOString(),
-      payment_method: transactionData.channel,
-    })
-    .eq("id", order.id)
-    .eq("status", "pending");
-
-  if (error) {
-    console.error("Failed to update order:", error);
-    return false;
-  }
-
-  // Decrement stock for all items
-  try {
-    const stockUpdates = (order.items as any[]).map(async (item) => {
-      if (item.product_id) {
-        await supabase.rpc('decrement_stock', {
-          product_id: item.product_id,
-          quantity: item.quantity,
-        });
-      }
-    });
-    await Promise.all(stockUpdates);
-  } catch (stockError) {
-    console.error("Failed to update stock:", stockError);
-    // Don't fail the order if stock update fails
-  }
-
-  try {
-    const emailResponse = await supabase.functions.invoke('send_email', {
-      body: {
-        type: 'order_confirmation',
-        to: order.customer_email,
-        data: {
-          customerName: order.shipping_address?.name || order.customer_name || 'Customer',
-          orderId: order.id.slice(0, 8),
-          orderDate: new Date().toLocaleDateString('en-ZA', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          }),
-          items: order.items,
-          totalAmount: order.total_amount,
-          shippingAddress: order.shipping_address,
-        },
-      },
-    });
-    if (emailResponse.error) {
-      console.error("Email send error:", emailResponse.error);
+    if (error) {
+      console.error("Failed to update order:", error);
+      return { success: false, order };
     }
-  } catch (emailError) {
-    console.error("Failed to send order confirmation email:", emailError);
+
+    try {
+      const stockUpdates = (order.items as any[]).map(async (item) => {
+        if (item.product_id) {
+          await supabase.rpc("decrement_stock", {
+            product_id: item.product_id,
+            quantity: item.quantity,
+          });
+        }
+      });
+      await Promise.all(stockUpdates);
+    } catch (stockError) {
+      console.error("Failed to update stock:", stockError);
+    }
+
+    try {
+      const emailResponse = await supabase.functions.invoke("send_email", {
+        body: {
+          type: "order_confirmation",
+          to: order.customer_email,
+          data: {
+            customerName: order.shipping_address?.name || order.customer_name || "Customer",
+            orderId: order.id.slice(0, 8),
+            orderDate: new Date().toLocaleDateString("en-ZA", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }),
+            items: order.items,
+            totalAmount: order.total_amount,
+            shippingCost: order.shipping_cost ?? 0,
+            shippingAddress: order.shipping_address,
+          },
+        },
+      });
+      if (emailResponse.error) {
+        console.error("Email send error:", emailResponse.error);
+      }
+    } catch (emailError) {
+      console.error("Failed to send order confirmation email:", emailError);
+    }
   }
 
-  return true;
+  const { data: refreshedOrder } = await supabase
+    .from("orders")
+    .select("id, status, customer_email, total_amount, items, shipping_address, customer_name, shipping_cost")
+    .eq("id", order.id)
+    .single();
+
+  return {
+    success: true,
+    order: refreshedOrder ?? order,
+  };
 }
 
 Deno.serve(async (req) => {
@@ -176,7 +170,7 @@ Deno.serve(async (req) => {
       });
     }
     
-    const orderUpdated = await updateOrderStatus(reference, transactionData);
+    const orderResult = await updateOrderStatus(reference, transactionData);
 
     const result = {
       verified: true,
@@ -186,7 +180,19 @@ Deno.serve(async (req) => {
       currency: transactionData.currency,
       customerEmail: transactionData.customer.email,
       paidAt: transactionData.paid_at,
-      orderUpdated,
+      orderUpdated: orderResult.success,
+      order: orderResult.order
+        ? {
+            id: orderResult.order.id,
+            status: orderResult.order.status,
+            customerEmail: orderResult.order.customer_email,
+            customerName: orderResult.order.shipping_address?.name || orderResult.order.customer_name || null,
+            totalAmount: orderResult.order.total_amount,
+            shippingCost: Number(orderResult.order.shipping_cost ?? 0),
+            items: orderResult.order.items,
+            shippingAddress: orderResult.order.shipping_address,
+          }
+        : null,
     };
     
     return ok(result);

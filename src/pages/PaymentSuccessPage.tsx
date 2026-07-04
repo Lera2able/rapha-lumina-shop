@@ -149,6 +149,41 @@ export default function PaymentSuccessPage() {
             </div>
           )}
 
+          {paymentDetails?.order?.items?.length > 0 && (
+            <div className="space-y-3 p-4 border rounded-lg">
+              <div>
+                <p className="font-medium">Order recap</p>
+                <p className="text-sm text-muted-foreground">
+                  Order #{paymentDetails.order.id.slice(0, 8)}
+                </p>
+              </div>
+              <div className="space-y-3">
+                {paymentDetails.order.items.map((item: any, idx: number) => (
+                  <div key={`${item.product_id ?? item.name}-${idx}`} className="flex gap-3">
+                    {item.image_url ? (
+                      <img
+                        src={item.image_url}
+                        alt={item.name}
+                        className="h-14 w-14 rounded-md object-cover border"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : null}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium">{item.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {item.size ? `Size ${item.size} · ` : ''}Qty {item.quantity}
+                      </p>
+                    </div>
+                    <p className="text-sm font-medium">
+                      R {Number(item.line_total ?? item.price * item.quantity).toFixed(2)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <p className="text-sm text-center text-muted-foreground">
             You will receive an order confirmation email shortly.
           </p>
