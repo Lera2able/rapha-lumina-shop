@@ -316,21 +316,6 @@ export default function HomePage() {
             </Link>
             <Link to="/about" className="btn-outline">Our story</Link>
           </div>
-          {heroBestSeller && (
-            <div className="mb-8 rounded-[24px] border border-rl-espresso/10 p-5 max-w-[440px]" style={{ backgroundColor: 'rgba(250, 248, 245, 0.72)' }}>
-              <p className="text-[10px] tracking-[0.16em] uppercase mb-2" style={{ color: 'var(--rl-gold)' }}>
-                Editor&apos;s spotlight
-              </p>
-              <p className="font-display text-[28px] leading-none mb-2">
-                {heroBestSeller.name}
-              </p>
-              <p className="text-[13px] leading-[1.7]" style={{ color: 'var(--rl-muted)' }}>
-                {heroBestSeller.bestseller_rank
-                  ? `Current No. ${heroBestSeller.bestseller_rank} best seller with ${heroBestSeller.sold_units ?? 0} completed-order sales.`
-                  : 'A standout piece chosen to lead the season’s story.'}
-              </p>
-            </div>
-          )}
           <div className="grid grid-cols-3 gap-4 sm:gap-9 pt-8 border-t border-rl-espresso/10">
             <div>
               <p className="font-display text-2xl font-light" style={{ color: 'var(--rl-gold)' }}>Free</p>
