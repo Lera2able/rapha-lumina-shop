@@ -3,14 +3,17 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/db/supabase'
 import type { Product } from '@/types/types'
 import { normaliseProducts } from '@/lib/product'
-import { ArrowRight, Heart, ShoppingBag } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Heart, ShoppingBag } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import { useCart } from '@/contexts/CartContext'
 import PageMeta from '@/components/common/PageMeta'
 import { toast } from 'sonner'
 
+const PRODUCTS_PER_VIEW = 6
+
 export default function HomePage() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([])
+  const [showcasePage, setShowcasePage] = useState(0)
   const [newsletterEmail, setNewsletterEmail] = useState('')
   const [newsletterLoading, setNewsletterLoading] = useState(false)
   const { addItem } = useCart()
@@ -23,11 +26,22 @@ export default function HomePage() {
     const { data } = await supabase
       .from('products')
       .select('*')
-      .eq('featured', true)
-      .limit(3)
+      .gt('stock', 0)
+      .order('featured', { ascending: false })
+      .order('created_at', { ascending: false })
 
     setFeaturedProducts(normaliseProducts(data))
   }
+
+  useEffect(() => {
+    if (featuredProducts.length <= PRODUCTS_PER_VIEW) return
+
+    const interval = window.setInterval(() => {
+      setShowcasePage((current) => (current + 1) % Math.ceil(featuredProducts.length / PRODUCTS_PER_VIEW))
+    }, 4500)
+
+    return () => window.clearInterval(interval)
+  }, [featuredProducts])
 
   const handleAddToCart = (product: Product, e: React.MouseEvent) => {
     e.preventDefault()
@@ -88,6 +102,13 @@ export default function HomePage() {
   const featuredCollectionLink = featuredCollection === 'teacher' ? '/teacher' : '/enlightened'
   const featuredCollectionLabel =
     featuredCollection === 'teacher' ? 'Teacher Collection' : 'Enlightened Collection'
+  const totalShowcasePages = Math.ceil(featuredProducts.length / PRODUCTS_PER_VIEW)
+  const visibleProducts = featuredProducts.slice(
+    showcasePage * PRODUCTS_PER_VIEW,
+    showcasePage * PRODUCTS_PER_VIEW + PRODUCTS_PER_VIEW,
+  )
+  const showcaseStart = showcasePage * PRODUCTS_PER_VIEW + 1
+  const showcaseEnd = Math.min(showcaseStart + visibleProducts.length - 1, featuredProducts.length)
 
   return (
     <div className="min-h-screen">
@@ -307,29 +328,39 @@ export default function HomePage() {
       {featuredProducts.length > 0 && (
         <section className="px-6 py-16 md:px-12 md:py-20 border-b border-rl-espresso/10">
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-baseline mb-10 md:mb-12 pb-4.5 border-b border-rl-espresso/10">
-            <h2 className="font-display text-[34px] sm:text-[42px] font-normal">Handpicked</h2>
-            {featuredCollection ? (
-              <Link
-                to={featuredCollectionLink}
-                className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.14em] uppercase transition-colors"
-                style={{ color: 'var(--rl-gold)' }}
-              >
-                View all in {featuredCollectionLabel}
-                <ArrowRight className="h-3 w-3" />
-              </Link>
-            ) : (
-              <a
-                href="#collections"
-                className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.14em] uppercase transition-colors"
-                style={{ color: 'var(--rl-gold)' }}
-              >
-                Browse collections
-                <ArrowRight className="h-3 w-3" />
-              </a>
-            )}
+            <div>
+              <h2 className="font-display text-[34px] sm:text-[42px] font-normal">Handpicked</h2>
+              <p className="text-[13px] leading-[1.7] mt-2 max-w-[560px]" style={{ color: 'var(--rl-muted)' }}>
+                A broader look at what’s available now. We rotate the selection so returning shoppers keep discovering more pieces that catch the eye.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 sm:items-end">
+              <p className="text-[10px] tracking-[0.14em] uppercase" style={{ color: 'var(--rl-gold)' }}>
+                Showing {showcaseStart}-{showcaseEnd} of {featuredProducts.length}
+              </p>
+              {featuredCollection ? (
+                <Link
+                  to={featuredCollectionLink}
+                  className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.14em] uppercase transition-colors"
+                  style={{ color: 'var(--rl-gold)' }}
+                >
+                  View all in {featuredCollectionLabel}
+                  <ArrowRight className="h-3 w-3" />
+                </Link>
+              ) : (
+                <a
+                  href="#collections"
+                  className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.14em] uppercase transition-colors"
+                  style={{ color: 'var(--rl-gold)' }}
+                >
+                  Browse collections
+                  <ArrowRight className="h-3 w-3" />
+                </a>
+              )}
+            </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredProducts.map(product => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+            {visibleProducts.map(product => (
               <article key={product.id} className="group">
                 <div className="relative aspect-[3/4] overflow-hidden mb-3.5">
                   <Link
@@ -394,6 +425,43 @@ export default function HomePage() {
               </article>
             ))}
           </div>
+          {totalShowcasePages > 1 && (
+            <div className="flex items-center justify-between gap-4 mt-10">
+              <div className="flex items-center gap-2">
+                {Array.from({ length: totalShowcasePages }).map((_, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    aria-label={`Show product set ${index + 1}`}
+                    className="h-2.5 rounded-full transition-all"
+                    style={{
+                      width: showcasePage === index ? '28px' : '10px',
+                      backgroundColor: showcasePage === index ? 'var(--rl-gold)' : 'rgba(26, 18, 8, 0.18)',
+                    }}
+                    onClick={() => setShowcasePage(index)}
+                  />
+                ))}
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  aria-label="Show previous products"
+                  className="h-10 w-10 rounded-full border border-rl-espresso/10 flex items-center justify-center transition-colors hover:bg-rl-cream"
+                  onClick={() => setShowcasePage((current) => (current - 1 + totalShowcasePages) % totalShowcasePages)}
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  aria-label="Show next products"
+                  className="h-10 w-10 rounded-full border border-rl-espresso/10 flex items-center justify-center transition-colors hover:bg-rl-cream"
+                  onClick={() => setShowcasePage((current) => (current + 1) % totalShowcasePages)}
+                >
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          )}
         </section>
       )}
 
