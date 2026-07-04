@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,8 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/db/supabase';
+import PageMeta from '@/components/common/PageMeta';
 import { toast } from 'sonner';
 import type { ShippingAddress } from '@/types/types';
+import { ShieldCheck, Truck, RotateCcw } from 'lucide-react';
 
 export default function CheckoutPage() {
   const { items, subtotal, shippingCost, grandTotal } = useCart();
@@ -137,10 +139,29 @@ export default function CheckoutPage() {
     return null;
   }
 
+  const freeShippingRemaining = subtotal < 700 ? 700 - subtotal : 0;
+
   return (
     <div className="min-h-screen">
+      <PageMeta
+        title="Checkout | Rapha Lumina"
+        description="Complete your Rapha Lumina order with secure checkout, shipping details, and payment confirmation."
+        canonicalPath="/checkout"
+        ogImage="https://raphalumina.com/og-support.svg"
+        ogImageAlt="Rapha Lumina checkout social preview card"
+      />
       <div className="container py-8">
-        <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+        <div className="flex flex-col gap-3 mb-8 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Checkout</h1>
+            <p className="text-muted-foreground mt-2">
+              Your stock is checked again before payment, and you’ll receive order confirmation by email.
+            </p>
+          </div>
+          <Link to="/cart">
+            <Button variant="outline">Back to Cart</Button>
+          </Link>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-2">
@@ -268,6 +289,30 @@ export default function CheckoutPage() {
                   <Button type="submit" className="w-full" size="lg" disabled={loading}>
                     {loading ? 'Processing...' : 'Proceed to Payment'}
                   </Button>
+
+                  <div className="grid grid-cols-1 gap-3 pt-2 sm:grid-cols-3">
+                    <div className="rounded-lg border border-border p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Truck className="h-4 w-4 text-primary" />
+                        <p className="text-sm font-medium">Delivery</p>
+                      </div>
+                      <p className="text-sm text-muted-foreground">Usually dispatched in 1-2 business days.</p>
+                    </div>
+                    <div className="rounded-lg border border-border p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <RotateCcw className="h-4 w-4 text-primary" />
+                        <p className="text-sm font-medium">Returns</p>
+                      </div>
+                      <p className="text-sm text-muted-foreground">Easy returns and exchanges on eligible items.</p>
+                    </div>
+                    <div className="rounded-lg border border-border p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <ShieldCheck className="h-4 w-4 text-primary" />
+                        <p className="text-sm font-medium">Secure payment</p>
+                      </div>
+                      <p className="text-sm text-muted-foreground">Paystack-secured payment with email confirmation.</p>
+                    </div>
+                  </div>
                 </form>
               </CardContent>
             </Card>
@@ -279,6 +324,12 @@ export default function CheckoutPage() {
                 <CardTitle>Order Summary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                <div className="rounded-lg bg-muted/40 p-4">
+                  <p className="text-sm font-medium">Before you pay</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    We verify stock one more time before redirecting you to payment.
+                  </p>
+                </div>
                 <div className="space-y-2">
                   {items.map(item => (
                     <div key={`${item.product_id}-${item.size}`} className="flex justify-between text-sm">
@@ -314,6 +365,15 @@ export default function CheckoutPage() {
                     <span>R {grandTotal.toFixed(2)}</span>
                   </div>
                 </div>
+
+                {freeShippingRemaining > 0 && (
+                  <div className="rounded-lg border border-dashed border-border p-4">
+                    <p className="text-sm font-medium">Still below free shipping</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Add R {freeShippingRemaining.toFixed(2)} more in the cart to qualify for free delivery.
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

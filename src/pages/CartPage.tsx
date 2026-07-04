@@ -2,14 +2,24 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useCart } from '@/contexts/CartContext';
-import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
+import PageMeta from '@/components/common/PageMeta';
+import { Minus, Plus, Trash2, ShoppingBag, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
 
 export default function CartPage() {
-  const { items, updateQuantity, removeItem, subtotal, shippingCost, grandTotal } = useCart();
+  const { items, updateQuantity, removeItem, clearCart, subtotal, shippingCost, grandTotal } = useCart();
+  const freeShippingRemaining = subtotal < 700 ? 700 - subtotal : 0;
+  const freeShippingProgress = subtotal > 0 ? Math.min((subtotal / 700) * 100, 100) : 0;
 
   if (items.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
+        <PageMeta
+          title="Your Cart | Rapha Lumina"
+          description="Review your selected Rapha Lumina items and continue shopping or proceed to checkout."
+          canonicalPath="/cart"
+          ogImage="https://raphalumina.com/og-support.svg"
+          ogImageAlt="Rapha Lumina cart social preview card"
+        />
         <div className="text-center space-y-4">
           <ShoppingBag className="h-16 w-16 mx-auto text-muted-foreground" />
           <h2 className="text-2xl font-bold">Your cart is empty</h2>
@@ -24,11 +34,51 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen">
+      <PageMeta
+        title="Your Cart | Rapha Lumina"
+        description="Review your selected Rapha Lumina items and continue to secure checkout."
+        canonicalPath="/cart"
+        ogImage="https://raphalumina.com/og-support.svg"
+        ogImageAlt="Rapha Lumina cart social preview card"
+      />
       <div className="container py-8">
-        <h1 className="text-3xl font-bold mb-8">Shopping Cart</h1>
+        <div className="flex flex-col gap-3 mb-8 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Shopping Cart</h1>
+            <p className="text-muted-foreground mt-2">
+              Review your items, adjust quantities, and head to secure checkout when you’re ready.
+            </p>
+          </div>
+          <Button variant="outline" onClick={clearCart}>
+            Clear Cart
+          </Button>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-2 space-y-4">
+            <Card>
+              <CardContent className="p-4 space-y-3">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="font-medium">Free shipping progress</p>
+                    <p className="text-sm text-muted-foreground">
+                      {freeShippingRemaining > 0
+                        ? `Add R ${freeShippingRemaining.toFixed(2)} more to unlock free delivery.`
+                        : 'You’ve unlocked free shipping on this order.'}
+                    </p>
+                  </div>
+                  <p className="text-sm font-medium text-primary">
+                    {freeShippingProgress.toFixed(0)}%
+                  </p>
+                </div>
+                <div className="h-2 rounded-full bg-muted overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-primary transition-all"
+                    style={{ width: `${freeShippingProgress}%` }}
+                  />
+                </div>
+              </CardContent>
+            </Card>
             {items.map(item => (
               <Card key={`${item.product_id}-${item.size}`}>
                 <CardContent className="p-4">
@@ -125,6 +175,21 @@ export default function CartPage() {
                     Continue Shopping
                   </Button>
                 </Link>
+
+                <div className="space-y-3 border-t pt-4">
+                  <div className="flex gap-3">
+                    <Truck className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                    <p className="text-sm text-muted-foreground">R70 shipping under R700. Free shipping from R700.</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <RotateCcw className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                    <p className="text-sm text-muted-foreground">Easy returns and exchanges on eligible items.</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <ShieldCheck className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                    <p className="text-sm text-muted-foreground">Secure payment with order confirmation sent by email.</p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
