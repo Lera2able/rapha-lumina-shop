@@ -11,6 +11,8 @@ import { toast } from 'sonner'
 
 export default function HomePage() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([])
+  const [newsletterEmail, setNewsletterEmail] = useState('')
+  const [newsletterLoading, setNewsletterLoading] = useState(false)
   const { addItem } = useCart()
 
   useEffect(() => {
@@ -42,6 +44,45 @@ export default function HomePage() {
     toast.success(`${product.name} added to cart`)
   }
 
+  const handleNewsletterSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    const cleaned = newsletterEmail.trim().toLowerCase()
+    if (!cleaned || !cleaned.includes('@') || !cleaned.includes('.')) {
+      toast.error('Please enter a valid email address')
+      return
+    }
+
+    setNewsletterLoading(true)
+
+    try {
+      const { data, error } = await supabase.rpc('subscribe_newsletter', {
+        p_email: cleaned,
+      })
+
+      if (error) throw error
+
+      if (data && typeof data === 'object' && 'success' in data && !data.success) {
+        toast.error(data.message || 'Something went wrong. Please try again.')
+        return
+      }
+
+      supabase.functions
+        .invoke('send_newsletter_welcome', { body: { email: cleaned } })
+        .catch((welcomeErr) => {
+          console.warn('Welcome email dispatch failed (non-fatal):', welcomeErr)
+        })
+
+      toast.success('Welcome to the community! ✓')
+      setNewsletterEmail('')
+    } catch (err) {
+      console.error('Newsletter signup failed:', err)
+      toast.error('Something went wrong. Please try again.')
+    } finally {
+      setNewsletterLoading(false)
+    }
+  }
+
   const featuredCollections = [...new Set(featuredProducts.map((product) => product.collection))]
   const featuredCollection = featuredCollections.length === 1 ? featuredCollections[0] : null
   const featuredCollectionLink = featuredCollection === 'teacher' ? '/teacher' : '/enlightened'
@@ -53,6 +94,8 @@ export default function HomePage() {
       <PageMeta
         title="Rapha Lumina | Spiritual Apparel, Awakening Wear & Conscious Living"
         description="Discover Rapha Lumina's spiritually inspired apparel and teacher collection, made in South Africa and designed to help you wear your purpose."
+        canonicalPath="/"
+        ogImage="https://raphalumina.com/rapha-lumina-logo.png"
       />
       {/* Hero Section */}
       <section className="grid grid-cols-1 lg:grid-cols-2 min-h-[88vh] border-b border-rl-espresso/10">
@@ -400,25 +443,25 @@ export default function HomePage() {
         <div>
           <form 
             className="flex border border-rl-espresso/20 transition-colors focus-within:border-[var(--rl-espresso)]"
-            onSubmit={(e) => {
-              e.preventDefault()
-              toast.success('Welcome to the community! ✓')
-              e.currentTarget.reset()
-            }}
+            onSubmit={handleNewsletterSubmit}
           >
             <input
               type="email"
               placeholder="Your email address"
+              value={newsletterEmail}
+              onChange={(e) => setNewsletterEmail(e.target.value)}
               className="flex-1 px-4 py-3.5 text-[13px] outline-none"
               style={{ backgroundColor: 'transparent', color: 'var(--rl-espresso)' }}
               required
+              disabled={newsletterLoading}
             />
             <button 
               type="submit"
+              disabled={newsletterLoading}
               className="px-5 py-3.5 text-[10px] tracking-[0.14em] uppercase whitespace-nowrap flex items-center gap-1.5 transition-colors duration-200"
               style={{ backgroundColor: 'var(--rl-espresso)', color: 'var(--rl-cream)' }}
             >
-              Subscribe
+              {newsletterLoading ? 'Subscribing…' : 'Subscribe'}
               <ArrowRight className="h-3 w-3" />
             </button>
           </form>

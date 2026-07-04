@@ -178,15 +178,41 @@ export default function ProductDetailPage() {
     productImages.push(...product.additional_images);
   }
 
+  const canonicalPath = `/product/${product.id}`;
+  const description = product.description
+    ? `${product.description.slice(0, 140)}${product.description.length > 140 ? '…' : ''}`
+    : 'Explore product details, sizing, and availability from Rapha Lumina.';
+  const productStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    description: product.description,
+    image: productImages,
+    brand: {
+      '@type': 'Brand',
+      name: 'Rapha Lumina',
+    },
+    sku: product.id,
+    category: product.category,
+    offers: {
+      '@type': 'Offer',
+      url: `https://raphalumina.com${canonicalPath}`,
+      priceCurrency: 'ZAR',
+      price: product.price.toFixed(2),
+      availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      itemCondition: 'https://schema.org/NewCondition',
+    },
+  };
+
   return (
     <div className="min-h-screen">
       <PageMeta
-        title={product ? `${product.name} | Rapha Lumina` : 'Product | Rapha Lumina'}
-        description={
-          product
-            ? `${product.description.slice(0, 140)}${product.description.length > 140 ? '…' : ''}`
-            : 'Explore product details, sizing, and availability from Rapha Lumina.'
-        }
+        title={`${product.name} | Rapha Lumina`}
+        description={description}
+        canonicalPath={canonicalPath}
+        ogType="product"
+        ogImage={product.image_url}
+        structuredData={productStructuredData}
       />
       <div className="container py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
