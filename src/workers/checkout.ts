@@ -174,7 +174,7 @@ export default {
       const callbackUrl = `https://raphalumina.com/payment/callback?order_id=${orderId}`;
 
       // Create order in Supabase
-      const order = await createSupabaseOrder(env, {
+      await createSupabaseOrder(env, {
         items: dbItems,
         total_amount: grandTotalAmount / 100,
         currency: (checkoutRequest.currency || "ZAR").toUpperCase(),

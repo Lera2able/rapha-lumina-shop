@@ -18,7 +18,6 @@ export default function AccountSettingsPage() {
   const [lastName, setLastName] = useState('');
 
   // Password change state
-  const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -70,7 +69,6 @@ export default function AccountSettingsPage() {
       if (error) throw error;
 
       toast.success('Password changed successfully!');
-      setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
     } catch (error: any) {

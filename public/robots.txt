@@ -15,7 +15,7 @@ Allow: /enlightened
 Allow: /teacher
 Allow: /about
 Allow: /contact
-Allow: /products/*
+Allow: /product/*
 
 # Sitemap location
 Sitemap: https://raphalumina.com/sitemap.xml

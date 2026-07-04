@@ -1,10 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Mail, Phone, MapPin, Package, CreditCard, RefreshCw, Shield, Truck } from 'lucide-react';
+import PageMeta from '@/components/common/PageMeta';
 
 export default function FAQPage() {
   return (
     <div className="min-h-screen">
+      <PageMeta
+        title="FAQ | Rapha Lumina"
+        description="Answers about shipping, returns, payment, sizing, and shopping with Rapha Lumina."
+      />
       <div className="container py-12">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
@@ -53,14 +58,14 @@ export default function FAQPage() {
                 <AccordionItem value="shipping-cost">
                   <AccordionTrigger>What are the shipping costs?</AccordionTrigger>
                   <AccordionContent className="text-muted-foreground text-pretty">
-                    We offer <strong className="text-foreground">FREE shipping</strong> on all orders over <strong className="text-foreground">R700</strong>. For orders under R700, a flat rate of <strong className="text-foreground">R100</strong> applies. Add just a little more to your cart to qualify for free shipping!
+                    We offer <strong className="text-foreground">FREE shipping</strong> on all orders of <strong className="text-foreground">R700</strong> or more. For orders under R700, a flat rate of <strong className="text-foreground">R70</strong> applies within South Africa.
                   </AccordionContent>
                 </AccordionItem>
 
                 <AccordionItem value="shipping-time">
                   <AccordionTrigger>How long does shipping take?</AccordionTrigger>
                   <AccordionContent className="text-muted-foreground text-pretty">
-                    Standard shipping within South Africa typically takes 3-7 business days. You will receive a tracking number via email once your order ships. Please allow 1-2 business days for order processing before shipment.
+                    Standard shipping within South Africa typically takes 3-7 business days after dispatch. You will receive a tracking number via email once your order ships. Please allow 1-2 business days for order processing before shipment.
                   </AccordionContent>
                 </AccordionItem>
 

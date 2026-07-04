@@ -107,7 +107,11 @@ export default function CheckoutPage() {
 
       if (error) {
         console.error('Checkout error:', error);
-        toast.error(errorMsg || error?.message || 'Failed to create checkout session');
+        const errorMessage =
+          (typeof error === 'object' && error !== null && 'message' in error && typeof error.message === 'string'
+            ? error.message
+            : null) || 'Failed to create checkout session';
+        toast.error(errorMessage);
         return;
       }
 

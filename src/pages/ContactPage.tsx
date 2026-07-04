@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { supabase } from '@/db/supabase';
+import PageMeta from '@/components/common/PageMeta';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -47,6 +48,10 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen">
+      <PageMeta
+        title="Contact Us | Rapha Lumina"
+        description="Contact Rapha Lumina for product questions, order support, or general enquiries."
+      />
       <div className="container py-8 max-w-4xl">
         <h1 className="text-4xl font-bold mb-8 text-balance">Contact Us</h1>
 

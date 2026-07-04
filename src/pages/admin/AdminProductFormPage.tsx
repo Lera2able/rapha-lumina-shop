@@ -18,7 +18,7 @@ import {
 import { ArrowLeft, Save, Video, X } from 'lucide-react';
 import { toast } from 'sonner';
 import ImageUpload from '@/components/admin/ImageUpload';
-import type { Product, CollectionType } from '@/types/types';
+import type { CollectionType } from '@/types/types';
 
 
 export default function AdminProductFormPage() {
@@ -27,7 +27,6 @@ export default function AdminProductFormPage() {
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<string[]>([]);
   const [videoUrl, setVideoUrl] = useState<string>('');
-  const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUploading, setVideoUploading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -94,7 +93,7 @@ export default function AdminProductFormPage() {
     const blob = new Blob([byteArray], { type: 'image/jpeg' });
 
     const filePath = `${Date.now()}_${fileName}`;
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from('product-images')
       .upload(filePath, blob, {
         contentType: 'image/jpeg',
@@ -125,7 +124,6 @@ export default function AdminProductFormPage() {
       return;
     }
 
-    setVideoFile(file);
     setVideoUploading(true);
     try {
       const ext = file.name.split('.').pop()?.toLowerCase() || 'mp4';
@@ -147,7 +145,6 @@ export default function AdminProductFormPage() {
     } catch (err: any) {
       console.error('Video upload failed:', err);
       toast.error(`Video upload failed: ${err.message || 'unknown error'}`);
-      setVideoFile(null);
     } finally {
       setVideoUploading(false);
     }
@@ -155,7 +152,6 @@ export default function AdminProductFormPage() {
 
   const handleRemoveVideo = () => {
     setVideoUrl('');
-    setVideoFile(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

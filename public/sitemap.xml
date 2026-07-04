@@ -90,7 +90,7 @@
   <!-- Note: Product URLs should be added dynamically as products are created -->
   <!-- Example product URL format: -->
   <!-- <url>
-    <loc>https://raphalumina.com/products/[product-id]</loc>
+    <loc>https://raphalumina.com/product/[product-id]</loc>
     <lastmod>2026-05-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

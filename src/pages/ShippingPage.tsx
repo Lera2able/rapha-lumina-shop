@@ -1,8 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import PageMeta from '@/components/common/PageMeta';
 
 export default function ShippingPage() {
   return (
     <div className="min-h-screen">
+      <PageMeta
+        title="Shipping & Delivery | Rapha Lumina"
+        description="Shipping rates, delivery times, and order tracking information for Rapha Lumina orders within South Africa."
+      />
       <div className="container py-8 max-w-4xl">
         <h1 className="text-4xl font-bold mb-8 text-balance">Shipping Information</h1>
 
@@ -16,16 +21,11 @@ export default function ShippingPage() {
                 <div>
                   <h3 className="font-semibold mb-2">South Africa</h3>
                   <ul className="space-y-2 text-sm text-muted-foreground">
-                    <li>• Standard Delivery (5-7 business days): R 80</li>
-                    <li>• Express Delivery (2-3 business days): R 150</li>
-                    <li>• Free shipping on orders over R 1000</li>
+                    <li>• Flat rate shipping on orders under R700: R 70</li>
+                    <li>• Free shipping on orders of R700 or more</li>
+                    <li>• Delivery usually takes 3-7 business days after dispatch</li>
+                    <li>• We currently ship within South Africa only</li>
                   </ul>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-2">International</h3>
-                  <p className="text-sm text-muted-foreground text-pretty">
-                    International shipping rates vary by destination and weight. Rates will be calculated at checkout.
-                  </p>
                 </div>
               </div>
             </CardContent>
@@ -37,7 +37,7 @@ export default function ShippingPage() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground text-pretty">
-                Orders are processed within 1-2 business days. Delivery times are calculated from the date of shipment, not the date of order placement.
+              Orders are usually processed within 1-2 business days. Delivery times are calculated from the date of dispatch, not the date the order was placed.
               </p>
             </CardContent>
           </Card>
