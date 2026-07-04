@@ -105,6 +105,15 @@ Edge functions deployed:
 - `send_stock_notifications` — restock notifications
 - `send-contact-email` — contact form notifications
 
+Recommended Edge Function secrets for email:
+
+- `RESEND_API_KEY`
+- `MAIL_FROM_NAME`
+- `MAIL_FROM_EMAIL`
+- `MAIL_REPLY_TO`
+- `SUPPORT_EMAIL`
+- `CONTACT_NOTIFICATION_EMAIL`
+
 Edge function source is in `supabase/functions/` but the deployed versions are the source of truth (they're updated via Supabase MCP). Sync from production before editing.
 
 ## License

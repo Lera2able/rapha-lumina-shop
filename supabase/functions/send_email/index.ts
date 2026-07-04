@@ -3,6 +3,16 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+const MAIL_FROM_NAME = Deno.env.get("MAIL_FROM_NAME") ?? "Rapha Lumina";
+const MAIL_FROM_EMAIL = Deno.env.get("MAIL_FROM_EMAIL") ?? "support@raphalumina.com";
+const SUPPORT_EMAIL = Deno.env.get("SUPPORT_EMAIL") ?? "support@raphalumina.com";
+const MAIL_REPLY_TO = Deno.env.get("MAIL_REPLY_TO") ?? SUPPORT_EMAIL;
+
+function formatFromAddress() {
+  return `${MAIL_FROM_NAME} <${MAIL_FROM_EMAIL}>`;
+}
+
 interface OrderItem {
   name: string;
   price: number;
@@ -498,8 +508,7 @@ Deno.serve(async (req) => {
       return new Response(null, { headers: corsHeaders });
     }
 
-    const resendApiKey = Deno.env.get("RESEND_API_KEY");
-    if (!resendApiKey) {
+    if (!RESEND_API_KEY) {
       throw new Error("RESEND_API_KEY not configured");
     }
 
@@ -512,12 +521,13 @@ Deno.serve(async (req) => {
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${resendApiKey}`,
+        "Authorization": `Bearer ${RESEND_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "Rapha Lumina <support@raphalumina.com>",
+        from: formatFromAddress(),
         to: [to],
+        reply_to: MAIL_REPLY_TO,
         subject,
         html,
       }),
@@ -525,7 +535,7 @@ Deno.serve(async (req) => {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(`Resend API error: ${error.message || 'Unknown error'}`);
+      throw new Error(`Resend API error (${MAIL_FROM_EMAIL}): ${error.message || 'Unknown error'}`);
     }
 
     const result = await response.json();

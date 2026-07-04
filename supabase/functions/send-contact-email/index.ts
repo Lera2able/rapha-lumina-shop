@@ -2,7 +2,10 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
-const NOTIFICATION_EMAIL = 'leratom2012@gmail.com';
+const MAIL_FROM_NAME = Deno.env.get('MAIL_FROM_NAME') ?? 'Rapha Lumina';
+const MAIL_FROM_EMAIL = Deno.env.get('MAIL_FROM_EMAIL') ?? 'support@raphalumina.com';
+const SUPPORT_EMAIL = Deno.env.get('SUPPORT_EMAIL') ?? 'support@raphalumina.com';
+const CONTACT_NOTIFICATION_EMAIL = Deno.env.get('CONTACT_NOTIFICATION_EMAIL') ?? SUPPORT_EMAIL;
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -152,8 +155,8 @@ Submission ID: ${submission.id}
             'Authorization': `Bearer ${RESEND_API_KEY}`,
           },
           body: JSON.stringify({
-            from: 'Rapha Lumina <noreply@raphalumina.com>',
-            to: [NOTIFICATION_EMAIL],
+            from: `${MAIL_FROM_NAME} <${MAIL_FROM_EMAIL}>`,
+            to: [CONTACT_NOTIFICATION_EMAIL],
             reply_to: email,
             subject: `New Contact Form: ${name}`,
             html: emailHtml,
@@ -163,7 +166,12 @@ Submission ID: ${submission.id}
 
         if (!resendResponse.ok) {
           const errorText = await resendResponse.text();
-          console.error('Resend API error:', errorText);
+          console.error('Resend API error:', {
+            status: resendResponse.status,
+            from: MAIL_FROM_EMAIL,
+            notify: CONTACT_NOTIFICATION_EMAIL,
+            errorText,
+          });
           // Don't fail the request if email fails - submission is already saved
         }
       } catch (emailError) {
@@ -171,7 +179,9 @@ Submission ID: ${submission.id}
         // Don't fail the request if email fails - submission is already saved
       }
     } else {
-      console.warn('RESEND_API_KEY not configured - email notification skipped');
+      console.warn('RESEND_API_KEY not configured - email notification skipped', {
+        notify: CONTACT_NOTIFICATION_EMAIL,
+      });
     }
 
     // Return success
