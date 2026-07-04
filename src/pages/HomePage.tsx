@@ -9,11 +9,15 @@ import { useCart } from '@/contexts/CartContext'
 import PageMeta from '@/components/common/PageMeta'
 import { toast } from 'sonner'
 
-const PRODUCTS_PER_VIEW = 6
+const MERCH_PER_VIEW = 4
+const COLLECTION_PER_VIEW = 4
 
 export default function HomePage() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([])
-  const [showcasePage, setShowcasePage] = useState(0)
+  const [activeMerchTab, setActiveMerchTab] = useState<'all' | 'new' | 'featured' | 'teacher' | 'enlightened'>('all')
+  const [merchPage, setMerchPage] = useState(0)
+  const [enlightenedPage, setEnlightenedPage] = useState(0)
+  const [teacherPage, setTeacherPage] = useState(0)
   const [newsletterEmail, setNewsletterEmail] = useState('')
   const [newsletterLoading, setNewsletterLoading] = useState(false)
   const { addItem } = useCart()
@@ -34,14 +38,8 @@ export default function HomePage() {
   }
 
   useEffect(() => {
-    if (featuredProducts.length <= PRODUCTS_PER_VIEW) return
-
-    const interval = window.setInterval(() => {
-      setShowcasePage((current) => (current + 1) % Math.ceil(featuredProducts.length / PRODUCTS_PER_VIEW))
-    }, 4500)
-
-    return () => window.clearInterval(interval)
-  }, [featuredProducts])
+    setMerchPage(0)
+  }, [activeMerchTab])
 
   const handleAddToCart = (product: Product, e: React.MouseEvent) => {
     e.preventDefault()
@@ -97,18 +95,161 @@ export default function HomePage() {
     }
   }
 
-  const featuredCollections = [...new Set(featuredProducts.map((product) => product.collection))]
-  const featuredCollection = featuredCollections.length === 1 ? featuredCollections[0] : null
-  const featuredCollectionLink = featuredCollection === 'teacher' ? '/teacher' : '/enlightened'
-  const featuredCollectionLabel =
-    featuredCollection === 'teacher' ? 'Teacher Collection' : 'Enlightened Collection'
-  const totalShowcasePages = Math.ceil(featuredProducts.length / PRODUCTS_PER_VIEW)
-  const visibleProducts = featuredProducts.slice(
-    showcasePage * PRODUCTS_PER_VIEW,
-    showcasePage * PRODUCTS_PER_VIEW + PRODUCTS_PER_VIEW,
+  const newestProducts = [...featuredProducts].sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
   )
-  const showcaseStart = showcasePage * PRODUCTS_PER_VIEW + 1
-  const showcaseEnd = Math.min(showcaseStart + visibleProducts.length - 1, featuredProducts.length)
+  const featuredOnlyProducts = featuredProducts.filter((product) => product.featured)
+  const teacherProducts = featuredProducts.filter((product) => product.collection === 'teacher')
+  const enlightenedProducts = featuredProducts.filter((product) => product.collection === 'enlightened')
+  const merchTabs = [
+    { key: 'all' as const, label: 'All products', products: featuredProducts },
+    { key: 'new' as const, label: 'New arrivals', products: newestProducts },
+    { key: 'featured' as const, label: 'Featured', products: featuredOnlyProducts.length > 0 ? featuredOnlyProducts : featuredProducts },
+    { key: 'teacher' as const, label: 'Teacher edit', products: teacherProducts },
+    { key: 'enlightened' as const, label: 'Enlightened edit', products: enlightenedProducts },
+  ]
+  const activeMerchProducts = merchTabs.find((tab) => tab.key === activeMerchTab)?.products ?? featuredProducts
+  const totalMerchPages = Math.max(1, Math.ceil(activeMerchProducts.length / MERCH_PER_VIEW))
+  const visibleMerchProducts = activeMerchProducts.slice(
+    merchPage * MERCH_PER_VIEW,
+    merchPage * MERCH_PER_VIEW + MERCH_PER_VIEW,
+  )
+  const merchStart = activeMerchProducts.length === 0 ? 0 : merchPage * MERCH_PER_VIEW + 1
+  const merchEnd = Math.min(merchStart + visibleMerchProducts.length - 1, activeMerchProducts.length)
+  const totalEnlightenedPages = Math.max(1, Math.ceil(enlightenedProducts.length / COLLECTION_PER_VIEW))
+  const totalTeacherPages = Math.max(1, Math.ceil(teacherProducts.length / COLLECTION_PER_VIEW))
+  const visibleEnlightenedProducts = enlightenedProducts.slice(
+    enlightenedPage * COLLECTION_PER_VIEW,
+    enlightenedPage * COLLECTION_PER_VIEW + COLLECTION_PER_VIEW,
+  )
+  const visibleTeacherProducts = teacherProducts.slice(
+    teacherPage * COLLECTION_PER_VIEW,
+    teacherPage * COLLECTION_PER_VIEW + COLLECTION_PER_VIEW,
+  )
+
+  useEffect(() => {
+    if (activeMerchProducts.length <= MERCH_PER_VIEW) return
+
+    const interval = window.setInterval(() => {
+      setMerchPage((current) => (current + 1) % Math.ceil(activeMerchProducts.length / MERCH_PER_VIEW))
+    }, 4800)
+
+    return () => window.clearInterval(interval)
+  }, [activeMerchProducts])
+
+  useEffect(() => {
+    if (enlightenedProducts.length <= COLLECTION_PER_VIEW) return
+
+    const interval = window.setInterval(() => {
+      setEnlightenedPage((current) => (current + 1) % Math.ceil(enlightenedProducts.length / COLLECTION_PER_VIEW))
+    }, 5200)
+
+    return () => window.clearInterval(interval)
+  }, [enlightenedProducts])
+
+  useEffect(() => {
+    if (teacherProducts.length <= COLLECTION_PER_VIEW) return
+
+    const interval = window.setInterval(() => {
+      setTeacherPage((current) => (current + 1) % Math.ceil(teacherProducts.length / COLLECTION_PER_VIEW))
+    }, 5600)
+
+    return () => window.clearInterval(interval)
+  }, [teacherProducts])
+
+  const renderProductCard = (product: Product, tone: 'sage' | 'terra' | 'neutral' = 'neutral') => (
+    <article key={product.id} className="group rounded-[26px] border border-rl-espresso/10 p-3 sm:p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(26,18,8,0.08)]">
+      <div
+        className="relative aspect-[4/5] overflow-hidden rounded-[22px] mb-4"
+        style={{
+          background:
+            tone === 'sage'
+              ? 'linear-gradient(180deg, rgba(185,198,190,0.45), rgba(250,248,245,0.98))'
+              : tone === 'terra'
+                ? 'linear-gradient(180deg, rgba(208,181,162,0.4), rgba(250,248,245,0.98))'
+                : 'linear-gradient(180deg, rgba(212,168,74,0.12), rgba(250,248,245,0.98))',
+        }}
+      >
+        <Link
+          to={`/product/${product.id}`}
+          className="absolute inset-0 z-10"
+          aria-label={`View ${product.name}`}
+        />
+        <div className="absolute inset-0 transition-transform duration-500 ease-out group-hover:scale-105">
+          <img
+            src={product.image_url}
+            alt={product.name}
+            loading="lazy"
+            decoding="async"
+            sizes="(min-width: 1280px) 25vw, (min-width: 768px) 50vw, 100vw"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-black/25 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/45 to-transparent" />
+
+        <button
+          className="absolute top-3 right-3 z-20 h-10 w-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+          style={{ backgroundColor: 'rgba(250, 248, 245, 0.92)' }}
+          aria-label={`Add ${product.name} to wishlist`}
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            toast.success('Added to wishlist')
+          }}
+        >
+          <Heart className="h-4 w-4" style={{ stroke: 'var(--rl-espresso)' }} />
+        </button>
+
+        <div
+          className="absolute top-3 left-3 z-20 px-3 py-1.5 rounded-full text-[9px] tracking-[0.14em] uppercase text-white"
+          style={{ backgroundColor: product.collection === 'enlightened' ? 'var(--rl-sage)' : 'var(--rl-terra)' }}
+        >
+          {product.collection === 'enlightened' ? 'Enlightened' : 'Teacher'}
+        </div>
+
+        <div className="absolute left-4 right-4 bottom-4 z-20 space-y-1.5 text-white">
+          <p className="text-[9px] tracking-[0.16em] uppercase opacity-80">
+            {product.featured ? 'Curated favourite' : 'Available now'}
+          </p>
+          <p className="font-display text-[24px] leading-none">
+            {formatPrice(product.price)}
+          </p>
+        </div>
+      </div>
+
+      <Link to={`/product/${product.id}`} className="block">
+        <p className="text-[10px] tracking-[0.14em] uppercase mb-1.5" style={{ color: product.collection === 'enlightened' ? 'var(--rl-sage)' : 'var(--rl-terra)' }}>
+          {product.collection === 'enlightened' ? 'Enlightened Collection' : 'Teacher Collection'}
+        </p>
+        <p className="font-display text-[22px] leading-[1.15] mb-2 transition-colors duration-200 group-hover:text-[var(--rl-gold)]">
+          {product.name}
+        </p>
+        <p className="text-[13px] leading-[1.7]" style={{ color: 'var(--rl-muted)' }}>
+          Designed to stand out, start conversations, and pull the right shopper closer.
+        </p>
+      </Link>
+
+      <div className="grid grid-cols-[1fr_auto] gap-3 items-center mt-5">
+        <div>
+          <p className="text-[10px] tracking-[0.14em] uppercase" style={{ color: 'var(--rl-gold)' }}>
+            Made to entice
+          </p>
+          <p className="text-[12px] mt-1" style={{ color: 'var(--rl-muted)' }}>
+            {product.stock} in stock
+          </p>
+        </div>
+        <button
+          className="inline-flex items-center justify-center gap-1.5 px-4 py-3 rounded-full text-[10px] tracking-[0.14em] uppercase transition-colors"
+          style={{ backgroundColor: 'var(--rl-espresso)', color: 'var(--rl-cream)' }}
+          onClick={(e) => handleAddToCart(product, e)}
+        >
+          <ShoppingBag className="h-3.5 w-3.5" />
+          Add
+        </button>
+      </div>
+    </article>
+  )
 
   return (
     <div className="min-h-screen">
@@ -327,118 +468,64 @@ export default function HomePage() {
       {/* Featured Products */}
       {featuredProducts.length > 0 && (
         <section className="px-6 py-16 md:px-12 md:py-20 border-b border-rl-espresso/10">
-          <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-baseline mb-10 md:mb-12 pb-4.5 border-b border-rl-espresso/10">
+          <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-end mb-8 md:mb-10 pb-5 border-b border-rl-espresso/10">
             <div>
-              <h2 className="font-display text-[34px] sm:text-[42px] font-normal">Handpicked</h2>
-              <p className="text-[13px] leading-[1.7] mt-2 max-w-[560px]" style={{ color: 'var(--rl-muted)' }}>
-                A broader look at what’s available now. We rotate the selection so returning shoppers keep discovering more pieces that catch the eye.
+              <p className="text-[10px] tracking-[0.16em] uppercase mb-2" style={{ color: 'var(--rl-gold)' }}>
+                Discover more
+              </p>
+              <h2 className="font-display text-[34px] sm:text-[42px] font-normal">Shop the edit</h2>
+              <p className="text-[13px] leading-[1.7] mt-2 max-w-[620px]" style={{ color: 'var(--rl-muted)' }}>
+                Bigger cards, rotating picks, and curated tabs that help shoppers discover what fits their energy faster.
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:items-end">
               <p className="text-[10px] tracking-[0.14em] uppercase" style={{ color: 'var(--rl-gold)' }}>
-                Showing {showcaseStart}-{showcaseEnd} of {featuredProducts.length}
+                Showing {merchStart}-{merchEnd} of {activeMerchProducts.length}
               </p>
-              {featuredCollection ? (
-                <Link
-                  to={featuredCollectionLink}
-                  className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.14em] uppercase transition-colors"
-                  style={{ color: 'var(--rl-gold)' }}
-                >
-                  View all in {featuredCollectionLabel}
-                  <ArrowRight className="h-3 w-3" />
-                </Link>
-              ) : (
-                <a
-                  href="#collections"
-                  className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.14em] uppercase transition-colors"
-                  style={{ color: 'var(--rl-gold)' }}
-                >
-                  Browse collections
-                  <ArrowRight className="h-3 w-3" />
-                </a>
-              )}
+              <Link
+                to="/enlightened"
+                className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.14em] uppercase transition-colors"
+                style={{ color: 'var(--rl-gold)' }}
+              >
+                Browse all collections
+                <ArrowRight className="h-3 w-3" />
+              </Link>
             </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-            {visibleProducts.map(product => (
-              <article key={product.id} className="group">
-                <div className="relative aspect-[3/4] overflow-hidden mb-3.5">
-                  <Link
-                    to={`/product/${product.id}`}
-                    className="absolute inset-0 z-10"
-                    aria-label={`View ${product.name}`}
-                  />
-                  <div className="absolute inset-0 transition-transform ease-out group-hover:scale-105" style={{ transitionDuration: '450ms' }}>
-                    <img
-                      src={product.image_url}
-                      alt={product.name}
-                      loading="lazy"
-                      decoding="async"
-                      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  
-                  <button 
-                    className="absolute top-3 right-3 z-20 w-[30px] h-[30px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                    style={{ backgroundColor: 'rgba(250, 248, 245, 0.88)' }}
-                    aria-label={`Add ${product.name} to wishlist`}
-                    onClick={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      toast.success('Added to wishlist')
-                    }}
-                  >
-                    <Heart className="h-3.5 w-3.5" style={{ stroke: 'var(--rl-espresso)' }} />
-                  </button>
-
-                  <div 
-                    className="absolute top-3 left-3 z-10 px-2 py-0.5 text-[9px] tracking-[0.12em] uppercase text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                    style={{ backgroundColor: product.collection === 'enlightened' ? 'var(--rl-sage)' : 'var(--rl-terra)' }}
-                  >
-                    {product.collection}
-                  </div>
-
-                  <div className="absolute bottom-0 left-0 right-0 z-20 p-3 translate-y-full group-hover:translate-y-0 transition-transform ease-out" style={{ backgroundColor: 'rgba(250, 248, 245, 0.96)', transitionDuration: '280ms' }}>
-                    <button 
-                      className="w-full flex items-center justify-center gap-1.5 py-2.5 text-[10px] tracking-[0.12em] uppercase transition-colors duration-200"
-                      style={{ backgroundColor: 'var(--rl-espresso)', color: 'var(--rl-cream)' }}
-                      onClick={(e) => handleAddToCart(product, e)}
-                    >
-                      <ShoppingBag className="h-3 w-3" />
-                      Add to cart
-                    </button>
-                  </div>
-                </div>
-
-                <Link to={`/product/${product.id}`} className="block">
-                  <p className="text-[9px] tracking-[0.14em] uppercase mb-1" style={{ color: product.collection === 'enlightened' ? 'var(--rl-sage)' : 'var(--rl-terra)' }}>
-                    {product.collection === 'enlightened' ? 'Enlightened' : 'Teacher'} Collection
-                  </p>
-                  <p className="text-[15px] mb-1 transition-colors duration-200 group-hover:text-[var(--rl-gold)]">
-                    {product.name}
-                  </p>
-                  <p className="text-[13px]" style={{ color: 'var(--rl-muted)' }}>
-                    {formatPrice(product.price)}
-                  </p>
-                </Link>
-              </article>
+          <div className="flex flex-wrap gap-2 mb-8">
+            {merchTabs.filter((tab) => tab.products.length > 0).map((tab) => (
+              <button
+                key={tab.key}
+                type="button"
+                className="px-4 py-2 rounded-full text-[10px] tracking-[0.14em] uppercase transition-colors border"
+                style={{
+                  backgroundColor: activeMerchTab === tab.key ? 'var(--rl-espresso)' : 'transparent',
+                  color: activeMerchTab === tab.key ? 'var(--rl-cream)' : 'var(--rl-espresso)',
+                  borderColor: 'rgba(26, 18, 8, 0.12)',
+                }}
+                onClick={() => setActiveMerchTab(tab.key)}
+              >
+                {tab.label}
+              </button>
             ))}
           </div>
-          {totalShowcasePages > 1 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-6 xl:gap-8">
+            {visibleMerchProducts.map((product) => renderProductCard(product))}
+          </div>
+          {totalMerchPages > 1 && (
             <div className="flex items-center justify-between gap-4 mt-10">
               <div className="flex items-center gap-2">
-                {Array.from({ length: totalShowcasePages }).map((_, index) => (
+                {Array.from({ length: totalMerchPages }).map((_, index) => (
                   <button
                     key={index}
                     type="button"
-                    aria-label={`Show product set ${index + 1}`}
+                    aria-label={`Show merch set ${index + 1}`}
                     className="h-2.5 rounded-full transition-all"
                     style={{
-                      width: showcasePage === index ? '28px' : '10px',
-                      backgroundColor: showcasePage === index ? 'var(--rl-gold)' : 'rgba(26, 18, 8, 0.18)',
+                      width: merchPage === index ? '28px' : '10px',
+                      backgroundColor: merchPage === index ? 'var(--rl-gold)' : 'rgba(26, 18, 8, 0.18)',
                     }}
-                    onClick={() => setShowcasePage(index)}
+                    onClick={() => setMerchPage(index)}
                   />
                 ))}
               </div>
@@ -447,7 +534,7 @@ export default function HomePage() {
                   type="button"
                   aria-label="Show previous products"
                   className="h-10 w-10 rounded-full border border-rl-espresso/10 flex items-center justify-center transition-colors hover:bg-rl-cream"
-                  onClick={() => setShowcasePage((current) => (current - 1 + totalShowcasePages) % totalShowcasePages)}
+                  onClick={() => setMerchPage((current) => (current - 1 + totalMerchPages) % totalMerchPages)}
                 >
                   <ArrowLeft className="h-4 w-4" />
                 </button>
@@ -455,11 +542,97 @@ export default function HomePage() {
                   type="button"
                   aria-label="Show next products"
                   className="h-10 w-10 rounded-full border border-rl-espresso/10 flex items-center justify-center transition-colors hover:bg-rl-cream"
-                  onClick={() => setShowcasePage((current) => (current + 1) % totalShowcasePages)}
+                  onClick={() => setMerchPage((current) => (current + 1) % totalMerchPages)}
                 >
                   <ArrowRight className="h-4 w-4" />
                 </button>
               </div>
+            </div>
+          )}
+        </section>
+      )}
+
+      {enlightenedProducts.length > 0 && (
+        <section className="px-6 py-16 md:px-12 md:py-20 border-b border-rl-espresso/10">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-8">
+            <div>
+              <p className="text-[10px] tracking-[0.16em] uppercase mb-2" style={{ color: 'var(--rl-sage)' }}>
+                Separate curation
+              </p>
+              <h2 className="font-display text-[32px] sm:text-[38px] font-normal">The Enlightened edit</h2>
+              <p className="text-[13px] leading-[1.7] mt-2 max-w-[580px]" style={{ color: 'var(--rl-muted)' }}>
+                A calmer, more spiritual rail that lets seekers browse without competing against the teacher collection.
+              </p>
+            </div>
+            <Link to="/enlightened" className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.14em] uppercase" style={{ color: 'var(--rl-sage)' }}>
+              View full collection
+              <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-6 xl:gap-8">
+            {visibleEnlightenedProducts.map((product) => renderProductCard(product, 'sage'))}
+          </div>
+          {totalEnlightenedPages > 1 && (
+            <div className="flex justify-end gap-2 mt-8">
+              <button
+                type="button"
+                aria-label="Show previous Enlightened products"
+                className="h-10 w-10 rounded-full border border-rl-espresso/10 flex items-center justify-center transition-colors hover:bg-rl-cream"
+                onClick={() => setEnlightenedPage((current) => (current - 1 + totalEnlightenedPages) % totalEnlightenedPages)}
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                aria-label="Show next Enlightened products"
+                className="h-10 w-10 rounded-full border border-rl-espresso/10 flex items-center justify-center transition-colors hover:bg-rl-cream"
+                onClick={() => setEnlightenedPage((current) => (current + 1) % totalEnlightenedPages)}
+              >
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+        </section>
+      )}
+
+      {teacherProducts.length > 0 && (
+        <section className="px-6 py-16 md:px-12 md:py-20 border-b border-rl-espresso/10">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-8">
+            <div>
+              <p className="text-[10px] tracking-[0.16em] uppercase mb-2" style={{ color: 'var(--rl-terra)' }}>
+                Separate curation
+              </p>
+              <h2 className="font-display text-[32px] sm:text-[38px] font-normal">The Teacher edit</h2>
+              <p className="text-[13px] leading-[1.7] mt-2 max-w-[580px]" style={{ color: 'var(--rl-muted)' }}>
+                A dedicated rail for the teacher collection, with stronger visual space for the pieces that speak directly to educators.
+              </p>
+            </div>
+            <Link to="/teacher" className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.14em] uppercase" style={{ color: 'var(--rl-terra)' }}>
+              View full collection
+              <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-6 xl:gap-8">
+            {visibleTeacherProducts.map((product) => renderProductCard(product, 'terra'))}
+          </div>
+          {totalTeacherPages > 1 && (
+            <div className="flex justify-end gap-2 mt-8">
+              <button
+                type="button"
+                aria-label="Show previous Teacher products"
+                className="h-10 w-10 rounded-full border border-rl-espresso/10 flex items-center justify-center transition-colors hover:bg-rl-cream"
+                onClick={() => setTeacherPage((current) => (current - 1 + totalTeacherPages) % totalTeacherPages)}
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                aria-label="Show next Teacher products"
+                className="h-10 w-10 rounded-full border border-rl-espresso/10 flex items-center justify-center transition-colors hover:bg-rl-cream"
+                onClick={() => setTeacherPage((current) => (current + 1) % totalTeacherPages)}
+              >
+                <ArrowRight className="h-4 w-4" />
+              </button>
             </div>
           )}
         </section>
