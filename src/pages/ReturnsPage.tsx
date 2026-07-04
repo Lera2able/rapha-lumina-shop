@@ -1,8 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import PageMeta from '@/components/common/PageMeta';
 
 export default function ReturnsPage() {
   return (
     <div className="min-h-screen">
+      <PageMeta
+        title="Returns & Exchanges | Rapha Lumina"
+        description="Read Rapha Lumina's returns and exchange policy, including return conditions, refund timing, and how to start a return."
+      />
       <div className="container py-8 max-w-4xl">
         <h1 className="text-4xl font-bold mb-8 text-balance">Returns & Exchange Policy</h1>
 

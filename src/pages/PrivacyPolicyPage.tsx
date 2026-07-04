@@ -1,8 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import PageMeta from '@/components/common/PageMeta';
 
 export default function PrivacyPolicyPage() {
   return (
     <div className="min-h-screen py-12">
+      <PageMeta
+        title="Privacy Policy | Rapha Lumina"
+        description="Read how Rapha Lumina collects, uses, and protects your personal information under our privacy policy."
+      />
       <div className="container max-w-4xl">
         <h1 className="text-4xl font-bold mb-2 text-primary text-center">
           Privacy Policy

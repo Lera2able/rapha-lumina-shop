@@ -1,9 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
+import PageMeta from '@/components/common/PageMeta';
 
 export default function TermsPage() {
   return (
     <div className="min-h-screen py-12">
+      <PageMeta
+        title="Terms & Conditions | Rapha Lumina"
+        description="Review the Rapha Lumina terms and conditions for orders, payments, shipping, returns, and customer responsibilities."
+      />
       <div className="container max-w-4xl">
         <h1 className="text-4xl font-bold mb-2 text-primary text-center">
           Terms and Conditions

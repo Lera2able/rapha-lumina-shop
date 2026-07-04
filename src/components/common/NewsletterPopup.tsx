@@ -6,17 +6,18 @@ import { toast } from 'sonner';
 /**
  * Newsletter popup for Rapha Lumina.
  *
- * Appears 10 seconds after the user lands on the site.
+ * Appears after the user has had time to browse the site.
  * Saves to the `newsletter_subscribers` table with source = 'popup'.
  * Will not reappear for POPUP_SNOOZE_DAYS after the user closes it or signs up.
  * Skips checkout, cart, account and admin routes so we don't interrupt purchases.
  */
 
-const POPUP_DELAY_MS = 10_000;
-const POPUP_SNOOZE_DAYS = 14;
+const POPUP_DELAY_MS = 30_000;
+const POPUP_SNOOZE_DAYS = 30;
 const POPUP_DISMISSED_KEY = 'rl_newsletter_popup_dismissed_at';
 
-const ROUTES_TO_SKIP = ['/cart', '/checkout', '/account', '/admin', '/login', '/signup'];
+const EXACT_ROUTES_TO_SKIP = ['/', '/register', '/register/thank-you'];
+const PREFIX_ROUTES_TO_SKIP = ['/cart', '/checkout', '/account', '/admin', '/login', '/signup'];
 
 export function NewsletterPopup() {
   const [open, setOpen] = useState(false);
@@ -27,7 +28,12 @@ export function NewsletterPopup() {
   useEffect(() => {
     // Skip on routes where a popup would be intrusive
     const path = window.location.pathname;
-    if (ROUTES_TO_SKIP.some((r) => path.startsWith(r))) return;
+    if (
+      EXACT_ROUTES_TO_SKIP.includes(path) ||
+      PREFIX_ROUTES_TO_SKIP.some((routePrefix) => path.startsWith(routePrefix))
+    ) {
+      return;
+    }
 
     // Honour the snooze if we have one
     try {

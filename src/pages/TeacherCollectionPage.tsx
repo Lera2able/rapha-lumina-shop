@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
+import PageMeta from '@/components/common/PageMeta';
 
 export default function TeacherCollectionPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -53,6 +54,10 @@ export default function TeacherCollectionPage() {
 
   return (
     <div className="min-h-screen teacher-section">
+      <PageMeta
+        title="Teacher Collection | Rapha Lumina"
+        description="Shop the Rapha Lumina Teacher Collection for practical, joyful classroom accessories and everyday educator essentials."
+      />
       <div className="container py-8">
         <div className="mb-8">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 text-balance teacher-heading">The Teacher Collection</h1>

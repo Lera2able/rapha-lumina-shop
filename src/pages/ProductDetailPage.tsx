@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import ProductImageGallery from '@/components/product/ProductImageGallery';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
+import PageMeta from '@/components/common/PageMeta';
 import { toast } from 'sonner';
 import { Heart, Minus, Plus, ShoppingCart, Check } from 'lucide-react';
 
@@ -179,6 +180,14 @@ export default function ProductDetailPage() {
 
   return (
     <div className="min-h-screen">
+      <PageMeta
+        title={product ? `${product.name} | Rapha Lumina` : 'Product | Rapha Lumina'}
+        description={
+          product
+            ? `${product.description.slice(0, 140)}${product.description.length > 140 ? '…' : ''}`
+            : 'Explore product details, sizing, and availability from Rapha Lumina.'
+        }
+      />
       <div className="container py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
           <ProductImageGallery

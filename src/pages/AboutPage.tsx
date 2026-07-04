@@ -2,10 +2,15 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Sparkles, Heart, Target, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import PageMeta from '@/components/common/PageMeta';
 
 export default function AboutPage() {
   return (
     <div className="min-h-screen">
+      <PageMeta
+        title="Our Story | Rapha Lumina"
+        description="Learn the story behind Rapha Lumina, our purpose-led approach to conscious apparel, and the values that shape our collections."
+      />
       {/* Hero Section */}
       <section className="relative py-16 md:py-24 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent"></div>

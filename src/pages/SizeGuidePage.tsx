@@ -1,8 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import PageMeta from '@/components/common/PageMeta';
 
 export default function SizeGuidePage() {
   return (
     <div className="min-h-screen">
+      <PageMeta
+        title="Size Guide | Rapha Lumina"
+        description="Use the Rapha Lumina size guide to choose the right fit for apparel and understand how to measure accurately."
+      />
       <div className="container py-8 max-w-4xl">
         <h1 className="text-4xl font-bold mb-8 text-balance">Size Guide</h1>
 

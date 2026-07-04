@@ -6,6 +6,7 @@ import { normaliseProducts } from '@/lib/product'
 import { ArrowRight, Heart, ShoppingBag } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import { useCart } from '@/contexts/CartContext'
+import PageMeta from '@/components/common/PageMeta'
 import { toast } from 'sonner'
 
 export default function HomePage() {
@@ -41,8 +42,18 @@ export default function HomePage() {
     toast.success(`${product.name} added to cart`)
   }
 
+  const featuredCollections = [...new Set(featuredProducts.map((product) => product.collection))]
+  const featuredCollection = featuredCollections.length === 1 ? featuredCollections[0] : null
+  const featuredCollectionLink = featuredCollection === 'teacher' ? '/teacher' : '/enlightened'
+  const featuredCollectionLabel =
+    featuredCollection === 'teacher' ? 'Teacher Collection' : 'Enlightened Collection'
+
   return (
     <div className="min-h-screen">
+      <PageMeta
+        title="Rapha Lumina | Spiritual Apparel, Awakening Wear & Conscious Living"
+        description="Discover Rapha Lumina's spiritually inspired apparel and teacher collection, made in South Africa and designed to help you wear your purpose."
+      />
       {/* Hero Section */}
       <section className="grid grid-cols-1 lg:grid-cols-2 min-h-[88vh] border-b border-rl-espresso/10">
         <div className="flex flex-col justify-center px-6 py-20 md:px-12 lg:px-16">
@@ -94,7 +105,7 @@ export default function HomePage() {
       </section>
 
       {/* Collections Section */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-0.5 border-b border-rl-espresso/10">
+      <section id="collections" className="grid grid-cols-1 md:grid-cols-2 gap-0.5 border-b border-rl-espresso/10">
         <Link to="/enlightened" className="group relative h-[520px] overflow-hidden" style={{ backgroundColor: 'var(--rl-sage-lt)' }}>
           <div className="absolute inset-0 transition-transform ease-out group-hover:scale-[1.04]" style={{ backgroundColor: 'var(--rl-sage-lt)', transitionDuration: '600ms' }}>
             {/* Sacred geometry — Flower of Life */}
@@ -253,10 +264,25 @@ export default function HomePage() {
         <section className="px-6 py-20 md:px-12 border-b border-rl-espresso/10">
           <div className="flex justify-between items-baseline mb-12 pb-4.5 border-b border-rl-espresso/10">
             <h2 className="font-display text-[42px] font-normal">Handpicked</h2>
-            <Link to="/enlightened" className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.14em] uppercase transition-colors" style={{ color: 'var(--rl-gold)' }}>
-              View all
-              <ArrowRight className="h-3 w-3" />
-            </Link>
+            {featuredCollection ? (
+              <Link
+                to={featuredCollectionLink}
+                className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.14em] uppercase transition-colors"
+                style={{ color: 'var(--rl-gold)' }}
+              >
+                View all in {featuredCollectionLabel}
+                <ArrowRight className="h-3 w-3" />
+              </Link>
+            ) : (
+              <a
+                href="#collections"
+                className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.14em] uppercase transition-colors"
+                style={{ color: 'var(--rl-gold)' }}
+              >
+                Browse collections
+                <ArrowRight className="h-3 w-3" />
+              </a>
+            )}
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {featuredProducts.map(product => (

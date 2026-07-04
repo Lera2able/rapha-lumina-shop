@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
+import PageMeta from '@/components/common/PageMeta';
 
 export default function EnlightenedCollectionPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -53,6 +54,10 @@ export default function EnlightenedCollectionPage() {
 
   return (
     <div className="min-h-screen enlightened-section">
+      <PageMeta
+        title="Enlightened Collection | Rapha Lumina"
+        description="Shop the Enlightened Collection from Rapha Lumina: conscious apparel and accessories created for spiritually awakened living."
+      />
       <div className="container py-8">
         <div className="mb-8">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 text-balance enlightened-heading">The Enlightened Collection</h1>
