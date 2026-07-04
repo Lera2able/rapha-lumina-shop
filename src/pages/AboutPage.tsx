@@ -161,11 +161,9 @@ export default function AboutPage() {
                 <p className="text-xl font-semibold mb-8 gradient-text">
                   Welcome home, awakened soul.
                 </p>
-                <Link to="/enlightened">
-                  <Button size="lg" className="px-8">
-                    Explore Our Collections
-                  </Button>
-                </Link>
+                <Button asChild size="lg" className="px-8">
+                  <Link to="/enlightened">Explore Our Collections</Link>
+                </Button>
               </CardContent>
             </Card>
 

@@ -158,9 +158,9 @@ export default function CheckoutPage() {
               Your stock is checked again before payment, and you’ll receive order confirmation by email.
             </p>
           </div>
-          <Link to="/cart">
-            <Button variant="outline">Back to Cart</Button>
-          </Link>
+          <Button asChild variant="outline">
+            <Link to="/cart">Back to Cart</Link>
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

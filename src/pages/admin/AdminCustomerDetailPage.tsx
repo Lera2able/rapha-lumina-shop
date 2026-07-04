@@ -92,11 +92,11 @@ export default function AdminCustomerDetailPage() {
   if (!summary) {
     return (
       <div className="space-y-4">
-        <Link to="/admin/customers">
-          <Button variant="ghost" size="sm">
+        <Button asChild variant="ghost" size="sm">
+          <Link to="/admin/customers">
             <ArrowLeft className="h-4 w-4 mr-2" /> Back to customers
-          </Button>
-        </Link>
+          </Link>
+        </Button>
         <p className="text-muted-foreground">No customer found with that email.</p>
       </div>
     );
@@ -105,11 +105,11 @@ export default function AdminCustomerDetailPage() {
   return (
     <div className="space-y-6">
       <div>
-        <Link to="/admin/customers">
-          <Button variant="ghost" size="sm" className="-ml-3 mb-2">
+        <Button asChild variant="ghost" size="sm" className="-ml-3 mb-2">
+          <Link to="/admin/customers">
             <ArrowLeft className="h-4 w-4 mr-1" /> Back to customers
-          </Button>
-        </Link>
+          </Link>
+        </Button>
         <div className="flex items-center gap-3 flex-wrap">
           <h1 className="text-2xl font-bold">{summary.name || summary.email}</h1>
           {!summary.user_id && (
@@ -189,9 +189,9 @@ export default function AdminCustomerDetailPage() {
                       {formatPrice(Number(o.total_amount))}
                     </td>
                     <td className="p-3">
-                      <Link to={`/admin/orders/${o.id}`}>
-                        <Button size="sm" variant="ghost">View</Button>
-                      </Link>
+                      <Button asChild size="sm" variant="ghost">
+                        <Link to={`/admin/orders/${o.id}`}>View</Link>
+                      </Button>
                     </td>
                   </tr>
                 );

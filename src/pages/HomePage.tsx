@@ -111,15 +111,11 @@ export default function HomePage() {
             Two collections born from light and intention. Clothing that carries meaning — for the spiritually awakened and the dedicated educator.
           </p>
           <div className="flex gap-3 mb-14">
-            <Link to="/enlightened">
-              <button className="btn-primary">
-                Explore collections
-                <ArrowRight className="h-4 w-4" />
-              </button>
+            <Link to="/enlightened" className="btn-primary">
+              Explore collections
+              <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link to="/about">
-              <button className="btn-outline">Our story</button>
-            </Link>
+            <Link to="/about" className="btn-outline">Our story</Link>
           </div>
           <div className="flex gap-9 pt-8 border-t border-rl-espresso/10">
             <div>
@@ -334,8 +330,13 @@ export default function HomePage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {featuredProducts.map(product => (
-              <Link key={product.id} to={`/product/${product.id}`} className="group cursor-pointer">
+              <article key={product.id} className="group">
                 <div className="relative aspect-[3/4] overflow-hidden mb-3.5">
+                  <Link
+                    to={`/product/${product.id}`}
+                    className="absolute inset-0 z-10"
+                    aria-label={`View ${product.name}`}
+                  />
                   <div className="absolute inset-0 transition-transform ease-out group-hover:scale-105" style={{ transitionDuration: '450ms' }}>
                     <img
                       src={product.image_url}
@@ -348,8 +349,9 @@ export default function HomePage() {
                   </div>
                   
                   <button 
-                    className="absolute top-3 right-3 w-[30px] h-[30px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                    className="absolute top-3 right-3 z-20 w-[30px] h-[30px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                     style={{ backgroundColor: 'rgba(250, 248, 245, 0.88)' }}
+                    aria-label={`Add ${product.name} to wishlist`}
                     onClick={(e) => {
                       e.preventDefault()
                       e.stopPropagation()
@@ -360,13 +362,13 @@ export default function HomePage() {
                   </button>
 
                   <div 
-                    className="absolute top-3 left-3 px-2 py-0.5 text-[9px] tracking-[0.12em] uppercase text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                    className="absolute top-3 left-3 z-10 px-2 py-0.5 text-[9px] tracking-[0.12em] uppercase text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                     style={{ backgroundColor: product.collection === 'enlightened' ? 'var(--rl-sage)' : 'var(--rl-terra)' }}
                   >
                     {product.collection}
                   </div>
 
-                  <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform ease-out" style={{ backgroundColor: 'rgba(250, 248, 245, 0.96)', transitionDuration: '280ms' }}>
+                  <div className="absolute bottom-0 left-0 right-0 z-20 p-3 translate-y-full group-hover:translate-y-0 transition-transform ease-out" style={{ backgroundColor: 'rgba(250, 248, 245, 0.96)', transitionDuration: '280ms' }}>
                     <button 
                       className="w-full flex items-center justify-center gap-1.5 py-2.5 text-[10px] tracking-[0.12em] uppercase transition-colors duration-200"
                       style={{ backgroundColor: 'var(--rl-espresso)', color: 'var(--rl-cream)' }}
@@ -378,16 +380,18 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                <p className="text-[9px] tracking-[0.14em] uppercase mb-1" style={{ color: product.collection === 'enlightened' ? 'var(--rl-sage)' : 'var(--rl-terra)' }}>
-                  {product.collection === 'enlightened' ? 'Enlightened' : 'Teacher'} Collection
-                </p>
-                <p className="text-[15px] mb-1 transition-colors duration-200 group-hover:text-[var(--rl-gold)]">
-                  {product.name}
-                </p>
-                <p className="text-[13px]" style={{ color: 'var(--rl-muted)' }}>
-                  {formatPrice(product.price)}
-                </p>
-              </Link>
+                <Link to={`/product/${product.id}`} className="block">
+                  <p className="text-[9px] tracking-[0.14em] uppercase mb-1" style={{ color: product.collection === 'enlightened' ? 'var(--rl-sage)' : 'var(--rl-terra)' }}>
+                    {product.collection === 'enlightened' ? 'Enlightened' : 'Teacher'} Collection
+                  </p>
+                  <p className="text-[15px] mb-1 transition-colors duration-200 group-hover:text-[var(--rl-gold)]">
+                    {product.name}
+                  </p>
+                  <p className="text-[13px]" style={{ color: 'var(--rl-muted)' }}>
+                    {formatPrice(product.price)}
+                  </p>
+                </Link>
+              </article>
             ))}
           </div>
         </section>
@@ -403,11 +407,9 @@ export default function HomePage() {
         <p className="text-[15px] leading-[1.9] max-w-[520px] mx-auto mb-9" style={{ color: 'var(--rl-muted)' }}>
           We believe clothing can carry intention. Each piece in our collections is designed for those who move through the world with purpose — the spiritually curious and the dedicated teacher alike. Made in South Africa. Worn everywhere.
         </p>
-        <Link to="/about">
-          <button className="btn-outline">
-            Our story
-            <ArrowRight className="h-4 w-4" />
-          </button>
+        <Link to="/about" className="btn-outline">
+          Our story
+          <ArrowRight className="h-4 w-4" />
         </Link>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-[720px] mx-auto mt-12 text-left">

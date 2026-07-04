@@ -23,15 +23,17 @@ export default function AccountPage() {
               const Icon = item.icon;
               const isActive = location.pathname === item.to;
               return (
-                <Link key={item.to} to={item.to}>
-                  <Button
-                    variant={isActive ? 'secondary' : 'ghost'}
-                    className="w-full justify-start"
-                  >
+                <Button
+                  key={item.to}
+                  asChild
+                  variant={isActive ? 'secondary' : 'ghost'}
+                  className="w-full justify-start"
+                >
+                  <Link to={item.to}>
                     <Icon className="mr-2 h-4 w-4" />
                     {item.label}
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               );
             })}
           </aside>

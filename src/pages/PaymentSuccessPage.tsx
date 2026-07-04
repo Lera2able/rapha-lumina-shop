@@ -86,12 +86,12 @@ export default function PaymentSuccessPage() {
               We couldn't verify your payment. Please contact support if you believe this is an error.
             </p>
             <div className="flex gap-2">
-              <Link to="/cart" className="flex-1">
-                <Button variant="outline" className="w-full">Back to Cart</Button>
-              </Link>
-              <Link to="/" className="flex-1">
-                <Button className="w-full">Go Home</Button>
-              </Link>
+              <Button asChild variant="outline" className="flex-1">
+                <Link to="/cart">Back to Cart</Link>
+              </Button>
+              <Button asChild className="flex-1">
+                <Link to="/">Go Home</Link>
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -135,12 +135,12 @@ export default function PaymentSuccessPage() {
           </p>
 
           <div className="flex flex-col gap-2">
-            <Link to="/account/orders">
-              <Button className="w-full">View Order History</Button>
-            </Link>
-            <Link to="/">
-              <Button variant="outline" className="w-full">Continue Shopping</Button>
-            </Link>
+            <Button asChild className="w-full">
+              <Link to="/account/orders">View Order History</Link>
+            </Button>
+            <Button asChild variant="outline" className="w-full">
+              <Link to="/">Continue Shopping</Link>
+            </Button>
           </div>
         </CardContent>
       </Card>

@@ -331,11 +331,11 @@ export default function AdminOrdersPage() {
                       {o.tracking_number ?? '—'}
                     </td>
                     <td className="p-3">
-                      <Link to={`/admin/orders/${o.id}`}>
-                        <Button size="sm" variant="ghost">
+                      <Button asChild size="sm" variant="ghost">
+                        <Link to={`/admin/orders/${o.id}`} aria-label={`View order ${o.id}`}>
                           <Eye className="h-4 w-4" />
-                        </Button>
-                      </Link>
+                        </Link>
+                      </Button>
                     </td>
                   </tr>
                 ))

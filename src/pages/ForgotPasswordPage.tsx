@@ -67,12 +67,12 @@ export default function ForgotPasswordPage() {
             >
               Send Again
             </Button>
-            <Link to="/login" className="w-full">
-              <Button variant="ghost" className="w-full">
+            <Button asChild variant="ghost" className="w-full">
+              <Link to="/login">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Sign In
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </CardFooter>
         </Card>
       </div>
@@ -106,12 +106,12 @@ export default function ForgotPasswordPage() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Sending...' : 'Send Reset Link'}
             </Button>
-            <Link to="/login" className="w-full">
-              <Button variant="ghost" className="w-full">
+            <Button asChild variant="ghost" className="w-full">
+              <Link to="/login">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Sign In
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </CardFooter>
         </form>
       </Card>

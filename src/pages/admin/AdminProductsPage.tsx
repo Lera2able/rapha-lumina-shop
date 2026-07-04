@@ -103,12 +103,12 @@ export default function AdminProductsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-3xl font-bold text-primary">Products</h1>
-        <Link to="/admin/products/new">
-          <Button>
+        <Button asChild>
+          <Link to="/admin/products/new">
             <Plus className="h-4 w-4 mr-2" />
             Add Product
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </div>
 
       {/* Filters */}
@@ -196,11 +196,11 @@ export default function AdminProductsPage() {
                       </TableCell>
                       <TableCell className="whitespace-nowrap text-right">
                         <div className="flex justify-end gap-2">
-                          <Link to={`/admin/products/${product.id}/edit`}>
-                            <Button variant="ghost" size="sm">
+                          <Button asChild variant="ghost" size="sm">
+                            <Link to={`/admin/products/${product.id}/edit`} aria-label={`Edit ${product.name}`}>
                               <Edit className="h-4 w-4" />
-                            </Button>
-                          </Link>
+                            </Link>
+                          </Button>
                           <Button
                             variant="ghost"
                             size="sm"

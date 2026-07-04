@@ -157,11 +157,11 @@ export default function AdminCustomersPage() {
                       })}
                     </td>
                     <td className="p-3">
-                      <Link to={`/admin/customers/${encodeURIComponent(c.email)}`}>
-                        <Button size="sm" variant="ghost">
+                      <Button asChild size="sm" variant="ghost">
+                        <Link to={`/admin/customers/${encodeURIComponent(c.email)}`} aria-label={`View customer ${c.email}`}>
                           <Eye className="h-4 w-4" />
-                        </Button>
-                      </Link>
+                        </Link>
+                      </Button>
                     </td>
                   </tr>
                 ))

@@ -304,11 +304,11 @@ export default function AdminOrderDetailPage() {
   if (!order) {
     return (
       <div className="space-y-4">
-        <Link to="/admin/orders">
-          <Button variant="ghost" size="sm">
+        <Button asChild variant="ghost" size="sm">
+          <Link to="/admin/orders">
             <ArrowLeft className="h-4 w-4 mr-2" /> Back to orders
-          </Button>
-        </Link>
+          </Link>
+        </Button>
         <p className="text-muted-foreground">Order not found.</p>
       </div>
     );
@@ -324,11 +324,11 @@ export default function AdminOrderDetailPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <Link to="/admin/orders">
-            <Button variant="ghost" size="sm" className="-ml-3 mb-2">
+          <Button asChild variant="ghost" size="sm" className="-ml-3 mb-2">
+            <Link to="/admin/orders">
               <ArrowLeft className="h-4 w-4 mr-1" /> Back to orders
-            </Button>
-          </Link>
+            </Link>
+          </Button>
           <h1 className="text-2xl font-bold">Order {order.id.slice(0, 8)}…</h1>
           <p className="text-sm text-muted-foreground">
             {new Date(order.created_at).toLocaleString('en-GB', {

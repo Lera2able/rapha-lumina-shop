@@ -58,40 +58,40 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-3">
-          <Link to="/cart" className="relative">
-            <button className="p-2 text-rl-espresso hover:text-rl-gold transition-colors">
-              <ShoppingCart className="h-5 w-5" />
-              {totalItems > 0 && (
-                <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-rl-espresso text-rl-cream text-[10px] flex items-center justify-center">
-                  {totalItems}
-                </span>
-              )}
-            </button>
+          <Link
+            to="/cart"
+            className="relative p-2 text-rl-espresso hover:text-rl-gold transition-colors"
+            aria-label={`Cart with ${totalItems} item${totalItems === 1 ? '' : 's'}`}
+          >
+            <ShoppingCart className="h-5 w-5" />
+            {totalItems > 0 && (
+              <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-rl-espresso text-rl-cream text-[10px] flex items-center justify-center">
+                {totalItems}
+              </span>
+            )}
           </Link>
 
           {user ? (
             <div className="hidden md:flex items-center gap-2">
               {profile?.role === 'admin' && (
-                <Link to="/admin">
-                  <button className="btn-outline">
-                    Admin
-                  </button>
+                <Link to="/admin" className="btn-outline">
+                  Admin
                 </Link>
               )}
-              <Link to="/account">
-                <button className="p-2 text-rl-espresso hover:text-rl-gold transition-colors">
-                  <User className="h-5 w-5" />
-                </button>
+              <Link
+                to="/account"
+                className="p-2 text-rl-espresso hover:text-rl-gold transition-colors"
+                aria-label="My account"
+              >
+                <User className="h-5 w-5" />
               </Link>
               <button className="btn-ghost" onClick={handleSignOut}>
                 Sign Out
               </button>
             </div>
           ) : (
-            <Link to="/login" className="hidden md:block">
-              <button className="btn-ghost">
-                Sign In
-              </button>
+            <Link to="/login" className="hidden md:inline-flex btn-ghost">
+              Sign In
             </Link>
           )}
 
