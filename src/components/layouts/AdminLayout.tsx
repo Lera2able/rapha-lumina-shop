@@ -9,6 +9,7 @@ import {
   RefreshCw,
   Users,
   MailPlus,
+  Megaphone,
   Settings,
   LogOut,
   Menu,
@@ -38,6 +39,7 @@ export default function AdminLayout() {
     { path: '/admin/orders', label: 'Orders', icon: ShoppingCart },
     { path: '/admin/customers', label: 'Customers', icon: Users },
     { path: '/admin/subscribers', label: 'Subscribers', icon: MailPlus },
+    { path: '/admin/campaigns', label: 'Campaign Hub', icon: Megaphone },
     { path: '/admin/refunds', label: 'Refunds', icon: RefreshCw },
     { path: '/admin/account', label: 'Account', icon: Settings },
   ];
