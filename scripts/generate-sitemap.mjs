@@ -6,8 +6,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, '..');
 const sitemapPath = path.join(repoRoot, 'public', 'sitemap.xml');
+const publicWebsitePath = path.join(repoRoot, 'public', 'websites.html');
 
 const siteUrl = 'https://raphalumina.com';
+const defaultSupabaseUrl = 'https://vousucfboetqtppjywlg.supabase.co';
 const today = new Date().toISOString().slice(0, 10);
 
 const staticRoutes = [
@@ -58,6 +60,63 @@ async function loadEnvFile(fileName) {
   }
 }
 
+async function readOptionalFile(filePath) {
+  try {
+    return await readFile(filePath, 'utf8');
+  } catch {
+    return null;
+  }
+}
+
+async function resolveSupabaseConfig() {
+  const supabaseUrl =
+    process.env.VITE_SUPABASE_URL ||
+    process.env.SUPABASE_URL ||
+    defaultSupabaseUrl;
+
+  const envAnonKey =
+    process.env.VITE_SUPABASE_ANON_KEY ||
+    process.env.SUPABASE_ANON_KEY ||
+    process.env.PUBLIC_SUPABASE_ANON_KEY;
+
+  if (envAnonKey) {
+    return {
+      supabaseUrl,
+      supabaseAnonKey: envAnonKey,
+      source: 'environment',
+    };
+  }
+
+  const websiteHtml = await readOptionalFile(publicWebsitePath);
+  const fallbackAnonKey = websiteHtml?.match(/const\s+SUPABASE_ANON_KEY\s*=\s*"([^"]+)"/)?.[1];
+
+  if (fallbackAnonKey) {
+    return {
+      supabaseUrl,
+      supabaseAnonKey: fallbackAnonKey,
+      source: 'public-websites-html',
+    };
+  }
+
+  return null;
+}
+
+async function readExistingProductRoutes() {
+  const existingSitemap = await readOptionalFile(sitemapPath);
+  if (!existingSitemap) return [];
+
+  const productMatches = existingSitemap.matchAll(
+    /<loc>https:\/\/raphalumina\.com(\/product\/[^<]+)<\/loc>[\s\S]*?<lastmod>([^<]+)<\/lastmod>/g,
+  );
+
+  return Array.from(productMatches, ([, routePath, lastmod]) => ({
+    path: routePath,
+    lastmod: String(lastmod || today).slice(0, 10),
+    changefreq: 'weekly',
+    priority: '0.8',
+  }));
+}
+
 function createUrlEntry({ path: routePath, lastmod, changefreq, priority }) {
   return [
     '  <url>',
@@ -70,13 +129,14 @@ function createUrlEntry({ path: routePath, lastmod, changefreq, priority }) {
 }
 
 async function fetchProductsForSitemap() {
-  const supabaseUrl = process.env.VITE_SUPABASE_URL;
-  const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
+  const supabaseConfig = await resolveSupabaseConfig();
 
-  if (!supabaseUrl || !supabaseAnonKey) {
-    console.warn('[generate-sitemap] Missing Supabase env vars. Writing sitemap with static routes only.');
+  if (!supabaseConfig) {
+    console.warn('[generate-sitemap] Missing Supabase configuration. Product URLs will use fallback behavior.');
     return [];
   }
+
+  const { supabaseUrl, supabaseAnonKey, source } = supabaseConfig;
 
   const apiUrl = new URL('/rest/v1/products', supabaseUrl);
   apiUrl.searchParams.set('select', 'id,updated_at,created_at');
@@ -96,6 +156,8 @@ async function fetchProductsForSitemap() {
   const products = await response.json();
   if (!Array.isArray(products)) return [];
 
+  console.log(`[generate-sitemap] Loaded product URLs using Supabase config from ${source}.`);
+
   return products
     .filter((product) => product?.id)
     .map((product) => ({
@@ -109,8 +171,11 @@ async function fetchProductsForSitemap() {
 async function generateSitemap() {
   await loadEnvFile('.env');
   await loadEnvFile('.env.local');
+  await loadEnvFile('.env.production');
+  await loadEnvFile('.dev.vars');
 
   let productRoutes = [];
+  let usedFallbackProductRoutes = false;
 
   try {
     productRoutes = await fetchProductsForSitemap();
@@ -118,6 +183,17 @@ async function generateSitemap() {
     console.warn(
       `[generate-sitemap] Could not fetch product URLs, continuing with static routes only: ${error instanceof Error ? error.message : String(error)}`,
     );
+  }
+
+  if (productRoutes.length === 0) {
+    const existingProductRoutes = await readExistingProductRoutes();
+    if (existingProductRoutes.length > 0) {
+      productRoutes = existingProductRoutes;
+      usedFallbackProductRoutes = true;
+      console.warn(
+        `[generate-sitemap] Reusing ${existingProductRoutes.length} existing product route(s) from the current sitemap as a fallback.`,
+      );
+    }
   }
 
   const entries = [
@@ -139,6 +215,10 @@ async function generateSitemap() {
   console.log(
     `[generate-sitemap] Wrote sitemap with ${staticRoutes.length} static route(s) and ${productRoutes.length} product route(s).`,
   );
+
+  if (usedFallbackProductRoutes) {
+    console.log('[generate-sitemap] Product routes were preserved from the existing sitemap because live fetch was unavailable.');
+  }
 }
 
 await generateSitemap();

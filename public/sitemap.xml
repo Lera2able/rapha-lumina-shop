@@ -72,4 +72,40 @@
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
+  <url>
+    <loc>https://raphalumina.com/product/47309cd4-50e5-4b4f-b7b3-ecd947776653</loc>
+    <lastmod>2026-07-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://raphalumina.com/product/6d7a47da-1655-4143-bdf0-e665387634de</loc>
+    <lastmod>2026-07-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://raphalumina.com/product/ffe68181-ebf2-46f7-a2db-2dba8d0599bb</loc>
+    <lastmod>2026-06-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://raphalumina.com/product/8f69e274-fc01-4988-914e-9d2e9f833cdf</loc>
+    <lastmod>2026-05-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://raphalumina.com/product/4a8ade55-91ce-4d2e-9564-b7afa3f7e38d</loc>
+    <lastmod>2026-05-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://raphalumina.com/product/7fcf3366-57c6-44e7-b2d8-e046f426d3b3</loc>
+    <lastmod>2026-05-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>
