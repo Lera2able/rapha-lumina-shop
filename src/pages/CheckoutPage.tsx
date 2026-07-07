@@ -5,13 +5,21 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/db/supabase';
 import PageMeta from '@/components/common/PageMeta';
 import { toast } from 'sonner';
 import type { ShippingAddress } from '@/types/types';
-import { ShieldCheck, Truck, RotateCcw } from 'lucide-react';
+import { AlertTriangle, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
 
 export default function CheckoutPage() {
   const { items, subtotal, shippingCost, grandTotal } = useCart();
@@ -19,6 +27,9 @@ export default function CheckoutPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [subscribeNewsletter, setSubscribeNewsletter] = useState(false);
+  const [testingNoticeOpen, setTestingNoticeOpen] = useState(true);
+  const [confirmEmail, setConfirmEmail] = useState(user?.email || '');
+  const [confirmDetails, setConfirmDetails] = useState(false);
 
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
     name: '',
@@ -36,8 +47,56 @@ export default function CheckoutPage() {
     setShippingAddress(prev => ({ ...prev, [field]: value }));
   };
 
+  const validateCustomerDetails = () => {
+    const email = shippingAddress.email.trim().toLowerCase();
+    const emailConfirm = confirmEmail.trim().toLowerCase();
+    const phoneDigits = shippingAddress.phone.replace(/\D/g, '');
+    const postalCode = shippingAddress.postal_code.trim();
+
+    if (!shippingAddress.name.trim() || shippingAddress.name.trim().length < 4) {
+      return 'Please enter the customer’s full name.';
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return 'Please enter a valid email address.';
+    }
+
+    if (email !== emailConfirm) {
+      return 'Email address and confirmation email must match.';
+    }
+
+    if (phoneDigits.length < 10) {
+      return 'Please enter a valid phone number so delivery can reach the customer.';
+    }
+
+    if (shippingAddress.address_line1.trim().length < 8) {
+      return 'Please enter a fuller street address.';
+    }
+
+    if (shippingAddress.city.trim().length < 2 || shippingAddress.state.trim().length < 2) {
+      return 'Please enter a valid city and province/state.';
+    }
+
+    if (!/^[A-Za-z0-9 -]{4,10}$/.test(postalCode)) {
+      return 'Please enter a valid postal code.';
+    }
+
+    if (!confirmDetails) {
+      return 'Please confirm that the customer details are accurate before proceeding.';
+    }
+
+    return null;
+  };
+
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const validationError = validateCustomerDetails();
+    if (validationError) {
+      toast.error(validationError);
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -102,9 +161,14 @@ export default function CheckoutPage() {
           },
           body: JSON.stringify({
             items: orderItems,
-            email: shippingAddress.email,
+            email: shippingAddress.email.trim().toLowerCase(),
             currency: 'ZAR',
-            shippingAddress: shippingAddress,
+            shippingAddress: {
+              ...shippingAddress,
+              email: shippingAddress.email.trim().toLowerCase(),
+              phone: shippingAddress.phone.trim(),
+              postal_code: shippingAddress.postal_code.trim(),
+            },
             shippingCost: shippingCost,
             userId,
           }),
@@ -158,6 +222,25 @@ export default function CheckoutPage() {
         ogImageAlt="Rapha Lumina checkout social preview card"
         robots="noindex,nofollow"
       />
+      <Dialog open={testingNoticeOpen} onOpenChange={setTestingNoticeOpen}>
+        <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              Testing mode notice
+            </DialogTitle>
+            <DialogDescription className="pt-2">
+              This website is not live yet. Checkout is currently in testing mode, so please do not treat this as a live customer order flow.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+            Use test payment details only, and double-check every customer detail before completing a test order.
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setTestingNoticeOpen(false)}>I understand</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <div className="container py-8">
         <div className="flex flex-col gap-3 mb-8 md:flex-row md:items-end md:justify-between">
           <div>
@@ -179,6 +262,13 @@ export default function CheckoutPage() {
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleCheckout} className="space-y-4">
+                  <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
+                    <p className="text-sm font-medium text-amber-900">Testing mode</p>
+                    <p className="text-sm text-amber-800 mt-1">
+                      This checkout is still in testing. Use test payments only and verify every customer detail carefully before submitting.
+                    </p>
+                  </div>
+
                   <div>
                     <Label htmlFor="name">Full Name *</Label>
                     <Input
@@ -198,16 +288,35 @@ export default function CheckoutPage() {
                       onChange={(e) => handleInputChange('email', e.target.value)}
                       required
                     />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Order confirmation and shipping updates will be sent here.
+                    </p>
                   </div>
 
                   <div>
-                    <Label htmlFor="phone">Phone Number</Label>
+                    <Label htmlFor="confirm-email">Confirm Email Address *</Label>
+                    <Input
+                      id="confirm-email"
+                      type="email"
+                      value={confirmEmail}
+                      onChange={(e) => setConfirmEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="phone">Phone Number *</Label>
                     <Input
                       id="phone"
                       type="tel"
                       value={shippingAddress.phone}
                       onChange={(e) => handleInputChange('phone', e.target.value)}
+                      placeholder="e.g. 0821234567"
+                      required
                     />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Needed in case delivery needs to confirm directions or availability.
+                    </p>
                   </div>
 
                   <div>
@@ -218,6 +327,9 @@ export default function CheckoutPage() {
                       onChange={(e) => handleInputChange('address_line1', e.target.value)}
                       required
                     />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Include street number, street name, suburb or area if possible.
+                    </p>
                   </div>
 
                   <div>
@@ -270,6 +382,25 @@ export default function CheckoutPage() {
                         onChange={(e) => handleInputChange('country', e.target.value)}
                         required
                       />
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-2 p-4 bg-muted/30 rounded-lg">
+                    <Checkbox
+                      id="confirm-details"
+                      checked={confirmDetails}
+                      onCheckedChange={(checked) => setConfirmDetails(checked as boolean)}
+                    />
+                    <div className="grid gap-1 leading-none">
+                      <label
+                        htmlFor="confirm-details"
+                        className="text-sm font-medium leading-none cursor-pointer"
+                      >
+                        I confirm that the email, phone number, and delivery address are accurate
+                      </label>
+                      <p className="text-sm text-muted-foreground">
+                        This helps reduce failed delivery attempts and missed order emails.
+                      </p>
                     </div>
                   </div>
 
