@@ -332,14 +332,16 @@ export default function HomePage() {
           </div>
         </div>
         <div className="relative overflow-hidden bg-[#C8BAA8] min-h-[320px] sm:min-h-[400px] lg:min-h-full">
-          <img
-            src="/publicweb-hero.png"
-            alt="Rapha Lumina Hero"
-            loading="eager"
-            decoding="async"
-            fetchPriority="high"
-            sizes="(min-width: 1024px) 50vw, 100vw"
+          <video
+            src="/publicweb-hero-video.mp4"
+            poster="/publicweb-hero.png"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
             className="absolute inset-0 w-full h-full object-cover"
+            aria-label="Rapha Lumina hero video"
           />
           <div className="absolute bottom-5 left-5 sm:bottom-7 sm:left-7 px-3.5 py-2 text-[10px] tracking-[0.14em] uppercase" style={{ backgroundColor: 'var(--rl-cream)', color: 'var(--rl-espresso)' }}>
             Enlightened Collection
