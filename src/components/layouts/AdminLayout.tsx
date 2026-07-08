@@ -10,6 +10,7 @@ import {
   Users,
   MailPlus,
   Megaphone,
+  Calculator,
   Settings,
   LogOut,
   Menu,
@@ -40,6 +41,7 @@ export default function AdminLayout() {
     { path: '/admin/customers', label: 'Customers', icon: Users },
     { path: '/admin/subscribers', label: 'Subscribers', icon: MailPlus },
     { path: '/admin/campaigns', label: 'Campaign Hub', icon: Megaphone },
+    { path: '/admin/accounting', label: 'Accounting', icon: Calculator },
     { path: '/admin/refunds', label: 'Refunds', icon: RefreshCw },
     { path: '/admin/account', label: 'Account', icon: Settings },
   ];
