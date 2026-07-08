@@ -16,6 +16,17 @@ import type { Product, CollectionType } from '@/types/types'
  */
 export function normaliseProduct(raw: unknown): Product {
   const r = raw as Record<string, unknown>
+  const sizeInventory =
+    r.size_inventory && typeof r.size_inventory === 'object' && !Array.isArray(r.size_inventory)
+      ? Object.fromEntries(
+          Object.entries(r.size_inventory as Record<string, unknown>).map(([size, quantity]) => [
+            size,
+            Number(quantity ?? 0),
+          ]),
+        )
+      : {}
+  const fallbackSizes = Array.isArray(r.sizes) ? (r.sizes as string[]) : []
+  const sizes = Object.keys(sizeInventory).length > 0 ? Object.keys(sizeInventory) : fallbackSizes
 
   return {
     id: String(r.id ?? ''),
@@ -36,7 +47,8 @@ export function normaliseProduct(raw: unknown): Product {
       ? (r.additional_images as string[])
       : [],
     video_url: r.video_url ? String(r.video_url) : null,
-    sizes: Array.isArray(r.sizes) ? (r.sizes as string[]) : [],
+    sizes,
+    size_inventory: sizeInventory,
     stock: Number(r.stock ?? 0),
     featured: Boolean(r.featured),
     created_at: String(r.created_at ?? ''),
@@ -76,4 +88,17 @@ export function getEffectivePrice(product: Product, now = new Date()) {
 
 export function getOriginalPrice(product: Product) {
   return product.price
+}
+
+export function getAvailableStock(product: Product, size: string | null = null) {
+  if (size && product.size_inventory && Object.keys(product.size_inventory).length > 0) {
+    return Math.max(0, Number(product.size_inventory[size] ?? 0))
+  }
+  return Math.max(0, Number(product.stock ?? 0))
+}
+
+export function getDefaultSize(product: Product) {
+  if (!product.sizes.length) return null
+  const firstAvailable = product.sizes.find((size) => getAvailableStock(product, size) > 0)
+  return firstAvailable ?? product.sizes[0] ?? null
 }

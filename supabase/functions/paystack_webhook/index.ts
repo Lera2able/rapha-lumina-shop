@@ -119,8 +119,9 @@ Deno.serve(async (req) => {
       // Update product inventory
       for (const item of orderItems) {
         const { error: updateError } = await supabase.rpc('decrement_stock', {
-          product_id: item.id,
+          product_id: item.product_id || item.id,
           quantity: item.quantity,
+          selected_size: item.size || null,
         });
 
         if (updateError) {

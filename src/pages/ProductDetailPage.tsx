@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/db/supabase';
 import type { Product } from '@/types/types';
-import { getEffectivePrice, isSaleActive, normaliseProduct, normaliseProducts } from '@/lib/product';
+import { getAvailableStock, getDefaultSize, getEffectivePrice, isSaleActive, normaliseProduct, normaliseProducts } from '@/lib/product';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -38,6 +38,18 @@ export default function ProductDetailPage() {
     }
   }, [id, user]);
 
+  useEffect(() => {
+    if (!product) return;
+    const available = getAvailableStock(product, selectedSize || null);
+    if (available === 0) {
+      setQuantity(1);
+      return;
+    }
+    if (quantity > available) {
+      setQuantity(available);
+    }
+  }, [product, selectedSize, quantity]);
+
   const loadProduct = async () => {
     const { data } = await supabase
       .from('products')
@@ -49,7 +61,7 @@ export default function ProductDetailPage() {
       const product = normaliseProduct(data);
       setProduct(product);
       if (product.sizes.length > 0) {
-        setSelectedSize(product.sizes[0]);
+        setSelectedSize(getDefaultSize(product) ?? '');
       }
       loadRelatedProducts(product.collection);
     }
@@ -81,13 +93,14 @@ export default function ProductDetailPage() {
 
   const handleAddToCart = () => {
     if (!product) return;
+    const availableStock = getAvailableStock(product, selectedSize || null);
 
     if (product.sizes.length > 0 && !selectedSize) {
       toast.error('Please select a size');
       return;
     }
 
-    if (product.stock < quantity) {
+    if (availableStock < quantity) {
       toast.error('Not enough stock available');
       return;
     }
@@ -103,13 +116,14 @@ export default function ProductDetailPage() {
 
   const handleBuyNow = () => {
     if (!product) return;
+    const availableStock = getAvailableStock(product, selectedSize || null);
 
     if (product.sizes.length > 0 && !selectedSize) {
       toast.error('Please select a size');
       return;
     }
 
-    if (product.stock < quantity) {
+    if (availableStock < quantity) {
       toast.error('Not enough stock available');
       return;
     }
@@ -221,11 +235,12 @@ export default function ProductDetailPage() {
     },
   };
   const stockMessage =
-    product.stock === 0
+    getAvailableStock(product, selectedSize || null) === 0
       ? 'Out of stock'
-      : product.stock <= 3
-        ? `Low stock: only ${product.stock} left`
-        : `${product.stock} in stock`;
+      : getAvailableStock(product, selectedSize || null) <= 3
+        ? `Low stock: only ${getAvailableStock(product, selectedSize || null)} left`
+        : `${getAvailableStock(product, selectedSize || null)} in stock`;
+  const currentStock = getAvailableStock(product, selectedSize || null);
 
   return (
     <div className="min-h-screen">
@@ -276,7 +291,7 @@ export default function ProductDetailPage() {
                   <SelectContent>
                     {product.sizes.map(size => (
                       <SelectItem key={size} value={size}>
-                        {size}
+                        {size} ({getAvailableStock(product, size)} available)
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -298,8 +313,8 @@ export default function ProductDetailPage() {
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                  disabled={quantity >= product.stock}
+                  onClick={() => setQuantity(Math.min(currentStock, quantity + 1))}
+                  disabled={quantity >= currentStock}
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
@@ -307,14 +322,14 @@ export default function ProductDetailPage() {
               <p className="text-sm text-muted-foreground mt-2">
                 {stockMessage}
               </p>
-              {product.stock > 0 && (
+              {currentStock > 0 && (
                 <p className="text-sm text-muted-foreground">
                   Usually dispatches in 1-2 business days.
                 </p>
               )}
             </div>
 
-            {product.stock === 0 ? (
+            {currentStock === 0 ? (
               <div className="space-y-4">
                 <div className="p-4 bg-muted rounded-lg">
                   <p className="text-sm font-medium mb-2">This item is currently out of stock</p>
@@ -343,7 +358,7 @@ export default function ProductDetailPage() {
                 <div className="flex flex-col gap-2 sm:flex-row">
                   <Button
                     onClick={handleAddToCart}
-                    disabled={product.stock === 0}
+                    disabled={currentStock === 0}
                     className="flex-1"
                   >
                     <ShoppingCart className="mr-2 h-4 w-4" />
@@ -352,7 +367,7 @@ export default function ProductDetailPage() {
                   <Button
                     variant="secondary"
                     onClick={handleBuyNow}
-                    disabled={product.stock === 0}
+                    disabled={currentStock === 0}
                     className="flex-1"
                   >
                     Buy Now

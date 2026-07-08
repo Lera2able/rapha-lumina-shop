@@ -1,4 +1,5 @@
 export type CollectionType = 'enlightened' | 'teacher'
+export type SizeInventory = Record<string, number>
 
 export type OrderStatus =
   | 'pending'
@@ -22,6 +23,7 @@ export interface Product {
   additional_images: string[]
   video_url: string | null
   sizes: string[]
+  size_inventory: SizeInventory
   stock: number
   featured: boolean
   created_at: string

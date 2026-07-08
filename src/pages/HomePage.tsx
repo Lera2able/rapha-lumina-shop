@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/db/supabase'
 import type { Product } from '@/types/types'
-import { getEffectivePrice, isSaleActive, normaliseProducts } from '@/lib/product'
+import { getAvailableStock, getDefaultSize, getEffectivePrice, isSaleActive, normaliseProducts } from '@/lib/product'
 import { ArrowLeft, ArrowRight, Heart, ShoppingBag } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import { useCart } from '@/contexts/CartContext'
@@ -64,13 +64,18 @@ export default function HomePage() {
   const handleAddToCart = (product: Product, e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
+    const defaultSize = getDefaultSize(product)
     
-    if (product.sizes && product.sizes.length > 0 && product.sizes[0] !== 'One Size') {
+    if (product.sizes && product.sizes.length > 0 && defaultSize !== 'One Size') {
       toast.error('Please select a size first')
       return
     }
 
-    const size = product.sizes?.[0] || null
+    const size = defaultSize || null
+    if (getAvailableStock(product, size) <= 0) {
+      toast.error('This size is out of stock')
+      return
+    }
     addItem(product, 1, size)
     
     toast.success(`${product.name} added to cart`)

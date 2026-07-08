@@ -20,6 +20,8 @@ import { toast } from 'sonner';
 import ImageUpload from '@/components/admin/ImageUpload';
 import type { CollectionType } from '@/types/types';
 
+const SIZE_OPTIONS = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', 'One Size'] as const;
+
 
 export default function AdminProductFormPage() {
   const { id } = useParams();
@@ -40,6 +42,7 @@ export default function AdminProductFormPage() {
     saleEndDate: '',
     stock: '',
     sizes: [] as string[],
+    sizeInventory: {} as Record<string, string>,
     featured: false,
   });
 
@@ -73,6 +76,9 @@ export default function AdminProductFormPage() {
           saleEndDate: product.sale_end_date ?? '',
           stock: product.stock.toString(),
           sizes: product.sizes,
+          sizeInventory: Object.fromEntries(
+            Object.entries(product.size_inventory ?? {}).map(([size, quantity]) => [size, String(quantity)])
+          ),
           featured: product.featured,
         });
 
@@ -162,12 +168,54 @@ export default function AdminProductFormPage() {
     setVideoUrl('');
   };
 
+  const toggleSize = (size: string, checked: boolean) => {
+    setFormData((prev) => {
+      const nextInventory = { ...prev.sizeInventory };
+      if (checked) {
+        nextInventory[size] = nextInventory[size] ?? '0';
+      } else {
+        delete nextInventory[size];
+      }
+
+      return {
+        ...prev,
+        sizes: checked ? [...prev.sizes, size] : prev.sizes.filter((entry) => entry !== size),
+        sizeInventory: nextInventory,
+      };
+    });
+  };
+
+  const updateSizeQuantity = (size: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      sizeInventory: {
+        ...prev.sizeInventory,
+        [size]: value,
+      },
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (images.length === 0) {
       toast.error('Please upload at least one product image');
       return;
+    }
+
+    const hasSizedInventory = formData.sizes.length > 0;
+    const parsedSizeInventory = hasSizedInventory
+      ? Object.fromEntries(
+          formData.sizes.map((size) => [size, Math.max(0, parseInt(formData.sizeInventory[size] || '0', 10) || 0)]),
+        )
+      : {};
+
+    if (hasSizedInventory) {
+      const hasAnyQuantity = Object.values(parsedSizeInventory).some((quantity) => quantity >= 0);
+      if (!hasAnyQuantity) {
+        toast.error('Please enter quantity for each selected size.');
+        return;
+      }
     }
 
     if (formData.saleEnabled) {
@@ -217,6 +265,9 @@ export default function AdminProductFormPage() {
       }
 
       const [primaryImage, ...additionalImages] = uploadedImageUrls;
+      const computedStock = hasSizedInventory
+        ? Object.values(parsedSizeInventory).reduce((sum, quantity) => sum + quantity, 0)
+        : parseInt(formData.stock);
 
       const productData = {
         name: formData.name,
@@ -231,8 +282,9 @@ export default function AdminProductFormPage() {
         image_url: primaryImage,
         additional_images: additionalImages.length > 0 ? additionalImages : null,
         video_url: videoUrl || null,
-        stock: parseInt(formData.stock),
+        stock: computedStock,
         sizes: formData.sizes.length > 0 ? formData.sizes : null,
+        size_inventory: formData.sizes.length > 0 ? parsedSizeInventory : {},
         featured: formData.featured,
       };
 
@@ -402,8 +454,14 @@ export default function AdminProductFormPage() {
                   min="0"
                   value={formData.stock}
                   onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                  disabled={formData.sizes.length > 0}
                   required
                 />
+                {formData.sizes.length > 0 && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Total stock is calculated automatically from the selected size quantities.
+                  </p>
+                )}
               </div>
             </div>
 
@@ -484,18 +542,46 @@ export default function AdminProductFormPage() {
               )}
             </div>
 
-            <div>
-              <Label htmlFor="sizes">Sizes (comma-separated, e.g., S, M, L, XL)</Label>
-              <Input
-                id="sizes"
-                type="text"
-                placeholder="S, M, L, XL"
-                value={formData.sizes.join(', ')}
-                onChange={(e) => setFormData({ 
-                  ...formData, 
-                  sizes: e.target.value.split(',').map(s => s.trim()).filter(s => s) 
+            <div className="space-y-4 rounded-lg border p-4 bg-muted/20">
+              <div>
+                <Label className="text-base">Sizes and quantities</Label>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Tick the sizes you offer, then enter the quantity available for each one.
+                </p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {SIZE_OPTIONS.map((size) => {
+                  const checked = formData.sizes.includes(size);
+                  return (
+                    <div key={size} className="flex items-center gap-3 rounded-lg border p-3">
+                      <Checkbox
+                        id={`size-${size}`}
+                        checked={checked}
+                        onCheckedChange={(state) => toggleSize(size, state as boolean)}
+                      />
+                      <div className="flex-1">
+                        <Label htmlFor={`size-${size}`} className="cursor-pointer">
+                          {size}
+                        </Label>
+                      </div>
+                      <Input
+                        type="number"
+                        min="0"
+                        value={formData.sizeInventory[size] ?? '0'}
+                        onChange={(e) => updateSizeQuantity(size, e.target.value)}
+                        disabled={!checked}
+                        className="w-24"
+                        placeholder="Qty"
+                      />
+                    </div>
+                  );
                 })}
-              />
+              </div>
+              {formData.sizes.length === 0 && (
+                <p className="text-xs text-muted-foreground">
+                  Leave all sizes unticked for products that do not use size options.
+                </p>
+              )}
             </div>
 
             <div className="flex items-center gap-2">

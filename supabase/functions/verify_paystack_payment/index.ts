@@ -96,6 +96,7 @@ async function updateOrderStatus(reference: string, transactionData: any) {
           await supabase.rpc("decrement_stock", {
             product_id: item.product_id,
             quantity: item.quantity,
+            selected_size: item.size || null,
           });
         }
       });

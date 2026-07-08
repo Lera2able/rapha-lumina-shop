@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from '
 import { toast } from 'sonner'
 import type { CartItemLocal, Product } from '@/types/types'
 import { FREE_SHIPPING_THRESHOLD, SHIPPING_COST } from '@/lib/utils'
-import { getEffectivePrice, normaliseProduct } from '@/lib/product'
+import { getAvailableStock, getEffectivePrice, normaliseProduct } from '@/lib/product'
 
 interface CartContextType {
   items: CartItemLocal[]
@@ -54,9 +54,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       )
       const currentQty = existingIndex >= 0 ? prev[existingIndex].quantity : 0
       const newQty = currentQty + quantity
+      const availableStock = getAvailableStock(product, size)
 
-      if (newQty > product.stock) {
-        toast.error(`Only ${product.stock} available`)
+      if (newQty > availableStock) {
+        toast.error(`Only ${availableStock} available`)
         return prev
       }
 
@@ -83,13 +84,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
       removeItem(productId, size)
       return
     }
-    setItems(prev =>
-      prev.map(item =>
+    setItems(prev => {
+      const target = prev.find(item => item.product_id === productId && item.size === size)
+      if (!target) return prev
+
+      const availableStock = getAvailableStock(target.product, size)
+      if (quantity > availableStock) {
+        toast.error(`Only ${availableStock} available`)
+        return prev
+      }
+
+      return prev.map(item =>
         item.product_id === productId && item.size === size
           ? { ...item, quantity }
           : item
       )
-    )
+    })
   }
 
   const clearCart = () => setItems([])
