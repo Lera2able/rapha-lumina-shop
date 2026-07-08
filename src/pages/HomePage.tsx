@@ -350,9 +350,6 @@ export default function HomePage() {
             className="absolute inset-0 w-full h-full object-contain"
             aria-label="Rapha Lumina hero video"
           />
-          <div className="absolute bottom-5 left-5 sm:bottom-7 sm:left-7 px-3.5 py-2 text-[10px] tracking-[0.14em] uppercase" style={{ backgroundColor: 'var(--rl-cream)', color: 'var(--rl-espresso)' }}>
-            Enlightened Collection
-          </div>
         </div>
       </section>
 
