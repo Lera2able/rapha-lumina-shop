@@ -15,6 +15,7 @@ export interface Product {
   collection: CollectionType
   category: string
   price: number
+  cost_price: number | null
   sale_enabled: boolean
   sale_price: number | null
   sale_start_date: string | null

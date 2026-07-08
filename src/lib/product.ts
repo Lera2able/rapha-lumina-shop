@@ -35,6 +35,10 @@ export function normaliseProduct(raw: unknown): Product {
     collection: (r.collection ?? 'enlightened') as CollectionType,
     category: String(r.category ?? ''),
     price: Number(r.price ?? 0),
+    cost_price:
+      r.cost_price === null || r.cost_price === undefined || r.cost_price === ''
+        ? null
+        : Number(r.cost_price),
     sale_enabled: Boolean(r.sale_enabled),
     sale_price:
       r.sale_price === null || r.sale_price === undefined || r.sale_price === ''

@@ -36,6 +36,7 @@ export default function AdminProductFormPage() {
     collection: 'enlightened' as CollectionType,
     category: '',
     price: '',
+    costPrice: '',
     saleEnabled: false,
     salePrice: '',
     saleStartDate: '',
@@ -70,6 +71,7 @@ export default function AdminProductFormPage() {
           collection: product.collection,
           category: product.category,
           price: product.price.toString(),
+          costPrice: product.cost_price?.toString() ?? '',
           saleEnabled: product.sale_enabled,
           salePrice: product.sale_price?.toString() ?? '',
           saleStartDate: product.sale_start_date ?? '',
@@ -203,6 +205,11 @@ export default function AdminProductFormPage() {
       return;
     }
 
+    if (formData.costPrice && (Number.isNaN(parseFloat(formData.costPrice)) || parseFloat(formData.costPrice) < 0)) {
+      toast.error('Please enter a valid non-negative cost price.');
+      return;
+    }
+
     const hasSizedInventory = formData.sizes.length > 0;
     const parsedSizeInventory = hasSizedInventory
       ? Object.fromEntries(
@@ -275,6 +282,7 @@ export default function AdminProductFormPage() {
         collection: formData.collection,
         category: formData.category,
         price: parseFloat(formData.price),
+        cost_price: formData.costPrice ? parseFloat(formData.costPrice) : null,
         sale_enabled: formData.saleEnabled,
         sale_price: formData.saleEnabled ? parseFloat(formData.salePrice) : null,
         sale_start_date: formData.saleEnabled && formData.saleStartDate ? formData.saleStartDate : null,
@@ -432,7 +440,7 @@ export default function AdminProductFormPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <Label htmlFor="price">Price (ZAR) *</Label>
                 <Input
@@ -444,6 +452,22 @@ export default function AdminProductFormPage() {
                   onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                   required
                 />
+              </div>
+
+              <div>
+                <Label htmlFor="cost-price">Cost Price (ZAR)</Label>
+                <Input
+                  id="cost-price"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.costPrice}
+                  onChange={(e) => setFormData({ ...formData, costPrice: e.target.value })}
+                  placeholder="Optional"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Used for estimated profit inside Accounting.
+                </p>
               </div>
 
               <div>
