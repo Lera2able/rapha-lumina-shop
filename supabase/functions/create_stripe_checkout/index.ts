@@ -16,6 +16,7 @@ const corsHeaders = {
 interface OrderItem {
   name: string;
   price: number;
+  cost_price_snapshot?: number | null;
   quantity: number;
   image_url?: string;
   product_id?: string;
@@ -78,6 +79,7 @@ function processOrderItems(items: OrderItem[]) {
   const formattedItems = items.map(item => ({
     name: item.name.trim(),
     price: Math.round(item.price * 100),
+    cost_price_snapshot: item.cost_price_snapshot ?? null,
     quantity: item.quantity,
     image_url: item.image_url?.trim() || "",
     product_id: item.product_id || "",

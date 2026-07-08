@@ -139,6 +139,7 @@ export default function CheckoutPage() {
       const orderItems = items.map(item => ({
         name: item.product.name,
         price: Number(getEffectivePrice(item.product)),
+        cost_price_snapshot: item.product.cost_price ?? null,
         quantity: item.quantity,
         image_url: item.product.image_url || '',
         product_id: item.product_id,

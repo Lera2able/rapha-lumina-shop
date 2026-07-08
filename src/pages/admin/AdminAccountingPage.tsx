@@ -31,6 +31,7 @@ interface AccountingOrder {
     product_id?: string;
     quantity: number;
     price?: number;
+    cost_price_snapshot?: number | null;
     name?: string;
     size?: string;
   }> | null;
@@ -169,7 +170,12 @@ export default function AdminAccountingPage() {
       return (
         sum +
         items.reduce((itemSum, item) => {
-          const unitCost = item.product_id ? productCostMap.get(item.product_id) ?? 0 : 0;
+          const unitCost =
+            item.cost_price_snapshot !== undefined && item.cost_price_snapshot !== null
+              ? Number(item.cost_price_snapshot)
+              : item.product_id
+                ? productCostMap.get(item.product_id) ?? 0
+                : 0;
           return itemSum + unitCost * Number(item.quantity || 0);
         }, 0)
       );
@@ -364,6 +370,9 @@ export default function AdminAccountingPage() {
           </div>
           <p className="text-xs text-muted-foreground mt-3">
             Date filters affect order and refund calculations. Inventory figures remain a current stock snapshot.
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Profit uses saved item cost snapshots when available, with fallback to the current product cost for older orders.
           </p>
         </CardContent>
       </Card>
