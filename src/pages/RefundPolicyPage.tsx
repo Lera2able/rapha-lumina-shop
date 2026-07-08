@@ -6,7 +6,7 @@ export default function RefundPolicyPage() {
     <div className="min-h-screen py-12">
       <PageMeta
         title="Refund Policy | Rapha Lumina"
-        description="Review Rapha Lumina's refund and cancellation policy, including eligibility, timelines, and the refund request process."
+        description="Review Rapha Lumina's refund and cancellation policy for South Africa, including eligibility, timelines, return shipping rules, and the refund request process."
         canonicalPath="/refund-policy"
         ogImage="https://raphalumina.com/og-support.svg"
         ogImageAlt="Rapha Lumina refund policy social preview card"

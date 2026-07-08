@@ -6,7 +6,7 @@ export default function ReturnsPage() {
     <div className="min-h-screen">
       <PageMeta
         title="Returns & Exchanges | Rapha Lumina"
-        description="Read Rapha Lumina's returns and exchange policy, including return conditions, refund timing, and how to start a return."
+        description="Read Rapha Lumina's South Africa returns and exchange policy, including the 14-day return window, conditions, damaged-item support, and how to start a return."
         canonicalPath="/returns"
         ogImage="https://raphalumina.com/og-support.svg"
         ogImageAlt="Rapha Lumina returns social preview card"

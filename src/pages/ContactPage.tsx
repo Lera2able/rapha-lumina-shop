@@ -50,7 +50,7 @@ export default function ContactPage() {
     <div className="min-h-screen">
       <PageMeta
         title="Contact Us | Rapha Lumina"
-        description="Contact Rapha Lumina for product questions, order support, or general enquiries."
+        description="Contact Rapha Lumina for product questions, order support, shipping help, returns, and customer care in South Africa."
         canonicalPath="/contact"
         ogImage="https://raphalumina.com/og-support.svg"
         ogImageAlt="Rapha Lumina contact support social preview card"
@@ -111,7 +111,7 @@ export default function ContactPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-muted-foreground text-pretty">
-                  Have questions about our products or need assistance with your order? We're here to help!
+                  Have questions about a product, shipping, returns, or an existing order? Email us and we will help you directly.
                 </p>
                 <div>
                   <h3 className="font-semibold mb-2">Email</h3>
@@ -124,6 +124,10 @@ export default function ContactPage() {
                 <div>
                   <h3 className="font-semibold mb-2">Business Hours</h3>
                   <p className="text-muted-foreground">Monday - Friday: 9:00 AM - 5:00 PM SAST</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-2">Typical support topics</h3>
+                  <p className="text-muted-foreground">Order help, shipping questions, returns, size guidance, product availability, and general enquiries.</p>
                 </div>
               </CardContent>
             </Card>

@@ -8,7 +8,7 @@ export default function FAQPage() {
     <div className="min-h-screen">
       <PageMeta
         title="FAQ | Rapha Lumina"
-        description="Answers about shipping, returns, payment, sizing, and shopping with Rapha Lumina."
+        description="Read Rapha Lumina FAQs about shipping, returns, refunds, sizing, payment, and shopping online in South Africa."
         canonicalPath="/faq"
         ogImage="https://raphalumina.com/og-support.svg"
         ogImageAlt="Rapha Lumina FAQ social preview card"
@@ -18,7 +18,7 @@ export default function FAQPage() {
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold mb-4 gradient-text">Frequently Asked Questions</h1>
             <p className="text-lg text-muted-foreground text-pretty">
-              Everything you need to know about shopping with Rapha Lumina
+              Everything you need to know about shopping with Rapha Lumina, from shipping and returns to sizing, payment, and customer support.
             </p>
           </div>
 

@@ -211,9 +211,10 @@ export default function ProductDetailPage() {
   }
 
   const canonicalPath = `/product/${product.id}`;
+  const readableCategory = product.category.replace(/_/g, ' ');
   const description = product.description
-    ? `${product.description.slice(0, 140)}${product.description.length > 140 ? '…' : ''}`
-    : 'Explore product details, sizing, and availability from Rapha Lumina.';
+    ? `${product.name} is a Rapha Lumina ${readableCategory} shaped by sacred geometry, healing, and conscious living. ${product.description.slice(0, 110)}${product.description.length > 110 ? '…' : ''}`
+    : `Shop ${product.name} from Rapha Lumina with product details, pricing, sizing, and South African shipping information.`;
   const productStructuredData = {
     '@context': 'https://schema.org',
     '@type': 'Product',

@@ -267,7 +267,7 @@ export default function HomePage() {
     <div className="min-h-screen">
       <PageMeta
         title="Rapha Lumina | Spiritual Apparel, Awakening Wear & Conscious Living"
-        description="Discover the Rapha Lumina Collection: spiritually inspired apparel and accessories shaped by sacred geometry, healing, and conscious living."
+        description="Shop spiritually inspired apparel, teacher gifts, classroom-friendly accessories, journals, and conscious-living essentials from Rapha Lumina, a South African brand shaped by healing, purpose, and sacred symbolism."
         canonicalPath="/"
         ogImage="https://raphalumina.com/og-home.svg"
         ogImageAlt="Rapha Lumina social preview card"
@@ -282,11 +282,11 @@ export default function HomePage() {
             Wear your <em className="italic" style={{ color: 'var(--rl-gold)' }}>purpose</em>.
           </h1>
           <p className="text-[15px] leading-[1.8] max-w-[440px] mb-9 md:mb-11" style={{ color: 'var(--rl-muted)' }}>
-            Two collections born from light and intention. Clothing that carries meaning — for the spiritually awakened and the dedicated educator.
+            Shop spiritually inspired apparel, teacher gifts, journals, tote bags, bottles, and meaningful everyday accessories from Rapha Lumina. The symbolism stays soulful, but the collection is especially strong for teachers and people who want purpose-led tools they can actually use.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 mb-10 md:mb-14">
             <Link to="/enlightened" className="btn-primary">
-              Explore collections
+              Explore collection
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link to="/about" className="btn-outline">Our story</Link>
@@ -301,8 +301,8 @@ export default function HomePage() {
               <p className="text-[10px] tracking-[0.08em] mt-1" style={{ color: 'var(--rl-muted)' }}>Made in South Africa</p>
             </div>
             <div>
-              <p className="font-display text-2xl font-light" style={{ color: 'var(--rl-gold)' }}>2</p>
-              <p className="text-[10px] tracking-[0.08em] mt-1" style={{ color: 'var(--rl-muted)' }}>Curated collections</p>
+              <p className="font-display text-2xl font-light" style={{ color: 'var(--rl-gold)' }}>1</p>
+              <p className="text-[10px] tracking-[0.08em] mt-1" style={{ color: 'var(--rl-muted)' }}>Unified collection</p>
             </div>
           </div>
         </div>
@@ -396,7 +396,7 @@ export default function HomePage() {
                 className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.14em] uppercase transition-colors"
                 style={{ color: 'var(--rl-gold)' }}
               >
-                Browse all collections
+                Browse full collection
                 <ArrowRight className="h-3 w-3" />
               </Link>
             </div>

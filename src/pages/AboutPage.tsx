@@ -9,7 +9,7 @@ export default function AboutPage() {
     <div className="min-h-screen">
       <PageMeta
         title="Our Story | Rapha Lumina"
-        description="Learn the story behind Rapha Lumina, our purpose-led approach to conscious apparel, and the values that shape our collections."
+        description="Learn the story behind Rapha Lumina, a South African brand creating spiritually inspired apparel, teacher gifts, classroom-friendly accessories, and conscious-living pieces shaped by healing, light, and purpose."
         canonicalPath="/about"
         ogImage="https://raphalumina.com/og-home.svg"
         ogImageAlt="Rapha Lumina brand story social preview card"
@@ -137,7 +137,7 @@ export default function AboutPage() {
                   <div>
                     <h3 className="text-xl font-semibold mb-3 text-primary">Rapha Lumina Collection</h3>
                     <p className="text-muted-foreground text-pretty">
-                      We now present one unified Rapha Lumina Collection. The symbolism of sacred geometry, healing, enlightenment, and purposeful living still appears throughout the branding, while the catalog itself stays simple and easy to shop.
+                      We now present one unified Rapha Lumina Collection. The symbolism of sacred geometry, healing, enlightenment, and purposeful living still appears throughout the branding, while the catalog itself stays simple to shop and speaks more directly to teachers, gift buyers, and customers looking for meaningful everyday tools.
                     </p>
                   </div>
                 </div>
@@ -155,7 +155,7 @@ export default function AboutPage() {
                   Welcome home, awakened soul.
                 </p>
                 <Button asChild size="lg" className="px-8">
-                  <Link to="/enlightened">Explore Our Collections</Link>
+                  <Link to="/enlightened">Explore the Collection</Link>
                 </Button>
               </CardContent>
             </Card>

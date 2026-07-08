@@ -71,7 +71,7 @@ export default function EnlightenedCollectionPage() {
     <div className="min-h-screen enlightened-section">
       <PageMeta
         title="Rapha Lumina Collection | Rapha Lumina"
-        description="Shop the Rapha Lumina Collection: spiritually inspired apparel and accessories shaped by sacred geometry, healing, and conscious living."
+        description="Shop the Rapha Lumina Collection for spiritually inspired apparel, teacher gifts, journals, tote bags, water bottles, and meaningful accessories shaped by healing, purpose, and sacred symbolism in South Africa."
         canonicalPath="/enlightened"
         ogImage="https://raphalumina.com/og-enlightened.svg"
         ogImageAlt="Rapha Lumina Collection social preview card"
@@ -80,7 +80,10 @@ export default function EnlightenedCollectionPage() {
         <div className="mb-8">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 text-balance enlightened-heading">Rapha Lumina Collection</h1>
           <p className="text-lg text-foreground/90 text-pretty">
-            One collection shaped by light, healing, sacred geometry, and conscious living. Browse the full Rapha Lumina edit in one place.
+            Shop one curated Rapha Lumina Collection filled with spiritually inspired apparel, teacher gifts, classroom-friendly accessories, journals, and meaningful everyday pieces shaped by light, healing, sacred geometry, and conscious living.
+          </p>
+          <p className="text-sm text-muted-foreground text-pretty mt-3 max-w-3xl">
+            Use this page to browse best sellers, calm everyday pieces, teacher-focused tools and accessories, giftable products, and purpose-led designs made for customers who want symbolism, softness, and practical wearability in one place.
           </p>
           <div className="flex flex-wrap gap-2 mt-4 text-xs tracking-[0.14em] uppercase text-foreground/70">
             <span className="rounded-full border border-border px-3 py-1">Made in South Africa</span>
@@ -154,7 +157,7 @@ export default function EnlightenedCollectionPage() {
                 <span className="font-medium text-foreground">{products.length}</span> products
               </p>
               <p className="text-sm text-muted-foreground">
-                Calm essentials with practical everyday wearability
+                Spiritually inspired fashion, teacher tools, accessories, and gifts with practical everyday wearability
               </p>
             </div>
             {filteredProducts.length === 0 ? (
