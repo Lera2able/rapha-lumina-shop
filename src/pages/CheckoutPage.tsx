@@ -5,14 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/db/supabase';
@@ -20,7 +12,7 @@ import PageMeta from '@/components/common/PageMeta';
 import { getEffectivePrice, isSaleActive } from '@/lib/product';
 import { toast } from 'sonner';
 import type { ShippingAddress } from '@/types/types';
-import { AlertTriangle, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
+import { ShieldCheck, Truck, RotateCcw } from 'lucide-react';
 
 export default function CheckoutPage() {
   const { items, subtotal, shippingCost, grandTotal } = useCart();
@@ -28,7 +20,6 @@ export default function CheckoutPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [subscribeNewsletter, setSubscribeNewsletter] = useState(false);
-  const [testingNoticeOpen, setTestingNoticeOpen] = useState(true);
   const [confirmEmail, setConfirmEmail] = useState(user?.email || '');
   const [confirmDetails, setConfirmDetails] = useState(false);
 
@@ -224,25 +215,6 @@ export default function CheckoutPage() {
         ogImageAlt="Rapha Lumina checkout social preview card"
         robots="noindex,nofollow"
       />
-      <Dialog open={testingNoticeOpen} onOpenChange={setTestingNoticeOpen}>
-        <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-amber-500" />
-              Testing mode notice
-            </DialogTitle>
-            <DialogDescription className="pt-2">
-              This website is not live yet. Checkout is currently in testing mode, so please do not treat this as a live customer order flow.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-            Use test payment details only, and double-check every customer detail before completing a test order.
-          </div>
-          <DialogFooter>
-            <Button onClick={() => setTestingNoticeOpen(false)}>I understand</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
       <div className="container py-8">
         <div className="flex flex-col gap-3 mb-8 md:flex-row md:items-end md:justify-between">
           <div>
@@ -264,13 +236,6 @@ export default function CheckoutPage() {
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleCheckout} className="space-y-4">
-                  <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
-                    <p className="text-sm font-medium text-amber-900">Testing mode</p>
-                    <p className="text-sm text-amber-800 mt-1">
-                      This checkout is still in testing. Use test payments only and verify every customer detail carefully before submitting.
-                    </p>
-                  </div>
-
                   <div>
                     <Label htmlFor="name">Full Name *</Label>
                     <Input
