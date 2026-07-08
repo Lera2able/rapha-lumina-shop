@@ -10,7 +10,6 @@ import PageMeta from '@/components/common/PageMeta'
 import { toast } from 'sonner'
 
 const MERCH_PER_VIEW = 4
-const COLLECTION_PER_VIEW = 4
 
 type HomeProduct = Product & {
   sold_units?: number
@@ -19,10 +18,8 @@ type HomeProduct = Product & {
 
 export default function HomePage() {
   const [featuredProducts, setFeaturedProducts] = useState<HomeProduct[]>([])
-  const [activeMerchTab, setActiveMerchTab] = useState<'all' | 'best' | 'new' | 'featured' | 'teacher' | 'enlightened'>('all')
+  const [activeMerchTab, setActiveMerchTab] = useState<'all' | 'best' | 'new' | 'featured'>('all')
   const [merchPage, setMerchPage] = useState(0)
-  const [enlightenedPage, setEnlightenedPage] = useState(0)
-  const [teacherPage, setTeacherPage] = useState(0)
   const [newsletterEmail, setNewsletterEmail] = useState('')
   const [newsletterLoading, setNewsletterLoading] = useState(false)
   const { addItem } = useCart()
@@ -131,15 +128,11 @@ export default function HomePage() {
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     })
   const featuredOnlyProducts = featuredProducts.filter((product) => product.featured)
-  const teacherProducts = featuredProducts.filter((product) => product.collection === 'teacher')
-  const enlightenedProducts = featuredProducts.filter((product) => product.collection === 'enlightened')
   const merchTabs = [
     { key: 'all' as const, label: 'All products', products: featuredProducts },
     { key: 'best' as const, label: 'Best sellers', products: bestSellerProducts.length > 0 ? bestSellerProducts : featuredProducts },
     { key: 'new' as const, label: 'New arrivals', products: newestProducts },
     { key: 'featured' as const, label: 'Featured', products: featuredOnlyProducts.length > 0 ? featuredOnlyProducts : featuredProducts },
-    { key: 'teacher' as const, label: 'Teacher edit', products: teacherProducts },
-    { key: 'enlightened' as const, label: 'Enlightened edit', products: enlightenedProducts },
   ]
   const activeMerchProducts = merchTabs.find((tab) => tab.key === activeMerchTab)?.products ?? featuredProducts
   const totalMerchPages = Math.max(1, Math.ceil(activeMerchProducts.length / MERCH_PER_VIEW))
@@ -149,16 +142,6 @@ export default function HomePage() {
   )
   const merchStart = activeMerchProducts.length === 0 ? 0 : merchPage * MERCH_PER_VIEW + 1
   const merchEnd = Math.min(merchStart + visibleMerchProducts.length - 1, activeMerchProducts.length)
-  const totalEnlightenedPages = Math.max(1, Math.ceil(enlightenedProducts.length / COLLECTION_PER_VIEW))
-  const totalTeacherPages = Math.max(1, Math.ceil(teacherProducts.length / COLLECTION_PER_VIEW))
-  const visibleEnlightenedProducts = enlightenedProducts.slice(
-    enlightenedPage * COLLECTION_PER_VIEW,
-    enlightenedPage * COLLECTION_PER_VIEW + COLLECTION_PER_VIEW,
-  )
-  const visibleTeacherProducts = teacherProducts.slice(
-    teacherPage * COLLECTION_PER_VIEW,
-    teacherPage * COLLECTION_PER_VIEW + COLLECTION_PER_VIEW,
-  )
   useEffect(() => {
     if (activeMerchProducts.length <= MERCH_PER_VIEW) return
 
@@ -168,26 +151,6 @@ export default function HomePage() {
 
     return () => window.clearInterval(interval)
   }, [activeMerchProducts])
-
-  useEffect(() => {
-    if (enlightenedProducts.length <= COLLECTION_PER_VIEW) return
-
-    const interval = window.setInterval(() => {
-      setEnlightenedPage((current) => (current + 1) % Math.ceil(enlightenedProducts.length / COLLECTION_PER_VIEW))
-    }, 5200)
-
-    return () => window.clearInterval(interval)
-  }, [enlightenedProducts])
-
-  useEffect(() => {
-    if (teacherProducts.length <= COLLECTION_PER_VIEW) return
-
-    const interval = window.setInterval(() => {
-      setTeacherPage((current) => (current + 1) % Math.ceil(teacherProducts.length / COLLECTION_PER_VIEW))
-    }, 5600)
-
-    return () => window.clearInterval(interval)
-  }, [teacherProducts])
 
   const renderProductCard = (product: HomeProduct, tone: 'sage' | 'terra' | 'neutral' = 'neutral') => (
     <article key={product.id} className="group rounded-[26px] border border-rl-espresso/10 p-3 sm:p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(26,18,8,0.08)]">
@@ -235,9 +198,9 @@ export default function HomePage() {
 
         <div
           className="absolute top-3 left-3 z-20 px-3 py-1.5 rounded-full text-[9px] tracking-[0.14em] uppercase text-white"
-          style={{ backgroundColor: product.collection === 'enlightened' ? 'var(--rl-sage)' : 'var(--rl-terra)' }}
+          style={{ backgroundColor: 'var(--rl-gold)' }}
         >
-          {product.collection === 'enlightened' ? 'Enlightened' : 'Teacher'}
+          Rapha Lumina
         </div>
 
         {product.bestseller_rank ? (
@@ -266,8 +229,8 @@ export default function HomePage() {
       </div>
 
       <Link to={`/product/${product.id}`} className="block">
-        <p className="text-[10px] tracking-[0.14em] uppercase mb-1.5" style={{ color: product.collection === 'enlightened' ? 'var(--rl-sage)' : 'var(--rl-terra)' }}>
-          {product.collection === 'enlightened' ? 'Enlightened Collection' : 'Teacher Collection'}
+        <p className="text-[10px] tracking-[0.14em] uppercase mb-1.5" style={{ color: 'var(--rl-gold)' }}>
+          Rapha Lumina Collection
         </p>
         <p className="font-display text-[22px] leading-[1.15] mb-2 transition-colors duration-200 group-hover:text-[var(--rl-gold)]">
           {product.name}
@@ -304,7 +267,7 @@ export default function HomePage() {
     <div className="min-h-screen">
       <PageMeta
         title="Rapha Lumina | Spiritual Apparel, Awakening Wear & Conscious Living"
-        description="Discover Rapha Lumina's spiritually inspired apparel and teacher collection, made in South Africa and designed to help you wear your purpose."
+        description="Discover the Rapha Lumina Collection: spiritually inspired apparel and accessories shaped by sacred geometry, healing, and conscious living."
         canonicalPath="/"
         ogImage="https://raphalumina.com/og-home.svg"
         ogImageAlt="Rapha Lumina social preview card"
@@ -359,10 +322,9 @@ export default function HomePage() {
       </section>
 
       {/* Collections Section */}
-      <section id="collections" className="grid grid-cols-1 md:grid-cols-2 gap-0.5 border-b border-rl-espresso/10">
+      <section id="collections" className="grid grid-cols-1 gap-0.5 border-b border-rl-espresso/10">
         <Link to="/enlightened" className="group relative h-[420px] sm:h-[520px] overflow-hidden" style={{ backgroundColor: 'var(--rl-sage-lt)' }}>
           <div className="absolute inset-0 transition-transform ease-out group-hover:scale-[1.04]" style={{ backgroundColor: 'var(--rl-sage-lt)', transitionDuration: '600ms' }}>
-            {/* Sacred geometry — Flower of Life */}
             <svg
               viewBox="-150 -150 300 300"
               preserveAspectRatio="xMidYMid meet"
@@ -371,25 +333,20 @@ export default function HomePage() {
               aria-hidden
             >
               <g fill="none" stroke="currentColor" strokeWidth="1.2">
-                {/* Outer boundary circle */}
                 <circle cx="0" cy="0" r="120" />
-                {/* Centre circle */}
                 <circle cx="0" cy="0" r="40" />
-                {/* Inner ring — 6 circles at distance 40 */}
                 <circle cx="40" cy="0" r="40" />
                 <circle cx="20" cy="34.64" r="40" />
                 <circle cx="-20" cy="34.64" r="40" />
                 <circle cx="-40" cy="0" r="40" />
                 <circle cx="-20" cy="-34.64" r="40" />
                 <circle cx="20" cy="-34.64" r="40" />
-                {/* Second ring — 6 circles between inner ring */}
                 <circle cx="60" cy="34.64" r="40" />
                 <circle cx="0" cy="69.28" r="40" />
                 <circle cx="-60" cy="34.64" r="40" />
                 <circle cx="-60" cy="-34.64" r="40" />
                 <circle cx="0" cy="-69.28" r="40" />
                 <circle cx="60" cy="-34.64" r="40" />
-                {/* Outer ring — 6 circles at distance 80 */}
                 <circle cx="80" cy="0" r="40" />
                 <circle cx="40" cy="69.28" r="40" />
                 <circle cx="-40" cy="69.28" r="40" />
@@ -401,110 +358,14 @@ export default function HomePage() {
           </div>
           <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-12 transition-colors duration-300" style={{ backgroundColor: 'rgba(26, 18, 8, 0.32)' }}>
             <p className="text-[9px] tracking-[0.18em] uppercase mb-2" style={{ color: 'rgba(250, 248, 245, 0.65)' }}>
-              The first collection
+              Sacred geometry, healing, and light
             </p>
             <h2 className="font-display text-[32px] sm:text-[42px] font-light leading-[1.1] mb-4 text-[#FAF8F5]">
-              Enlightened <em className="italic">Collection</em>
+              Rapha Lumina <em className="italic">Collection</em>
             </h2>
-            <div className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.15em] uppercase transition-all duration-200 group-hover:gap-2.5" style={{ color: 'rgba(250, 248, 245, 0.8)' }}>
-              Shop now
-              <ArrowRight className="h-3 w-3" />
-            </div>
-          </div>
-        </Link>
-
-        <Link to="/teacher" className="group relative h-[420px] sm:h-[520px] overflow-hidden" style={{ backgroundColor: 'var(--rl-terra-lt)' }}>
-          <div className="absolute inset-0 transition-transform ease-out group-hover:scale-[1.04]" style={{ backgroundColor: 'var(--rl-terra-lt)', transitionDuration: '600ms' }}>
-            {/* Creative teaching tools — open book, pencil, apple, lightbulb, sparkles */}
-            <svg
-              viewBox="0 0 400 400"
-              preserveAspectRatio="xMidYMid slice"
-              className="absolute inset-0 w-full h-full text-rl-espresso opacity-[0.22]"
-              aria-hidden
-            >
-              <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                {/* Open book — bottom centre */}
-                <g transform="translate(150 230) rotate(-4)">
-                  <path d="M0 0 Q50 -10 100 0 L100 70 Q50 60 0 70 Z" />
-                  <path d="M100 0 Q150 -10 200 0 L200 70 Q150 60 100 70 Z" />
-                  <line x1="100" y1="0" x2="100" y2="70" />
-                  <line x1="20" y1="20" x2="80" y2="22" />
-                  <line x1="20" y1="35" x2="80" y2="37" />
-                  <line x1="20" y1="50" x2="65" y2="52" />
-                  <line x1="120" y1="20" x2="180" y2="22" />
-                  <line x1="120" y1="35" x2="180" y2="37" />
-                  <line x1="120" y1="50" x2="165" y2="52" />
-                </g>
-
-                {/* Pencil — top left, tilted */}
-                <g transform="translate(50 90) rotate(-28)">
-                  <rect x="0" y="0" width="120" height="14" rx="2" />
-                  <path d="M120 0 L142 7 L120 14 Z" fill="currentColor" />
-                  <line x1="135" y1="7" x2="142" y2="7" />
-                  <line x1="0" y1="0" x2="0" y2="14" strokeWidth="3" />
-                </g>
-
-                {/* Lightbulb — top right */}
-                <g transform="translate(300 70)">
-                  <path d="M30 0 Q60 0 60 30 Q60 45 50 55 L50 70 L10 70 L10 55 Q0 45 0 30 Q0 0 30 0 Z" />
-                  <line x1="15" y1="78" x2="45" y2="78" />
-                  <line x1="20" y1="86" x2="40" y2="86" />
-                  {/* Filament glow */}
-                  <path d="M22 30 Q30 22 38 30" />
-                  <path d="M22 38 Q30 30 38 38" />
-                  {/* Sparkles around */}
-                  <g strokeWidth="1.5">
-                    <line x1="-12" y1="20" x2="-4" y2="20" />
-                    <line x1="-8" y1="16" x2="-8" y2="24" />
-                    <line x1="70" y1="14" x2="78" y2="14" />
-                    <line x1="74" y1="10" x2="74" y2="18" />
-                  </g>
-                </g>
-
-                {/* Apple — bottom right */}
-                <g transform="translate(310 270)">
-                  <path d="M30 10 Q15 5 5 20 Q-5 40 10 60 Q20 75 30 70 Q40 75 50 60 Q65 40 55 20 Q45 5 30 10 Z" />
-                  <path d="M30 10 Q33 0 40 -2" strokeWidth="2.5" />
-                  <path d="M32 8 Q40 0 50 4" />
-                </g>
-
-                {/* Graduation cap — top centre, small */}
-                <g transform="translate(180 40) rotate(-6)">
-                  <path d="M0 12 L30 0 L60 12 L30 24 Z" fill="currentColor" fillOpacity="0.3" />
-                  <line x1="58" y1="13" x2="58" y2="32" />
-                  <circle cx="58" cy="33" r="2" fill="currentColor" />
-                  <path d="M10 18 L10 28 Q30 36 50 28 L50 18" />
-                </g>
-
-                {/* Small stars/sparkles scattered */}
-                <g strokeWidth="1.5">
-                  <g transform="translate(80 320)">
-                    <line x1="-6" y1="0" x2="6" y2="0" />
-                    <line x1="0" y1="-6" x2="0" y2="6" />
-                  </g>
-                  <g transform="translate(255 130)">
-                    <line x1="-5" y1="0" x2="5" y2="0" />
-                    <line x1="0" y1="-5" x2="0" y2="5" />
-                  </g>
-                  <g transform="translate(370 200)">
-                    <line x1="-5" y1="0" x2="5" y2="0" />
-                    <line x1="0" y1="-5" x2="0" y2="5" />
-                  </g>
-                </g>
-
-                {/* Doodly creative lines */}
-                <path d="M240 350 Q260 340 280 350 Q300 360 320 350" strokeWidth="1.5" />
-                <path d="M30 280 Q50 275 60 285" strokeWidth="1.5" />
-              </g>
-            </svg>
-          </div>
-          <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-12 transition-colors duration-300" style={{ backgroundColor: 'rgba(26, 18, 8, 0.32)' }}>
-            <p className="text-[9px] tracking-[0.18em] uppercase mb-2" style={{ color: 'rgba(250, 248, 245, 0.65)' }}>
-              The second collection
+            <p className="max-w-[520px] text-[13px] leading-[1.7] mb-4 text-[#FAF8F5]/85">
+              One collection with the same spiritual symbolism and visual identity appearing throughout the brand.
             </p>
-            <h2 className="font-display text-[32px] sm:text-[42px] font-light leading-[1.1] mb-4 text-[#FAF8F5]">
-              Teacher <em className="italic">Collection</em>
-            </h2>
             <div className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.15em] uppercase transition-all duration-200 group-hover:gap-2.5" style={{ color: 'rgba(250, 248, 245, 0.8)' }}>
               Shop now
               <ArrowRight className="h-3 w-3" />
@@ -595,92 +456,6 @@ export default function HomePage() {
                   <ArrowRight className="h-4 w-4" />
                 </button>
               </div>
-            </div>
-          )}
-        </section>
-      )}
-
-      {enlightenedProducts.length > 0 && (
-        <section className="px-6 py-16 md:px-12 md:py-20 border-b border-rl-espresso/10">
-          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-8">
-            <div>
-              <p className="text-[10px] tracking-[0.16em] uppercase mb-2" style={{ color: 'var(--rl-sage)' }}>
-                Separate curation
-              </p>
-              <h2 className="font-display text-[32px] sm:text-[38px] font-normal">The Enlightened edit</h2>
-              <p className="text-[13px] leading-[1.7] mt-2 max-w-[580px]" style={{ color: 'var(--rl-muted)' }}>
-                A calmer, more spiritual rail that lets seekers browse without competing against the teacher collection.
-              </p>
-            </div>
-            <Link to="/enlightened" className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.14em] uppercase" style={{ color: 'var(--rl-sage)' }}>
-              View full collection
-              <ArrowRight className="h-3 w-3" />
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-6 xl:gap-8">
-            {visibleEnlightenedProducts.map((product) => renderProductCard(product, 'sage'))}
-          </div>
-          {totalEnlightenedPages > 1 && (
-            <div className="flex justify-end gap-2 mt-8">
-              <button
-                type="button"
-                aria-label="Show previous Enlightened products"
-                className="h-10 w-10 rounded-full border border-rl-espresso/10 flex items-center justify-center transition-colors hover:bg-rl-cream"
-                onClick={() => setEnlightenedPage((current) => (current - 1 + totalEnlightenedPages) % totalEnlightenedPages)}
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                aria-label="Show next Enlightened products"
-                className="h-10 w-10 rounded-full border border-rl-espresso/10 flex items-center justify-center transition-colors hover:bg-rl-cream"
-                onClick={() => setEnlightenedPage((current) => (current + 1) % totalEnlightenedPages)}
-              >
-                <ArrowRight className="h-4 w-4" />
-              </button>
-            </div>
-          )}
-        </section>
-      )}
-
-      {teacherProducts.length > 0 && (
-        <section className="px-6 py-16 md:px-12 md:py-20 border-b border-rl-espresso/10">
-          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-8">
-            <div>
-              <p className="text-[10px] tracking-[0.16em] uppercase mb-2" style={{ color: 'var(--rl-terra)' }}>
-                Separate curation
-              </p>
-              <h2 className="font-display text-[32px] sm:text-[38px] font-normal">The Teacher edit</h2>
-              <p className="text-[13px] leading-[1.7] mt-2 max-w-[580px]" style={{ color: 'var(--rl-muted)' }}>
-                A dedicated rail for the teacher collection, with stronger visual space for the pieces that speak directly to educators.
-              </p>
-            </div>
-            <Link to="/teacher" className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.14em] uppercase" style={{ color: 'var(--rl-terra)' }}>
-              View full collection
-              <ArrowRight className="h-3 w-3" />
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-6 xl:gap-8">
-            {visibleTeacherProducts.map((product) => renderProductCard(product, 'terra'))}
-          </div>
-          {totalTeacherPages > 1 && (
-            <div className="flex justify-end gap-2 mt-8">
-              <button
-                type="button"
-                aria-label="Show previous Teacher products"
-                className="h-10 w-10 rounded-full border border-rl-espresso/10 flex items-center justify-center transition-colors hover:bg-rl-cream"
-                onClick={() => setTeacherPage((current) => (current - 1 + totalTeacherPages) % totalTeacherPages)}
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                aria-label="Show next Teacher products"
-                className="h-10 w-10 rounded-full border border-rl-espresso/10 flex items-center justify-center transition-colors hover:bg-rl-cream"
-                onClick={() => setTeacherPage((current) => (current + 1) % totalTeacherPages)}
-              >
-                <ArrowRight className="h-4 w-4" />
-              </button>
             </div>
           )}
         </section>

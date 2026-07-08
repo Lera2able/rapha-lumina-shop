@@ -4,6 +4,7 @@ import { createHmac } from 'node:crypto';
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const paystackSecretKey = Deno.env.get('PAYSTACK_SECRET_KEY')!;
+const supportEmail = Deno.env.get('SUPPORT_EMAIL') ?? 'support@raphalumina.com';
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -131,18 +132,30 @@ Deno.serve(async (req) => {
 
       // Send confirmation email
       try {
+        const emailPayload = {
+          customerName: parsedShippingAddress.name,
+          customerEmail: email,
+          orderId: order.id.slice(0, 8),
+          items: orderItems,
+          totalAmount,
+          shippingCost: shippingCost || 0,
+          shippingAddress: parsedShippingAddress,
+          paymentMethod: 'paystack',
+        };
+
         await supabase.functions.invoke('send_email', {
           body: {
             type: 'order_confirmation',
             to: email,
-            data: {
-              customerName: parsedShippingAddress.name,
-              orderId: order.id.slice(0, 8),
-              items: orderItems,
-              totalAmount,
-              shippingCost: shippingCost || 0,
-              shippingAddress: parsedShippingAddress,
-            },
+            data: emailPayload,
+          },
+        });
+
+        await supabase.functions.invoke('send_email', {
+          body: {
+            type: 'admin_order_notification',
+            to: supportEmail,
+            data: emailPayload,
           },
         });
         console.log('Confirmation email sent');

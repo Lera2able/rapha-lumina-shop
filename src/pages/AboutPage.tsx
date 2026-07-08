@@ -132,19 +132,12 @@ export default function AboutPage() {
             {/* Collections Philosophy */}
             <Card className="mb-12">
               <CardContent className="p-8 md:p-12">
-                <h2 className="text-3xl font-bold mb-6 text-balance">Our Collections</h2>
+                <h2 className="text-3xl font-bold mb-6 text-balance">Our Collection</h2>
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-xl font-semibold mb-3 text-primary">The Enlightened Collection</h3>
+                    <h3 className="text-xl font-semibold mb-3 text-primary">Rapha Lumina Collection</h3>
                     <p className="text-muted-foreground text-pretty">
-                      Designed for the spiritually awakened soul, this collection features apparel and accessories that celebrate higher consciousness, sacred geometry, and the journey of enlightenment. Each piece is a wearable reminder of your divine nature.
-                    </p>
-                  </div>
-
-                  <div>
-                    <h3 className="text-xl font-semibold mb-3 text-primary">The Teacher Collection</h3>
-                    <p className="text-muted-foreground text-pretty">
-                      Created specifically for educators who understand that teaching is a sacred calling. This collection combines practical classroom tools with spiritually inspired designs, honoring those who shape young minds and hearts.
+                      We now present one unified Rapha Lumina Collection. The symbolism of sacred geometry, healing, enlightenment, and purposeful living still appears throughout the branding, while the catalog itself stays simple and easy to shop.
                     </p>
                   </div>
                 </div>

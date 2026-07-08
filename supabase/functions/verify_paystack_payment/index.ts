@@ -2,6 +2,7 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const supportEmail = Deno.env.get("SUPPORT_EMAIL") ?? "support@raphalumina.com";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const corsHeaders = {
@@ -106,30 +107,45 @@ async function updateOrderStatus(reference: string, transactionData: any) {
     }
 
     try {
+      const emailPayload = {
+        customerName: order.shipping_address?.name || order.customer_name || "Customer",
+        customerEmail: order.customer_email,
+        orderId: order.id.slice(0, 8),
+        orderDate: new Date().toLocaleDateString("en-ZA", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }),
+        items: order.items,
+        totalAmount: order.total_amount,
+        shippingCost: order.shipping_cost ?? 0,
+        shippingAddress: order.shipping_address,
+        paymentMethod: transactionData.channel,
+      };
+
       const emailResponse = await supabase.functions.invoke("send_email", {
         body: {
           type: "order_confirmation",
           to: order.customer_email,
-          data: {
-            customerName: order.shipping_address?.name || order.customer_name || "Customer",
-            orderId: order.id.slice(0, 8),
-            orderDate: new Date().toLocaleDateString("en-ZA", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            }),
-            items: order.items,
-            totalAmount: order.total_amount,
-            shippingCost: order.shipping_cost ?? 0,
-            shippingAddress: order.shipping_address,
-          },
+          data: emailPayload,
         },
       });
       if (emailResponse.error) {
         console.error("Email send error:", emailResponse.error);
       }
+
+      const adminEmailResponse = await supabase.functions.invoke("send_email", {
+        body: {
+          type: "admin_order_notification",
+          to: supportEmail,
+          data: emailPayload,
+        },
+      });
+      if (adminEmailResponse.error) {
+        console.error("Admin email send error:", adminEmailResponse.error);
+      }
     } catch (emailError) {
-      console.error("Failed to send order confirmation email:", emailError);
+      console.error("Failed to send order emails:", emailError);
     }
   }
 

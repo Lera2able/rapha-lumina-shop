@@ -21,7 +21,7 @@ export default function ReturnsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-muted-foreground text-pretty">
-                We want you to be completely satisfied with your purchase. If you're not happy with your order, you may return it within 30 days of delivery for a full refund or exchange.
+                We want you to feel confident shopping with Rapha Lumina. If something is not right, you may request a return within 14 days of delivery.
               </p>
               <div>
                 <h3 className="font-semibold mb-2">Conditions</h3>
@@ -29,7 +29,9 @@ export default function ReturnsPage() {
                   <li>• Items must be unworn, unwashed, and in original condition with tags attached</li>
                   <li>• Items must be returned in original packaging</li>
                   <li>• Proof of purchase required</li>
-                  <li>• Sale items are final sale and cannot be returned</li>
+                  <li>• Final-sale, clearance, personalized, and worn items cannot be returned</li>
+                  <li>• Return shipping for change-of-mind returns is the customer’s responsibility</li>
+                  <li>• Original shipping charges are not refunded once an order has shipped</li>
                 </ul>
               </div>
             </CardContent>
@@ -41,7 +43,7 @@ export default function ReturnsPage() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground text-pretty">
-                We're happy to exchange items for a different size or color. Exchanges are subject to availability. If the item you want is not available, we'll issue a full refund.
+                If you need a different size, please email us within 14 days of delivery. Exchanges are subject to stock availability. If the replacement item is unavailable, we will process a refund once the original item is returned and approved.
               </p>
             </CardContent>
           </Card>
@@ -54,20 +56,20 @@ export default function ReturnsPage() {
               <ol className="space-y-2 text-sm text-muted-foreground list-decimal list-inside">
                 <li>Contact our support team at support@raphalumina.com</li>
                 <li>Include your order number and reason for return</li>
-                <li>We'll provide you with return instructions and a return label</li>
-                <li>Pack your items securely and ship them back to us</li>
-                <li>Refunds will be processed within 5-7 business days of receiving your return</li>
+                <li>Wait for return approval and instructions before sending the parcel back</li>
+                <li>Pack your items securely and use a trackable courier service if you are arranging the return</li>
+                <li>Once received and approved, refunds are processed within 5-7 business days</li>
               </ol>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>Refund Method</CardTitle>
+              <CardTitle>Damaged or Incorrect Items</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground text-pretty">
-                Refunds will be issued to the original payment method. Please allow 5-10 business days for the refund to appear in your account.
+                If your order arrives damaged, defective, or incorrect, please email support@raphalumina.com within 7 days of delivery with your order number and clear photos. In these cases, we will arrange a replacement or refund and cover the return shipping where applicable.
               </p>
             </CardContent>
           </Card>

@@ -13,6 +13,85 @@ function formatFromAddress() {
   return `${MAIL_FROM_NAME} <${MAIL_FROM_EMAIL}>`;
 }
 
+function generateAdminOrderNotificationEmail(data: any): string {
+  const itemsHtml = (data.items || []).map((item: OrderItem) => `
+    <tr>
+      <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb;">
+        <div style="font-weight: 500; color: #111827;">${item.name}</div>
+        ${item.size ? `<div style="font-size: 14px; color: #6b7280;">Size: ${item.size}</div>` : ''}
+        <div style="font-size: 14px; color: #6b7280;">Quantity: ${item.quantity}</div>
+      </td>
+      <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 500;">
+        R ${((item.price ?? 0) * item.quantity).toFixed(2)}
+      </td>
+    </tr>
+  `).join('');
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f9fafb;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; padding: 40px 20px;">
+        <tr>
+          <td align="center">
+            <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+              <tr>
+                <td style="padding: 32px 40px; text-align: center; background: linear-gradient(135deg, #111827 0%, #374151 100%);">
+                  <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 600;">New Order Received</h1>
+                  <p style="margin: 8px 0 0; color: #ffffff; font-size: 14px; opacity: 0.9;">Rapha Lumina store notification</p>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 32px 40px;">
+                  <div style="background-color: #f9fafb; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+                    <p style="margin: 0 0 8px; color: #6b7280; font-size: 14px;"><strong>Order ID:</strong> ${data.orderId}</p>
+                    <p style="margin: 0 0 8px; color: #6b7280; font-size: 14px;"><strong>Customer:</strong> ${data.customerName || '—'}</p>
+                    <p style="margin: 0 0 8px; color: #6b7280; font-size: 14px;"><strong>Email:</strong> ${data.customerEmail || '—'}</p>
+                    <p style="margin: 0 0 8px; color: #6b7280; font-size: 14px;"><strong>Payment method:</strong> ${data.paymentMethod || 'paystack'}</p>
+                    <p style="margin: 0 0 8px; color: #6b7280; font-size: 14px;"><strong>Shipping:</strong> R ${Number(data.shippingCost ?? 0).toFixed(2)}</p>
+                    <p style="margin: 0; color: #111827; font-size: 16px; font-weight: 600;"><strong>Total:</strong> R ${Number(data.totalAmount ?? 0).toFixed(2)}</p>
+                  </div>
+
+                  <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 24px;">
+                    <thead>
+                      <tr>
+                        <th style="padding: 12px 0; border-bottom: 2px solid #e5e7eb; text-align: left; color: #111827; font-weight: 600;">Item</th>
+                        <th style="padding: 12px 0; border-bottom: 2px solid #e5e7eb; text-align: right; color: #111827; font-weight: 600;">Line total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${itemsHtml}
+                    </tbody>
+                  </table>
+
+                  ${data.shippingAddress ? `
+                  <div style="background-color: #f9fafb; border-radius: 8px; padding: 20px;">
+                    <h3 style="margin: 0 0 12px; color: #111827; font-size: 18px; font-weight: 600;">Shipping Address</h3>
+                    <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.6;">
+                      ${data.shippingAddress.name || ''}<br>
+                      ${data.shippingAddress.address_line1 || ''}<br>
+                      ${data.shippingAddress.address_line2 ? `${data.shippingAddress.address_line2}<br>` : ''}
+                      ${data.shippingAddress.city || ''}, ${data.shippingAddress.state || ''}<br>
+                      ${data.shippingAddress.postal_code || ''}, ${data.shippingAddress.country || ''}<br>
+                      ${data.shippingAddress.phone ? `Phone: ${data.shippingAddress.phone}` : ''}
+                    </p>
+                  </div>
+                  ` : ''}
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
+  `;
+}
+
 interface OrderItem {
   name: string;
   price: number;
@@ -21,16 +100,19 @@ interface OrderItem {
 }
 
 interface EmailRequest {
-  type: 'order_confirmation' | 'shipping_update' | 'refund_approved' | 'refund_rejected' | 'refund_processed' | 'welcome' | 'restock_notification';
+  type: 'order_confirmation' | 'admin_order_notification' | 'shipping_update' | 'refund_approved' | 'refund_rejected' | 'refund_processed' | 'welcome' | 'restock_notification';
   to: string;
   data: {
     customerName?: string;
+    customerEmail?: string;
     firstName?: string;
     orderId?: string;
     orderDate?: string;
     items?: OrderItem[];
     totalAmount?: number;
+    shippingCost?: number;
     shippingAddress?: any;
+    paymentMethod?: string;
     refundAmount?: number;
     refundReason?: string;
     adminNotes?: string;
@@ -47,6 +129,8 @@ function getEmailSubject(type: string): string {
       return 'Welcome to Rapha Lumina - Your Spiritual Journey Begins';
     case 'order_confirmation':
       return 'Order Confirmation - Rapha Lumina';
+    case 'admin_order_notification':
+      return 'New Order Received - Rapha Lumina';
     case 'shipping_update':
       return 'Your Order Has Been Shipped - Rapha Lumina';
     case 'refund_approved':
@@ -489,6 +573,8 @@ function generateEmailHtml(type: string, data: any): string {
       return generateWelcomeEmail(data);
     case 'order_confirmation':
       return generateOrderConfirmationEmail(data);
+    case 'admin_order_notification':
+      return generateAdminOrderNotificationEmail(data);
     case 'shipping_update':
       return generateShippingUpdateEmail(data);
     case 'refund_approved':

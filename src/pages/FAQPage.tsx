@@ -102,14 +102,14 @@ export default function FAQPage() {
                 <AccordionItem value="return-policy">
                   <AccordionTrigger>What is your return policy?</AccordionTrigger>
                   <AccordionContent className="text-muted-foreground text-pretty">
-                    We accept returns within <strong className="text-foreground">30 days</strong> of delivery. Items must be unworn, unwashed, and in original condition with all tags attached. To initiate a return, please contact us at support@raphalumina.com with your order number.
+                    We accept return requests within <strong className="text-foreground">14 days</strong> of delivery. Items must be unworn, unwashed, and in original condition with all tags attached. Final-sale and personalized items are not eligible for return. To begin a return, email support@raphalumina.com with your order number.
                   </AccordionContent>
                 </AccordionItem>
 
                 <AccordionItem value="exchange">
                   <AccordionTrigger>Can I exchange an item?</AccordionTrigger>
                   <AccordionContent className="text-muted-foreground text-pretty">
-                    Yes! We're happy to exchange items for a different size or color. Please contact us within 30 days of receiving your order. Exchanges are subject to availability. If the item you want is out of stock, we'll process a refund instead.
+                    Yes, size exchanges are possible if stock is available. Please contact us within 14 days of receiving your order. If the replacement item is unavailable, we will refund the returned item instead.
                   </AccordionContent>
                 </AccordionItem>
 
@@ -123,7 +123,7 @@ export default function FAQPage() {
                 <AccordionItem value="damaged">
                   <AccordionTrigger>What if my item arrives damaged?</AccordionTrigger>
                   <AccordionContent className="text-muted-foreground text-pretty">
-                    We're sorry if your item arrived damaged! Please contact us immediately at support@raphalumina.com with photos of the damage and your order number. We'll arrange a replacement or full refund at no cost to you.
+                    Please contact us within 7 days at support@raphalumina.com with photos of the issue and your order number. If the item is damaged, defective, or incorrect, we will arrange a replacement or refund and cover the return shipping where applicable.
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>

@@ -41,12 +41,7 @@ export function Footer() {
             <ul className="space-y-3 text-sm">
               <li>
                 <Link to="/enlightened" className="text-rl-cream/70 hover:text-rl-cream transition-colors font-body">
-                  Enlightened Collection
-                </Link>
-              </li>
-              <li>
-                <Link to="/teacher" className="text-rl-cream/70 hover:text-rl-cream transition-colors font-body">
-                  Teacher Collection
+                  Rapha Lumina Collection
                 </Link>
               </li>
             </ul>

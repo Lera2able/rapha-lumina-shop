@@ -1,8 +1,8 @@
 import { lazy, type ReactNode } from 'react';
+import { Navigate } from 'react-router-dom';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
 const EnlightenedCollectionPage = lazy(() => import('./pages/EnlightenedCollectionPage'));
-const TeacherCollectionPage = lazy(() => import('./pages/TeacherCollectionPage'));
 const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage'));
 const CartPage = lazy(() => import('./pages/CartPage'));
 const CheckoutPage = lazy(() => import('./pages/CheckoutPage'));
@@ -55,15 +55,15 @@ export const routes: RouteConfig[] = [
     public: true,
   },
   {
-    name: 'Enlightened Collection',
+    name: 'Rapha Lumina Collection',
     path: '/enlightened',
     element: <EnlightenedCollectionPage />,
     public: true,
   },
   {
-    name: 'Teacher Collection',
+    name: 'Collection Redirect',
     path: '/teacher',
-    element: <TeacherCollectionPage />,
+    element: <Navigate to="/enlightened" replace />,
     public: true,
   },
   {

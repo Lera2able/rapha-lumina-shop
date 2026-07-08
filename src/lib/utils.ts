@@ -18,8 +18,8 @@ export function truncate(str: string, length: number): string {
   return str.slice(0, length) + '...'
 }
 
-export function collectionLabel(collection: string): string {
-  return collection === 'enlightened' ? 'Enlightened Collection' : 'Teacher Collection'
+export function collectionLabel(_collection: string): string {
+  return 'Rapha Lumina Collection'
 }
 
 export const FREE_SHIPPING_THRESHOLD = 700

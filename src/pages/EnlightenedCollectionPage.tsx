@@ -30,7 +30,6 @@ export default function EnlightenedCollectionPage() {
     const { data } = await supabase
       .from('products')
       .select('*')
-      .eq('collection', 'enlightened')
       .order('created_at', { ascending: false });
 
     const normalised = normaliseProducts(data);
@@ -71,17 +70,17 @@ export default function EnlightenedCollectionPage() {
   return (
     <div className="min-h-screen enlightened-section">
       <PageMeta
-        title="Enlightened Collection | Rapha Lumina"
-        description="Shop the Enlightened Collection from Rapha Lumina: conscious apparel and accessories created for spiritually awakened living."
+        title="Rapha Lumina Collection | Rapha Lumina"
+        description="Shop the Rapha Lumina Collection: spiritually inspired apparel and accessories shaped by sacred geometry, healing, and conscious living."
         canonicalPath="/enlightened"
         ogImage="https://raphalumina.com/og-enlightened.svg"
-        ogImageAlt="Enlightened Collection social preview card"
+        ogImageAlt="Rapha Lumina Collection social preview card"
       />
       <div className="container py-8">
         <div className="mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-balance enlightened-heading">The Enlightened Collection</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-balance enlightened-heading">Rapha Lumina Collection</h1>
           <p className="text-lg text-foreground/90 text-pretty">
-            Clothing for the conscious soul. Each piece carries intention, designed for those walking the path of spiritual awakening and higher vibration living.
+            One collection shaped by light, healing, sacred geometry, and conscious living. Browse the full Rapha Lumina edit in one place.
           </p>
           <div className="flex flex-wrap gap-2 mt-4 text-xs tracking-[0.14em] uppercase text-foreground/70">
             <span className="rounded-full border border-border px-3 py-1">Made in South Africa</span>

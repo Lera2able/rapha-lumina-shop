@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/db/supabase';
 import type { Product } from '@/types/types';
 import { getAvailableStock, getDefaultSize, getEffectivePrice, isSaleActive, normaliseProduct, normaliseProducts } from '@/lib/product';
+import { collectionLabel } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -273,7 +274,7 @@ export default function ProductDetailPage() {
                 <p className="text-2xl font-bold text-primary">R {product.price.toFixed(2)}</p>
               )}
               <div className="flex flex-wrap gap-2 mt-3 text-xs tracking-[0.14em] uppercase text-foreground/70">
-                <span className="rounded-full border border-border px-3 py-1">{product.collection === 'teacher' ? 'Teacher Collection' : 'Enlightened Collection'}</span>
+                <span className="rounded-full border border-border px-3 py-1">{collectionLabel(product.collection)}</span>
                 <span className="rounded-full border border-border px-3 py-1">Free shipping over R700</span>
                 {isSaleActive(product) && <span className="rounded-full border border-border px-3 py-1">Sale on now</span>}
               </div>

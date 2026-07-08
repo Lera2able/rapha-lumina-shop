@@ -8,13 +8,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { ArrowLeft, Save, Video, X } from 'lucide-react';
 import { toast } from 'sonner';
 import ImageUpload from '@/components/admin/ImageUpload';
@@ -411,21 +404,13 @@ export default function AdminProductFormPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="collection">Collection *</Label>
-                <Select
-                  value={formData.collection}
-                  onValueChange={(value: CollectionType) =>
-                    setFormData({ ...formData, collection: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="enlightened">Enlightened</SelectItem>
-                    <SelectItem value="teacher">Teacher</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label>Collection</Label>
+                <div className="h-10 rounded-md border px-3 flex items-center text-sm bg-muted/30">
+                  Rapha Lumina Collection
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Sacred geometry and enlightenment stay in the branding without splitting products into separate collections.
+                </p>
               </div>
 
               <div>

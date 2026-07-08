@@ -68,7 +68,7 @@ export default function RegisterThankYouPage() {
             <Link to="/">Start Shopping</Link>
           </Button>
           <Button asChild variant="outline" className="w-full">
-            <Link to="/collections/enlightened">Explore Enlightened Collection</Link>
+            <Link to="/enlightened">Explore Rapha Lumina Collection</Link>
           </Button>
         </CardFooter>
       </Card>

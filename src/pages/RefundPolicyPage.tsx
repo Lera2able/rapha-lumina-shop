@@ -37,9 +37,9 @@ export default function RefundPolicyPage() {
             <div>
               <h3 className="font-semibold text-lg mb-2">Before Shipment</h3>
               <p className="text-pretty">
-                You may cancel your order at no charge within 24 hours of placing it, 
-                provided it has not yet been shipped. To cancel, please contact us immediately 
-                through your account dashboard or email us at orders@raphalumina.com.
+                You may request cancellation before your order has been dispatched. Please email 
+                us as soon as possible at support@raphalumina.com. If the parcel has already 
+                been processed or shipped, cancellation may no longer be possible.
               </p>
             </div>
             <div>
@@ -61,7 +61,7 @@ export default function RefundPolicyPage() {
               We accept refund requests under the following conditions:
             </p>
             <ul className="list-disc list-inside space-y-2 ml-4">
-              <li>Items must be returned within 14 days of delivery</li>
+              <li>Return requests must be submitted within 14 days of delivery</li>
               <li>Products must be unused, unworn, and in original condition</li>
               <li>All original tags and packaging must be intact</li>
               <li>Items must not show signs of wear or damage</li>
@@ -87,9 +87,8 @@ export default function RefundPolicyPage() {
             <div>
               <h3 className="font-semibold text-lg mb-2">Step 1: Submit Request</h3>
               <p className="text-pretty">
-                Log in to your account and navigate to your order history. Click on the order 
-                you wish to return and select "Request Refund". Fill out the refund form with 
-                your reason for return.
+                Email support@raphalumina.com with your order number, the item you want to return, 
+                and the reason for the request.
               </p>
             </div>
             <div>
@@ -102,9 +101,9 @@ export default function RefundPolicyPage() {
             <div>
               <h3 className="font-semibold text-lg mb-2">Step 3: Return Shipping</h3>
               <p className="text-pretty">
-                Once approved, ship the items back to us using the provided return address. 
-                We recommend using a trackable shipping service. Return shipping costs are 
-                the responsibility of the customer unless the item is defective or incorrect.
+                Once approved, ship the items back to us using the provided return instructions. 
+                We recommend using a trackable courier service. Return shipping costs are the 
+                customer’s responsibility unless the item is defective, damaged, or incorrect.
               </p>
             </div>
             <div>
@@ -119,7 +118,7 @@ export default function RefundPolicyPage() {
               <p className="text-pretty">
                 If approved, your refund will be processed to your original payment method 
                 within 5-10 business days. You'll receive a confirmation email once the 
-                refund has been issued.
+                refund has been issued. Original shipping fees are not refunded once an order has shipped.
               </p>
             </div>
           </CardContent>
@@ -148,9 +147,9 @@ export default function RefundPolicyPage() {
           </CardHeader>
           <CardContent className="space-y-4 text-foreground/90">
             <p className="text-pretty">
-              We currently do not offer direct exchanges. If you need a different size or 
-              product, please request a refund for the original item and place a new order 
-              for the desired product.
+              Size exchanges are available subject to stock. Please contact support@raphalumina.com
+              within 14 days of delivery. If the requested replacement is unavailable, we will
+              process a refund after the original item is returned and approved.
             </p>
           </CardContent>
         </Card>
@@ -185,7 +184,6 @@ export default function RefundPolicyPage() {
             </p>
             <div className="space-y-2">
               <p><strong>Email:</strong> support@raphalumina.com</p>
-              <p><strong>Phone:</strong> +27 (0) 123 456 789</p>
               <p><strong>Business Hours:</strong> Monday - Friday, 9:00 AM - 5:00 PM SAST</p>
             </div>
             <p className="text-pretty mt-4 text-sm text-muted-foreground">
