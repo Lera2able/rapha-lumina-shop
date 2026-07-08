@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useCart } from '@/contexts/CartContext';
+import { getEffectivePrice, isSaleActive } from '@/lib/product';
 import PageMeta from '@/components/common/PageMeta';
 import { Minus, Plus, Trash2, ShoppingBag, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
 
@@ -101,7 +102,14 @@ export default function CartPage() {
                       {item.size && (
                         <p className="text-sm text-muted-foreground">Size: {item.size}</p>
                       )}
-                      <p className="text-lg font-bold mt-2">R {item.product.price.toFixed(2)}</p>
+                      {isSaleActive(item.product) && item.product.sale_price !== null ? (
+                        <div className="mt-2">
+                          <p className="text-sm text-muted-foreground line-through">R {item.product.price.toFixed(2)}</p>
+                          <p className="text-lg font-bold">R {getEffectivePrice(item.product).toFixed(2)}</p>
+                        </div>
+                      ) : (
+                        <p className="text-lg font-bold mt-2">R {item.product.price.toFixed(2)}</p>
+                      )}
                     </div>
 
                     <div className="flex flex-col items-end gap-2 shrink-0">

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/db/supabase';
 import type { Product } from '@/types/types';
-import { normaliseProduct, normaliseProducts } from '@/lib/product';
+import { getEffectivePrice, isSaleActive, normaliseProduct, normaliseProducts } from '@/lib/product';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -215,7 +215,7 @@ export default function ProductDetailPage() {
       '@type': 'Offer',
       url: `https://raphalumina.com${canonicalPath}`,
       priceCurrency: 'ZAR',
-      price: product.price.toFixed(2),
+      price: getEffectivePrice(product).toFixed(2),
       availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       itemCondition: 'https://schema.org/NewCondition',
     },
@@ -249,10 +249,18 @@ export default function ProductDetailPage() {
           <div className="space-y-6">
             <div>
               <h1 className="text-3xl font-bold mb-2 text-balance">{product.name}</h1>
-              <p className="text-2xl font-bold text-primary">R {product.price.toFixed(2)}</p>
+              {isSaleActive(product) && product.sale_price !== null ? (
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground line-through">Was R {product.price.toFixed(2)}</p>
+                  <p className="text-2xl font-bold text-primary">Now R {getEffectivePrice(product).toFixed(2)}</p>
+                </div>
+              ) : (
+                <p className="text-2xl font-bold text-primary">R {product.price.toFixed(2)}</p>
+              )}
               <div className="flex flex-wrap gap-2 mt-3 text-xs tracking-[0.14em] uppercase text-foreground/70">
                 <span className="rounded-full border border-border px-3 py-1">{product.collection === 'teacher' ? 'Teacher Collection' : 'Enlightened Collection'}</span>
                 <span className="rounded-full border border-border px-3 py-1">Free shipping over R700</span>
+                {isSaleActive(product) && <span className="rounded-full border border-border px-3 py-1">Sale on now</span>}
               </div>
             </div>
 
@@ -405,7 +413,14 @@ export default function ProductDetailPage() {
                     </div>
                     <CardContent className="p-4">
                       <h3 className="font-semibold mb-2 text-balance">{relatedProduct.name}</h3>
-                      <p className="text-lg font-bold">R {relatedProduct.price.toFixed(2)}</p>
+                      {isSaleActive(relatedProduct) && relatedProduct.sale_price !== null ? (
+                        <div>
+                          <p className="text-sm text-muted-foreground line-through">R {relatedProduct.price.toFixed(2)}</p>
+                          <p className="text-lg font-bold">R {getEffectivePrice(relatedProduct).toFixed(2)}</p>
+                        </div>
+                      ) : (
+                        <p className="text-lg font-bold">R {relatedProduct.price.toFixed(2)}</p>
+                      )}
                     </CardContent>
                   </Card>
                 </Link>

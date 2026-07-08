@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/db/supabase';
-import { normaliseProducts } from '@/lib/product';
+import { getEffectivePrice, isSaleActive, normaliseProducts } from '@/lib/product';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -183,7 +183,16 @@ export default function AdminProductsPage() {
                         </Badge>
                       </TableCell>
                       <TableCell className="whitespace-nowrap">{product.category}</TableCell>
-                      <TableCell className="whitespace-nowrap">R {product.price.toFixed(2)}</TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        {isSaleActive(product) && product.sale_price !== null ? (
+                          <div>
+                            <p className="text-xs text-muted-foreground line-through">R {product.price.toFixed(2)}</p>
+                            <p>R {getEffectivePrice(product).toFixed(2)}</p>
+                          </div>
+                        ) : (
+                          <>R {product.price.toFixed(2)}</>
+                        )}
+                      </TableCell>
                       <TableCell className="whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           {product.stock < 10 && (

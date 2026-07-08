@@ -24,6 +24,13 @@ export function normaliseProduct(raw: unknown): Product {
     collection: (r.collection ?? 'enlightened') as CollectionType,
     category: String(r.category ?? ''),
     price: Number(r.price ?? 0),
+    sale_enabled: Boolean(r.sale_enabled),
+    sale_price:
+      r.sale_price === null || r.sale_price === undefined || r.sale_price === ''
+        ? null
+        : Number(r.sale_price),
+    sale_start_date: r.sale_start_date ? String(r.sale_start_date) : null,
+    sale_end_date: r.sale_end_date ? String(r.sale_end_date) : null,
     image_url: String(r.image_url ?? ''),
     additional_images: Array.isArray(r.additional_images)
       ? (r.additional_images as string[])
@@ -43,4 +50,30 @@ export function normaliseProduct(raw: unknown): Product {
 export function normaliseProducts(raw: unknown[] | null | undefined): Product[] {
   if (!Array.isArray(raw)) return []
   return raw.map(normaliseProduct)
+}
+
+export function isSaleActive(product: Pick<Product, 'sale_enabled' | 'sale_price' | 'sale_start_date' | 'sale_end_date'>, now = new Date()) {
+  if (!product.sale_enabled || product.sale_price === null || product.sale_price <= 0) {
+    return false
+  }
+
+  const start = product.sale_start_date ? new Date(product.sale_start_date) : null
+  const end = product.sale_end_date ? new Date(product.sale_end_date) : null
+
+  if (start && now < start) return false
+  if (end) {
+    const inclusiveEnd = new Date(end)
+    inclusiveEnd.setHours(23, 59, 59, 999)
+    if (now > inclusiveEnd) return false
+  }
+
+  return true
+}
+
+export function getEffectivePrice(product: Product, now = new Date()) {
+  return isSaleActive(product, now) ? Number(product.sale_price ?? product.price) : product.price
+}
+
+export function getOriginalPrice(product: Product) {
+  return product.price
 }

@@ -17,6 +17,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/db/supabase';
 import PageMeta from '@/components/common/PageMeta';
+import { getEffectivePrice, isSaleActive } from '@/lib/product';
 import { toast } from 'sonner';
 import type { ShippingAddress } from '@/types/types';
 import { AlertTriangle, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
@@ -137,7 +138,7 @@ export default function CheckoutPage() {
       // Format items for Paystack
       const orderItems = items.map(item => ({
         name: item.product.name,
-        price: Number(item.product.price),
+        price: Number(getEffectivePrice(item.product)),
         quantity: item.quantity,
         image_url: item.product.image_url || '',
         product_id: item.product_id,
@@ -472,10 +473,17 @@ export default function CheckoutPage() {
                 <div className="space-y-2">
                   {items.map(item => (
                     <div key={`${item.product_id}-${item.size}`} className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">
-                        {item.product.name} {item.size && `(${item.size})`} x {item.quantity}
-                      </span>
-                      <span>R {(item.product.price * item.quantity).toFixed(2)}</span>
+                      <div className="text-muted-foreground">
+                        <p>
+                          {item.product.name} {item.size && `(${item.size})`} x {item.quantity}
+                        </p>
+                        {isSaleActive(item.product) && item.product.sale_price !== null && (
+                          <p className="text-xs line-through">
+                            Was R {item.product.price.toFixed(2)}
+                          </p>
+                        )}
+                      </div>
+                      <span>R {(getEffectivePrice(item.product) * item.quantity).toFixed(2)}</span>
                     </div>
                   ))}
                 </div>

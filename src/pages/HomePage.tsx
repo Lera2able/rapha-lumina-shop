@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/db/supabase'
 import type { Product } from '@/types/types'
-import { normaliseProducts } from '@/lib/product'
+import { getEffectivePrice, isSaleActive, normaliseProducts } from '@/lib/product'
 import { ArrowLeft, ArrowRight, Heart, ShoppingBag } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import { useCart } from '@/contexts/CartContext'
@@ -154,8 +154,6 @@ export default function HomePage() {
     teacherPage * COLLECTION_PER_VIEW,
     teacherPage * COLLECTION_PER_VIEW + COLLECTION_PER_VIEW,
   )
-  const heroBestSeller = bestSellerProducts[0] ?? featuredProducts[0] ?? null
-
   useEffect(() => {
     if (activeMerchProducts.length <= MERCH_PER_VIEW) return
 
@@ -247,9 +245,18 @@ export default function HomePage() {
           <p className="text-[9px] tracking-[0.16em] uppercase opacity-80">
             {product.featured ? 'Curated favourite' : 'Available now'}
           </p>
-          <p className="font-display text-[24px] leading-none">
-            {formatPrice(product.price)}
-          </p>
+          {isSaleActive(product) && product.sale_price !== null ? (
+            <div className="space-y-1">
+              <p className="text-[11px] line-through opacity-80">{formatPrice(product.price)}</p>
+              <p className="font-display text-[24px] leading-none">
+                {formatPrice(getEffectivePrice(product))}
+              </p>
+            </div>
+          ) : (
+            <p className="font-display text-[24px] leading-none">
+              {formatPrice(product.price)}
+            </p>
+          )}
         </div>
       </div>
 
@@ -340,25 +347,12 @@ export default function HomePage() {
             loop
             playsInline
             preload="metadata"
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-contain"
             aria-label="Rapha Lumina hero video"
           />
           <div className="absolute bottom-5 left-5 sm:bottom-7 sm:left-7 px-3.5 py-2 text-[10px] tracking-[0.14em] uppercase" style={{ backgroundColor: 'var(--rl-cream)', color: 'var(--rl-espresso)' }}>
             Enlightened Collection
           </div>
-          {heroBestSeller && (
-            <div className="absolute top-5 right-5 sm:top-7 sm:right-7 max-w-[220px] p-4 rounded-[22px] backdrop-blur-sm" style={{ backgroundColor: 'rgba(250, 248, 245, 0.84)', color: 'var(--rl-espresso)' }}>
-              <p className="text-[9px] tracking-[0.14em] uppercase mb-2" style={{ color: 'var(--rl-gold)' }}>
-                Best seller signal
-              </p>
-              <p className="font-display text-[22px] leading-none mb-1">
-                {heroBestSeller.bestseller_rank ? `#${heroBestSeller.bestseller_rank}` : 'Featured'}
-              </p>
-              <p className="text-[12px] leading-[1.6]">
-                {heroBestSeller.name}
-              </p>
-            </div>
-          )}
         </div>
       </section>
 

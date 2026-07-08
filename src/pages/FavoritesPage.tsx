@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from '@/db/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Product } from '@/types/types';
-import { normaliseProduct } from '@/lib/product';
+import { getEffectivePrice, isSaleActive, normaliseProduct } from '@/lib/product';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
@@ -80,7 +80,14 @@ export default function FavoritesPage() {
             </Link>
             <CardContent className="p-4">
               <h3 className="font-semibold mb-2 text-balance">{product.name}</h3>
-              <p className="text-lg font-bold mb-2">R {product.price.toFixed(2)}</p>
+              {isSaleActive(product) && product.sale_price !== null ? (
+                <div className="mb-2">
+                  <p className="text-sm text-muted-foreground line-through">R {product.price.toFixed(2)}</p>
+                  <p className="text-lg font-bold">R {getEffectivePrice(product).toFixed(2)}</p>
+                </div>
+              ) : (
+                <p className="text-lg font-bold mb-2">R {product.price.toFixed(2)}</p>
+              )}
               <Button
                 variant="outline"
                 size="sm"

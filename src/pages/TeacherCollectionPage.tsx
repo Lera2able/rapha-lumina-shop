@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/db/supabase';
 import type { Product } from '@/types/types';
-import { normaliseProducts } from '@/lib/product';
+import { getEffectivePrice, isSaleActive, normaliseProducts } from '@/lib/product';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
@@ -35,7 +35,7 @@ export default function TeacherCollectionPage() {
 
     const normalised = normaliseProducts(data);
     setProducts(normalised);
-    const max = normalised.length > 0 ? Math.max(...normalised.map(p => p.price), 1000) : 1000;
+    const max = normalised.length > 0 ? Math.max(...normalised.map(p => getEffectivePrice(p)), 1000) : 1000;
     setMaxPrice(max);
     setPriceRange([0, max]);
   };
@@ -48,13 +48,13 @@ export default function TeacherCollectionPage() {
     }
 
     filtered = filtered.filter(
-      p => p.price >= priceRange[0] && p.price <= priceRange[1]
+      p => getEffectivePrice(p) >= priceRange[0] && getEffectivePrice(p) <= priceRange[1]
     );
 
     if (sortBy === 'price-low') {
-      filtered.sort((a, b) => a.price - b.price);
+      filtered.sort((a, b) => getEffectivePrice(a) - getEffectivePrice(b));
     } else if (sortBy === 'price-high') {
-      filtered.sort((a, b) => b.price - a.price);
+      filtered.sort((a, b) => getEffectivePrice(b) - getEffectivePrice(a));
     } else {
       filtered.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
     }
@@ -209,7 +209,14 @@ export default function TeacherCollectionPage() {
                               </p>
                             </>
                           ) : (
-                            <p className="text-lg font-bold text-secondary">R {product.price.toFixed(2)}</p>
+                            isSaleActive(product) && product.sale_price !== null ? (
+                              <div>
+                                <p className="text-sm text-muted-foreground line-through">R {product.price.toFixed(2)}</p>
+                                <p className="text-lg font-bold text-secondary">R {getEffectivePrice(product).toFixed(2)}</p>
+                              </div>
+                            ) : (
+                              <p className="text-lg font-bold text-secondary">R {product.price.toFixed(2)}</p>
+                            )
                           )}
                         </CardContent>
                       </Card>

@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from '
 import { toast } from 'sonner'
 import type { CartItemLocal, Product } from '@/types/types'
 import { FREE_SHIPPING_THRESHOLD, SHIPPING_COST } from '@/lib/utils'
-import { normaliseProduct } from '@/lib/product'
+import { getEffectivePrice, normaliseProduct } from '@/lib/product'
 
 interface CartContextType {
   items: CartItemLocal[]
@@ -95,7 +95,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const clearCart = () => setItems([])
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0)
-  const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
+  const subtotal = items.reduce((sum, item) => sum + getEffectivePrice(item.product) * item.quantity, 0)
   const shippingCost = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : (subtotal > 0 ? SHIPPING_COST : 0)
   const grandTotal = subtotal + shippingCost
 

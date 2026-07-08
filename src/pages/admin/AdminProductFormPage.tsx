@@ -34,6 +34,10 @@ export default function AdminProductFormPage() {
     collection: 'enlightened' as CollectionType,
     category: '',
     price: '',
+    saleEnabled: false,
+    salePrice: '',
+    saleStartDate: '',
+    saleEndDate: '',
     stock: '',
     sizes: [] as string[],
     featured: false,
@@ -63,6 +67,10 @@ export default function AdminProductFormPage() {
           collection: product.collection,
           category: product.category,
           price: product.price.toString(),
+          saleEnabled: product.sale_enabled,
+          salePrice: product.sale_price?.toString() ?? '',
+          saleStartDate: product.sale_start_date ?? '',
+          saleEndDate: product.sale_end_date ?? '',
           stock: product.stock.toString(),
           sizes: product.sizes,
           featured: product.featured,
@@ -162,6 +170,31 @@ export default function AdminProductFormPage() {
       return;
     }
 
+    if (formData.saleEnabled) {
+      const basePrice = parseFloat(formData.price);
+      const salePrice = parseFloat(formData.salePrice);
+
+      if (Number.isNaN(salePrice)) {
+        toast.error('Please enter the current sale price.');
+        return;
+      }
+
+      if (salePrice >= basePrice) {
+        toast.error('The sale price must be lower than the regular price.');
+        return;
+      }
+
+      if ((formData.saleStartDate && !formData.saleEndDate) || (!formData.saleStartDate && formData.saleEndDate)) {
+        toast.error('Please provide both sale start and end dates.');
+        return;
+      }
+
+      if (formData.saleStartDate && formData.saleEndDate && formData.saleEndDate < formData.saleStartDate) {
+        toast.error('The sale end date must be the same as or later than the sale start date.');
+        return;
+      }
+    }
+
     setLoading(true);
 
     try {
@@ -191,6 +224,10 @@ export default function AdminProductFormPage() {
         collection: formData.collection,
         category: formData.category,
         price: parseFloat(formData.price),
+        sale_enabled: formData.saleEnabled,
+        sale_price: formData.saleEnabled ? parseFloat(formData.salePrice) : null,
+        sale_start_date: formData.saleEnabled && formData.saleStartDate ? formData.saleStartDate : null,
+        sale_end_date: formData.saleEnabled && formData.saleEndDate ? formData.saleEndDate : null,
         image_url: primaryImage,
         additional_images: additionalImages.length > 0 ? additionalImages : null,
         video_url: videoUrl || null,
@@ -368,6 +405,83 @@ export default function AdminProductFormPage() {
                   required
                 />
               </div>
+            </div>
+
+            <div className="space-y-4 rounded-lg border p-4 bg-muted/20">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="sale-enabled"
+                  checked={formData.saleEnabled}
+                  onCheckedChange={(checked) =>
+                    setFormData({
+                      ...formData,
+                      saleEnabled: checked as boolean,
+                      salePrice: checked ? formData.salePrice : '',
+                      saleStartDate: checked ? formData.saleStartDate : '',
+                      saleEndDate: checked ? formData.saleEndDate : '',
+                    })
+                  }
+                />
+                <Label htmlFor="sale-enabled" className="cursor-pointer">
+                  This product is on sale
+                </Label>
+              </div>
+
+              {formData.saleEnabled && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="was-price">Was R *</Label>
+                      <Input
+                        id="was-price"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={formData.price}
+                        onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="sale-price">Now R *</Label>
+                      <Input
+                        id="sale-price"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={formData.salePrice}
+                        onChange={(e) => setFormData({ ...formData, salePrice: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="sale-start-date">From date *</Label>
+                      <Input
+                        id="sale-start-date"
+                        type="date"
+                        value={formData.saleStartDate}
+                        onChange={(e) => setFormData({ ...formData, saleStartDate: e.target.value })}
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="sale-end-date">To date *</Label>
+                      <Input
+                        id="sale-end-date"
+                        type="date"
+                        value={formData.saleEndDate}
+                        onChange={(e) => setFormData({ ...formData, saleEndDate: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div>
