@@ -72,7 +72,7 @@ export default function EnlightenedCollectionPage() {
       <PageMeta
         title="Rapha Lumina Collection | Rapha Lumina"
         description="Shop the Rapha Lumina Collection for spiritually inspired apparel, teacher gifts, journals, tote bags, water bottles, and meaningful accessories shaped by healing, purpose, and sacred symbolism in South Africa."
-        canonicalPath="/enlightened"
+        canonicalPath="/products"
         ogImage="https://raphalumina.com/og-enlightened.svg"
         ogImageAlt="Rapha Lumina Collection social preview card"
       />

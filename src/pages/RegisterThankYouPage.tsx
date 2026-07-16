@@ -57,7 +57,7 @@ export default function RegisterThankYouPage() {
               <div>
                 <h3 className="font-medium mb-1">Discover Our Collections</h3>
                 <p className="text-sm text-muted-foreground">
-                  Browse the Enlightened and Teacher collections featuring spiritual apparel, crystals, and sacred accessories.
+                  Browse the Rapha Lumina collection featuring spiritually inspired products, teacher gifts, and meaningful everyday accessories.
                 </p>
               </div>
             </div>
@@ -68,7 +68,7 @@ export default function RegisterThankYouPage() {
             <Link to="/">Start Shopping</Link>
           </Button>
           <Button asChild variant="outline" className="w-full">
-            <Link to="/enlightened">Explore Rapha Lumina Collection</Link>
+            <Link to="/products">Explore Rapha Lumina Collection</Link>
           </Button>
         </CardFooter>
       </Card>

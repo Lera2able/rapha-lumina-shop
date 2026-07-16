@@ -155,7 +155,7 @@ export default function AboutPage() {
                   Welcome home, awakened soul.
                 </p>
                 <Button asChild size="lg" className="px-8">
-                  <Link to="/enlightened">Explore the Collection</Link>
+                  <Link to="/products">Explore the Collection</Link>
                 </Button>
               </CardContent>
             </Card>

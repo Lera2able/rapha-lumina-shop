@@ -12,7 +12,7 @@ export function Header() {
 
   const navLinks = [
     { to: '/', label: 'Home' },
-    { to: '/enlightened', label: 'Collection' },
+    { to: '/products', label: 'Collection' },
     { to: '/about', label: 'About' },
     { to: '/faq', label: 'FAQ' },
   ]

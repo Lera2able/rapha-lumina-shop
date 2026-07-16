@@ -56,14 +56,20 @@ export const routes: RouteConfig[] = [
   },
   {
     name: 'Rapha Lumina Collection',
-    path: '/enlightened',
+    path: '/products',
     element: <EnlightenedCollectionPage />,
     public: true,
   },
   {
     name: 'Collection Redirect',
     path: '/teacher',
-    element: <Navigate to="/enlightened" replace />,
+    element: <Navigate to="/products" replace />,
+    public: true,
+  },
+  {
+    name: 'Legacy Collection Redirect',
+    path: '/enlightened',
+    element: <Navigate to="/products" replace />,
     public: true,
   },
   {

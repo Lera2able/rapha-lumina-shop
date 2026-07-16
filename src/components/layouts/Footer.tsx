@@ -40,7 +40,7 @@ export function Footer() {
             <h3 className="text-[10px] tracking-[0.15em] uppercase text-rl-gold mb-6 font-body">Collections</h3>
             <ul className="space-y-3 text-sm">
               <li>
-                <Link to="/enlightened" className="text-rl-cream/70 hover:text-rl-cream transition-colors font-body">
+                <Link to="/products" className="text-rl-cream/70 hover:text-rl-cream transition-colors font-body">
                   Rapha Lumina Collection
                 </Link>
               </li>

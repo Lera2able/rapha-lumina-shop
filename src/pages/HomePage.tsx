@@ -285,7 +285,7 @@ export default function HomePage() {
             Shop spiritually inspired apparel, teacher gifts, journals, tote bags, bottles, and meaningful everyday accessories from Rapha Lumina. The symbolism stays soulful, but the collection is especially strong for teachers and people who want purpose-led tools they can actually use.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 mb-10 md:mb-14">
-            <Link to="/enlightened" className="btn-primary">
+            <Link to="/products" className="btn-primary">
               Explore collection
               <ArrowRight className="h-4 w-4" />
             </Link>
@@ -323,7 +323,7 @@ export default function HomePage() {
 
       {/* Collections Section */}
       <section id="collections" className="grid grid-cols-1 gap-0.5 border-b border-rl-espresso/10">
-        <Link to="/enlightened" className="group relative h-[420px] sm:h-[520px] overflow-hidden" style={{ backgroundColor: 'var(--rl-sage-lt)' }}>
+        <Link to="/products" className="group relative h-[420px] sm:h-[520px] overflow-hidden" style={{ backgroundColor: 'var(--rl-sage-lt)' }}>
           <div className="absolute inset-0 transition-transform ease-out group-hover:scale-[1.04]" style={{ backgroundColor: 'var(--rl-sage-lt)', transitionDuration: '600ms' }}>
             <svg
               viewBox="-150 -150 300 300"
@@ -392,7 +392,7 @@ export default function HomePage() {
                 Showing {merchStart}-{merchEnd} of {activeMerchProducts.length}
               </p>
               <Link
-                to="/enlightened"
+                to="/products"
                 className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.14em] uppercase transition-colors"
                 style={{ color: 'var(--rl-gold)' }}
               >

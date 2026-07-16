@@ -20,7 +20,7 @@ Disallow: /payment-callback
 
 # Allow all other pages
 Allow: /
-Allow: /enlightened
+Allow: /products
 Allow: /teacher
 Allow: /about
 Allow: /contact
